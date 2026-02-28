@@ -39,7 +39,7 @@ function EditClass() {
   const handleUpdate = async (e) => {
     e.preventDefault(); // 🔥 VERY IMPORTANT
 
-     const res = await fetch(`http://localhost:5000/api/class/${id}`, {
+     const res = await fetch(`http://localhost:5000/api/classes/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
