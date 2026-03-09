@@ -1,0 +1,1 @@
+export const BASE_URL = "https://on-exam-sys.onrender.com/api";

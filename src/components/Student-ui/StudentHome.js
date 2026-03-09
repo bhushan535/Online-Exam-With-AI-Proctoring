@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./StudentHome.css";
-import gplogo from "../Auth/gplogo.jpeg"; 
+import gplogo from "../Student-ui/gplogo.jpeg"; 
 import { MdOutlineEditNote } from "react-icons/md";
 import { HiOutlineChartBar } from "react-icons/hi";
 
