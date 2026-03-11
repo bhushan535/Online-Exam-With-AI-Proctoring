@@ -27,7 +27,7 @@ function CreateClass() {
 
     const payload = { className, branch, year, semester };
 
-    const res = await fetch("http://localhost:5000/api/classes", {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/classes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

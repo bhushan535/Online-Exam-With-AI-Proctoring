@@ -37,7 +37,7 @@ function AttemptExamPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const examRes = await fetch("http://localhost:5000/api/exams");
+        const examRes = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
         const exams = await examRes.json();
         const exam = exams.find(e => e._id === examId);
 
@@ -49,7 +49,7 @@ function AttemptExamPage() {
 
         setTimeLeft(exam.duration * 60);
 
-        const res = await fetch(`http://localhost:5000/api/questions/${examId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/questions/${examId}`);
         const data = await res.json();
         setQuestions(data);
       } catch (err) {
@@ -132,7 +132,7 @@ function AttemptExamPage() {
 
     try {
       const student = JSON.parse(localStorage.getItem("student")) || {};
-      await fetch("http://localhost:5000/api/exams/submit", {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/exams/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

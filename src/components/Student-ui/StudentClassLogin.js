@@ -19,7 +19,7 @@ function StudentClassLogin() {
     setErrorMsg("");
 
     try {
-      const res  = await fetch("http://localhost:5000/api/student/class-login", {
+      const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/student/class-login`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ enrollment, password, classId }),

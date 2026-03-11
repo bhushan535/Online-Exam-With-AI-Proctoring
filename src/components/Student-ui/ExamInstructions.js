@@ -18,7 +18,7 @@ function ExamInstructions() {
   const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exams/${examId}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/exams/${examId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch exam");
         return res.json();
@@ -45,7 +45,7 @@ function ExamInstructions() {
 
     try {
       const student = JSON.parse(localStorage.getItem("student")) || {};
-      const res = await fetch("http://localhost:5000/api/exams/verify-code", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/verify-code`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({

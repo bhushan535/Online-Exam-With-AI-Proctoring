@@ -4,14 +4,14 @@ import "./TeacherLogin.css";
 
 function TeacherLogin() {
   const navigate = useNavigate();
-  const [UserName, setUserName] = useState("");   // ✅ UserName
+  const [UserName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/teacher/login",
+        `${process.env.REACT_APP_API_URL}/api/teacher/login`,
         {
           method: "POST",
           headers: {
@@ -24,7 +24,6 @@ function TeacherLogin() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // ✅ teacher save
         localStorage.setItem("teacher", JSON.stringify(data.teacher));
         navigate("/TeacherHome");
       } else {
@@ -32,6 +31,13 @@ function TeacherLogin() {
       }
     } catch (err) {
       setError("Server not responding");
+    }
+  };
+
+  /* Enter key triggers login */
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleLogin();
     }
   };
 
@@ -43,9 +49,10 @@ function TeacherLogin() {
         <input
           className="input"
           type="text"
-          placeholder="Enter Text"
+          placeholder="Enter Username"
           value={UserName}
           onChange={(e) => setUserName(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
 
         <input
@@ -54,6 +61,7 @@ function TeacherLogin() {
           placeholder="Enter Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
 
         {error && <p style={{ color: "red" }}>{error}</p>}

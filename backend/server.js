@@ -4,7 +4,16 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// CORS — allow localhost + Vercel domain
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    /\.vercel\.app$/       // allow all *.vercel.app subdomains
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // ROUTES
@@ -13,7 +22,7 @@ app.use("/api", require("./routes/examRoutes"));
 app.use("/api", require("./routes/questionRoutes"));
 app.use("/api", require("./routes/teacherRoutes"));
 app.use("/api", require("./routes/studentAuthRoutes"));
-app.use("/api/results", require("./routes/resultRoutes"));
+app.use("/api", require("./routes/resultRoutes"));   // ← fixed: was "/api/results" (doubled prefix)
 
 const PORT = process.env.PORT || 5000;
 

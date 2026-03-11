@@ -152,6 +152,39 @@ router.post("/class/join/:classId", async (req, res) => {
 });
 
 // ==============================
+// IMPORT STUDENTS FROM EXCEL
+// ==============================
+router.post("/class/import-students/:classId", async (req, res) => {
+  try {
+    const { students } = req.body;
+    const classDoc = await Class.findById(req.params.classId);
+    if (!classDoc) return res.status(404).json({ success: false, message: "Class not found" });
+
+    const existing    = new Set(classDoc.students.map(s => s.enrollment));
+    const newStudents = students.filter(s => !existing.has(String(s.enrollment)));
+
+    classDoc.students.push(...newStudents.map(s => ({
+      rollNo:     Number(s.rollNo),
+      enrollment: String(s.enrollment).trim(),
+      name:       String(s.name).trim(),
+      password:   String(s.password).trim(),
+      joinedAt:   new Date(),
+    })));
+
+    await classDoc.save();
+
+    res.json({
+      success: true,
+      added:   newStudents.length,
+      skipped: students.length - newStudents.length,
+      message: `${newStudents.length} students imported. ${students.length - newStudents.length} duplicates skipped.`,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==============================
 // UPDATE CLASS (EDIT)
 // ==============================
 router.put("/class/:id", async (req, res) => {

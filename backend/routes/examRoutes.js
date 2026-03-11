@@ -145,6 +145,88 @@ router.post("/exams/verify-code", async (req, res) => {
 });
 
 
+/* ======================
+SUBMIT EXAM (placed before generic :id routes)
+====================== */
+router.post("/exams/submit", async (req, res) => {
+  try {
+    const { examId, answers, studentId } = req.body;
+    
+    const Result = require("../models/Result");
+
+    const questions = await Question.find({ examId });
+    const exam = await Exam.findById(examId);
+    
+    if (!exam) return res.status(404).json({ message: "Exam not found" });
+
+    // Prevent duplicate submissions
+    const existing = await Result.findOne({ examId, studentId });
+    if (existing) {
+      return res.json({
+        success: true,
+        score: existing.score,
+        totalMarks: existing.totalMarks,
+        alreadySubmitted: true
+      });
+    }
+
+    const marksPerQuestion = exam.marksPerQuestion || (exam.totalMarks / exam.totalQuestions);
+    let score = 0, correct = 0, wrong = 0, unattempted = 0;
+
+    questions.forEach(q => {
+      const studentAnswer = answers[q._id.toString()];
+      if (!studentAnswer) {
+        unattempted++;
+      } else if (studentAnswer.trim() === q.correctAnswer.trim()) {
+        correct++;
+        score += marksPerQuestion;
+      } else {
+        wrong++;
+      }
+    });
+
+    score = Math.round(score * 100) / 100;
+    const percentage = Math.round((score / exam.totalMarks) * 100);
+    let grade = "F";
+    if (percentage >= 90) grade = "A";
+    else if (percentage >= 75) grade = "B";
+    else if (percentage >= 60) grade = "C";
+    else if (percentage >= 45) grade = "D";
+
+    // Try to get student name from Class
+    let studentName = studentId;
+    try {
+      const classData = await Class.findById(exam.classId);
+      if (classData) {
+        const found = classData.students.find(s => s.enrollment === studentId);
+        if (found) studentName = found.name;
+      }
+    } catch(e) {}
+
+    const result = new Result({
+      examId,
+      studentId,
+      studentName,
+      answers,
+      score,
+      totalMarks: exam.totalMarks,
+      correct,
+      wrong,
+      unattempted,
+      percentage,
+      grade,
+      submittedAt: new Date()
+    });
+
+    await result.save();
+    res.json({ success: true, score, totalMarks: exam.totalMarks, correct, wrong, unattempted, percentage, grade });
+
+  } catch (err) {
+    console.error("SUBMIT ERROR:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // 2. Specific named GET routes
 
 /* ======================
@@ -263,88 +345,6 @@ router.delete("/exams/:id", async (req, res) => {
     res.json({ success: true, message: "Exam deleted successfully" });
   } catch (err) {
     console.error("DELETE EXAM ERROR:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-/* ======================
-SUBMIT EXAM
-====================== */
-router.post("/exams/submit", async (req, res) => {
-  try {
-    const { examId, answers, studentId } = req.body;
-    
-    const Result = require("../models/Result");
-
-    const questions = await Question.find({ examId });
-    const exam = await Exam.findById(examId);
-    
-    if (!exam) return res.status(404).json({ message: "Exam not found" });
-
-    // Prevent duplicate submissions
-    const existing = await Result.findOne({ examId, studentId });
-    if (existing) {
-      return res.json({
-        success: true,
-        score: existing.score,
-        totalMarks: existing.totalMarks,
-        alreadySubmitted: true
-      });
-    }
-
-    const marksPerQuestion = exam.marksPerQuestion || (exam.totalMarks / exam.totalQuestions);
-    let score = 0, correct = 0, wrong = 0, unattempted = 0;
-
-    questions.forEach(q => {
-      // Cast the question _id explicitly to string to match exact payload shape
-      const studentAnswer = answers[q._id.toString()];
-      if (!studentAnswer) {
-        unattempted++;
-      } else if (studentAnswer.trim() === q.correctAnswer.trim()) {
-        correct++;
-        score += marksPerQuestion;
-      } else {
-        wrong++;
-      }
-    });
-
-    score = Math.round(score * 100) / 100;
-    const percentage = Math.round((score / exam.totalMarks) * 100);
-    let grade = "F";
-    if (percentage >= 90) grade = "A";
-    else if (percentage >= 75) grade = "B";
-    else if (percentage >= 60) grade = "C";
-    else if (percentage >= 45) grade = "D";
-
-    // Try to get student name from Class
-    let studentName = studentId;
-    try {
-      const classData = await Class.findById(exam.classId);
-      if (classData) {
-        const found = classData.students.find(s => s.enrollment === studentId);
-        if (found) studentName = found.name;
-      }
-    } catch(e) {}
-
-    const result = new Result({
-      examId,
-      studentId,
-      studentName,
-      answers,
-      score,
-      totalMarks: exam.totalMarks,
-      correct,
-      wrong,
-      unattempted,
-      percentage,
-      grade,
-      submittedAt: new Date()
-    });
-
-    await result.save();
-    res.json({ success: true, score, totalMarks: exam.totalMarks, correct, wrong, unattempted, percentage, grade });
-
-  } catch (err) {
-    console.error("SUBMIT ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });

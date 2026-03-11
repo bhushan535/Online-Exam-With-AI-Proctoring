@@ -25,7 +25,7 @@ function EditClass() {
 
   /* ================= FETCH CLASS ================= */
   useEffect(() => {
-    fetch(`http://localhost:5000/api/class/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setClassName(data.className);
@@ -41,7 +41,7 @@ function EditClass() {
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`http://localhost:5000/api/classes/${id}`, {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/classes/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ className, branch, year, semester }),

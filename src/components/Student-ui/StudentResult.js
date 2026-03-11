@@ -1,95 +1,130 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./StudentResult.css";
-import Spinner from "../Spinner";
 
 function StudentResult() {
-  const { examId } = useParams();
   const navigate = useNavigate();
+  const student  = JSON.parse(localStorage.getItem("student") || "{}");
 
-  const [studentId, setStudentId] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error,   setError]   = useState("");
 
   useEffect(() => {
-    const student = JSON.parse(localStorage.getItem("student"));
-    if (student) {
-      setStudentId(student.enrollment);
-    } else {
-      setError("Not logged in");
-      setLoading(false);
+    if (!student?.enrollment) {
+      navigate("/StudentHome");
+      return;
     }
+    fetch(`${process.env.REACT_APP_API_URL}/api/results/student/${student.enrollment}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) setResults(d.results);
+        else setError("Could not load results.");
+      })
+      .catch(() => setError("Connection error."))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line
   }, []);
 
-  useEffect(() => {
-    if (!studentId) return;
+  /* Summary stats */
+  const totalExams   = results.length;
+  const avgPct       = totalExams ? Math.round(results.reduce((s, r) => s + r.percentage, 0) / totalExams) : 0;
+  const gradeRank    = { A: 5, B: 4, C: 3, D: 2, F: 1 };
+  const bestGrade    = totalExams ? results.reduce((b, r) => ((gradeRank[r.grade] || 0) > (gradeRank[b] || 0) ? r.grade : b), "F") : "—";
+  const totalCorrect = results.reduce((s, r) => s + (r.correct || 0), 0);
 
-    fetch(`http://localhost:5000/api/results/student/${studentId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch results");
-        return res.json();
-      })
-      .then((data) => {
-        setResults(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [studentId]);
+  /* Helpers */
+  const gradeColor = (g) => ({ A: "#16a34a", B: "#2563eb", C: "#d97706", D: "#ea580c", F: "#dc2626" }[g] || "#6b7280");
+  const barColor   = (pct) => pct >= 75 ? "#22c55e" : pct >= 40 ? "#f59e0b" : "#ef4444";
+  const fmtDate    = (d) => d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "—";
 
-  if (loading) return <Spinner text="Loading your results..." />;
-  if (error) return <div className="error-msg">{error}</div>;
+  if (loading) return (
+    <div className="sr-center"><div className="sr-spinner" /><p>Loading results...</p></div>
+  );
+  if (error) return (
+    <div className="sr-center">
+      <p className="sr-error-msg">{error}</p>
+      <button className="sr-go-btn" onClick={() => window.location.reload()}>Retry</button>
+    </div>
+  );
 
   return (
-    <div className="student-results-page">
-      <div className="header-bar">
-        <button className="back-btn" onClick={() => navigate("/StudentHome")}>
-          ← Back to Dashboard
-        </button>
-        <h2>📄 My Exam Results</h2>
+    <div className="sr-page">
+
+      {/* Header */}
+      <div className="sr-header">
+        <button className="sr-back" onClick={() => navigate("/StudentHome")}>← Back</button>
+        <div className="sr-header-text">
+          <h1 className="sr-title">📊 My Exam Results</h1>
+          <p className="sr-student-name">{student.name}</p>
+        </div>
       </div>
 
-      <div className="results-grid">
-        {results.length === 0 ? (
-          <p className="no-results">You have not completed any exams yet.</p>
-        ) : (
-          results.map((r) => (
-            <div className="result-card" key={r._id}>
-              <div className="r-card-header">
-                <h3>{r.examName || (r.examId && r.examId.examName) || "Unknown Exam"}</h3>
-                <span className={`badge-grade grade-${r.result?.toLowerCase() || (r.percentage >= 40 ? "pass" : "fail")}`}>
-                  {r.result || (r.percentage >= 40 ? "Pass" : "Fail")}
+      {/* Summary row */}
+      {totalExams > 0 && (
+        <div className="sr-summary">
+          <div className="sr-stat"><span className="sr-stat-val">{totalExams}</span><span className="sr-stat-lbl">Exams Attempted</span></div>
+          <div className="sr-stat"><span className="sr-stat-val">{avgPct}%</span><span className="sr-stat-lbl">Average Score</span></div>
+          <div className="sr-stat"><span className="sr-stat-val" style={{ color: gradeColor(bestGrade) }}>{bestGrade}</span><span className="sr-stat-lbl">Best Grade</span></div>
+          <div className="sr-stat"><span className="sr-stat-val">{totalCorrect}</span><span className="sr-stat-lbl">Total Correct</span></div>
+        </div>
+      )}
+
+      {/* Results list */}
+      {results.length === 0 ? (
+        <div className="sr-empty">
+          <div className="sr-empty-icon">📭</div>
+          <h3>No results yet</h3>
+          <p>Attempt an exam first. Your results will appear here.</p>
+          <button className="sr-go-btn" onClick={() => navigate("/attempt-exams")}>Go Attempt Exam →</button>
+        </div>
+      ) : (
+        <div className="sr-list">
+          {results.map((r) => (
+            <div className="sr-card" key={r._id}>
+
+              {/* Card top */}
+              <div className="sr-card-top">
+                <div className="sr-card-left">
+                  <h3 className="sr-exam-name">{r.examName}</h3>
+                  <span className="sr-subject">{r.subject}{r.subCode ? ` (${r.subCode})` : ""}</span>
+                  <span className="sr-date">📅 {fmtDate(r.submittedAt)}</span>
+                </div>
+                <div className="sr-grade-circle" style={{ background: gradeColor(r.grade) }}>{r.grade}</div>
+              </div>
+
+              {/* Score + % */}
+              <div className="sr-score-row">
+                <span className="sr-score">{r.score} / {r.totalMarks}</span>
+                <span className="sr-pct">{r.percentage}%</span>
+              </div>
+
+              {/* Progress bar */}
+              <div className="sr-bar-bg">
+                <div className="sr-bar-fill" style={{ width: `${r.percentage}%`, background: barColor(r.percentage) }} />
+              </div>
+
+              {/* Counts */}
+              <div className="sr-counts">
+                <span className="sr-cnt sr-cnt-correct">✅ Correct: <strong>{r.correct}</strong></span>
+                <span className="sr-cnt sr-cnt-wrong">❌ Wrong: <strong>{r.wrong}</strong></span>
+                <span className="sr-cnt sr-cnt-skip">➖ Skipped: <strong>{r.unattempted}</strong></span>
+              </div>
+
+              {/* Pass/Fail */}
+              <div className="sr-result-tag-wrap">
+                <span className="sr-result-tag" style={{
+                  background: r.percentage >= 40 ? "#f0fdf4" : "#fff5f5",
+                  color: r.percentage >= 40 ? "#16a34a" : "#dc2626",
+                  border: `1.5px solid ${r.percentage >= 40 ? "#86efac" : "#fca5a5"}`
+                }}>
+                  {r.percentage >= 40 ? "✔ Pass" : "✘ Fail"}
                 </span>
               </div>
-              <div className="r-card-body">
-                <div className="score-ring">
-                  <svg viewBox="0 0 36 36" className="circular-chart blue">
-                    <path
-                      className="circle-bg"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <path
-                      className="circle"
-                      strokeDasharray={`${r.percentage}, 100`}
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <text x="18" y="20.35" className="percentage">
-                      {r.percentage}%
-                    </text>
-                  </svg>
-                </div>
-                <div className="score-details">
-                  <p><b>Score:</b> {r.marks} / {r.totalMarks || (r.examId && r.examId.totalMarks)}</p>
-                  <p><b>Date:</b> {new Date(r.submittedAt).toLocaleDateString()}</p>
-                </div>
-              </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

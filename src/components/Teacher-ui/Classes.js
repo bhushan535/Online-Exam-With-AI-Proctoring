@@ -19,7 +19,7 @@ function Classes() {
   const [deleteModal, setDeleteModal] = useState({ open: false, targetId: null });
 
   const fetchClasses = async () => {
-    const res = await fetch("http://localhost:5000/api/classes");
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/classes`);
     const data = await res.json();
     setClasses(data);
   };
@@ -29,7 +29,7 @@ function Classes() {
   }, []);
 
   const confirmDeleteClass = async (id) => {
-    await fetch(`http://localhost:5000/api/class/${id}`, { method: "DELETE" });
+    await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}`, { method: "DELETE" });
     fetchClasses();
     showToast("Class deleted.", "info");
   };

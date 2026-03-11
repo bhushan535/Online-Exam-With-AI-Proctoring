@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
 import Toast      from "../Toast";
 import useToast   from "../useToast";
 import PopupModal from "../PopupModal";
@@ -13,7 +14,7 @@ function ViewClass() {
 
   /* ================= FETCH CLASS ================= */
   const fetchClass = async () => {
-    const res = await fetch(`http://localhost:5000/api/class/${id}`);
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}`);
     const data = await res.json();
     setCls(data);
   };
@@ -26,6 +27,9 @@ function ViewClass() {
   if (!cls) return <p>Loading...</p>;
 
   const sortedStudents = [...cls.students].sort((a, b) => a.rollNo - b.rollNo);
+
+  /* ================= JOIN LINK (dynamic) ================= */
+  const joinLink = `${window.location.origin}/join-class/${id}`;
 
   /* ================= EXPORT CSV ================= */
   const exportStudents = () => {
@@ -50,9 +54,75 @@ function ViewClass() {
     showToast("Student list exported!", "success");
   };
 
+  /* ================= DOWNLOAD TEMPLATE ================= */
+  const downloadTemplate = () => {
+    const data = [
+      { "Roll No": "", "Enrollment Number": "", "Student Name": "", "Password": "" }
+    ];
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws["!cols"] = [{ wch: 10 }, { wch: 22 }, { wch: 30 }, { wch: 15 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, "student_import_template.xlsx");
+    showToast("Template downloaded!", "success");
+  };
+
+  /* ================= IMPORT STUDENTS ================= */
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const wb   = XLSX.read(evt.target.result, { type: "binary" });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws);
+
+        if (!rows.length) {
+          showToast("The file is empty.", "warning");
+          return;
+        }
+
+        // Validate required columns
+        const required = ["Roll No", "Enrollment Number", "Student Name", "Password"];
+        const missing  = required.filter(k => !Object.keys(rows[0]).includes(k));
+        if (missing.length) {
+          showToast(`Missing columns: ${missing.join(", ")}. Please use the template.`, "error");
+          return;
+        }
+
+        const students = rows.map(r => ({
+          rollNo:     Number(r["Roll No"]),
+          enrollment: String(r["Enrollment Number"]).trim(),
+          name:       String(r["Student Name"]).trim(),
+          password:   String(r["Password"]).trim(),
+        }));
+
+        const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/class/import-students/${id}`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ students }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(data.message, "success");
+          fetchClass(); // re-fetch class to update student list
+        } else {
+          showToast(data.message || "Import failed.", "error");
+        }
+      } catch (err) {
+        showToast("Error reading file. Use the downloaded template format.", "error");
+      }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = ""; // reset so same file can be re-imported
+  };
+
   /* ================= DELETE STUDENT ================= */
   const confirmDeleteStudent = async (studentId) => {
-    await fetch(`http://localhost:5000/api/class/${id}/student/${studentId}`, { method: "DELETE" });
+    await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}/student/${studentId}`, { method: "DELETE" });
     fetchClass();
     showToast("Student removed.", "info");
   };
@@ -68,7 +138,7 @@ function ViewClass() {
       return;
     }
 
-    await fetch(`http://localhost:5000/api/class/${id}/student/${student._id}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}/student/${student._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, rollNo, password }),
@@ -92,9 +162,9 @@ function ViewClass() {
 
       <div className="class-link-box">
         <p><b>Class Join Link:</b></p>
-        <input value={`http://localhost:3000/join-class/${id}`} readOnly />
+        <input value={joinLink} readOnly />
         <button onClick={() => {
-          navigator.clipboard.writeText(`http://localhost:3000/join-class/${id}`);
+          navigator.clipboard.writeText(joinLink);
           showToast("Link copied to clipboard!", "success");
         }}>
           Copy Link
@@ -105,7 +175,19 @@ function ViewClass() {
 
       <div className="export-row">
         <h3>Joined Students ({sortedStudents.length})</h3>
-        <button className="export-btn" onClick={exportStudents}>Export Student List</button>
+        <div className="action-btns-row">
+          <button className="export-btn" onClick={exportStudents}>📥 Export List</button>
+          <button className="template-btn" onClick={downloadTemplate}>📄 Download Template</button>
+          <label className="import-btn">
+            📤 Import Students
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              style={{ display: "none" }}
+              onChange={handleImport}
+            />
+          </label>
+        </div>
       </div>
 
       {sortedStudents.length === 0 ? (

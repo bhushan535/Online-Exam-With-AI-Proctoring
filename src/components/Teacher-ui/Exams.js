@@ -26,7 +26,7 @@ const fetchExams = async()=>{
 
 try{
 
-const res = await fetch("http://localhost:5000/api/exams");
+const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
 const data = await res.json();
 
 if(Array.isArray(data)){
@@ -83,7 +83,7 @@ return "ENDED";
 /* DELETE */
 
 const confirmDeleteExam = async (id) => {
-  await fetch(`http://localhost:5000/api/exams/${id}`, { method: "DELETE" });
+  await fetch(`${process.env.REACT_APP_API_URL}/api/exams/${id}`, { method: "DELETE" });
   fetchExams();
   showToast("Exam deleted.", "info");
 };
@@ -94,7 +94,7 @@ const togglePublish = async(exam)=>{
 
 try{
 
-const res = await fetch(`http://localhost:5000/api/exams/toggle-publish/${exam._id}`,{
+const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/toggle-publish/${exam._id}`,{
 method:"PUT"
 });
 
@@ -123,7 +123,7 @@ const generateCodes = async(exam)=>{
 try{
 
 const res = await fetch(
-`http://localhost:5000/api/exams/generate-codes/${exam._id}`,
+`${process.env.REACT_APP_API_URL}/api/exams/generate-codes/${exam._id}`,
 {
 method:"POST",
 headers:{

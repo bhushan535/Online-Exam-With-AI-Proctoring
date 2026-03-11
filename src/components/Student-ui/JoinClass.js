@@ -1,60 +1,133 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
-import Toast    from "../Toast";
-import useToast from "../useToast";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "./JoinClass.css";
 
 function JoinClass() {
   const { classId } = useParams();
-  const { toasts, showToast, removeToast } = useToast();
+  const navigate    = useNavigate();
 
-  const [rollNo, setRollNo] = useState("");
+  const [classInfo,  setClassInfo]  = useState(null);
+  const [rollNo,     setRollNo]     = useState("");
   const [enrollment, setEnrollment] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
+  const [name,       setName]       = useState("");
+  const [password,   setPassword]   = useState("");
+  const [errorMsg,   setErrorMsg]   = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [loading,    setLoading]    = useState(false);
+
+  // Fetch class name to show at top of form
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
+      .then(r => r.json())
+      .then(d => { if (d) setClassInfo(d); })
+      .catch(() => {});
+  }, [classId]);
 
   const handleJoin = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
 
-    const res = await fetch(
-      `http://localhost:5000/api/class/join/${classId}`,
-      {
-        method: "POST",
+    if (!rollNo.trim())     { setErrorMsg("Please enter your Roll No.");       return; }
+    if (!enrollment.trim()) { setErrorMsg("Please enter your Enrollment No."); return; }
+    if (!name.trim())       { setErrorMsg("Please enter your full name.");      return; }
+    if (!password.trim())   { setErrorMsg("Please create a password.");         return; }
+
+    setLoading(true);
+    try {
+      const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/class/join/${classId}`, {
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rollNo: Number(rollNo),
-          enrollment,
-          name,
-          password,
-        }),
+        body:    JSON.stringify({ rollNo: Number(rollNo), enrollment, name, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.message || "Failed to join class. Please try again.");
+        return;
       }
-    );
 
-    const data = await res.json();
+      setSuccessMsg("✅ Joined successfully! You can now login with your enrollment and password.");
+      setTimeout(() => navigate("/StudentLogin"), 3000);
 
-    if (!res.ok) {
-      showToast(data.message || "Failed to join class", "error");
-      return;
-    }
-
-    if (data.success) {
-      localStorage.setItem("joinedClass", JSON.stringify({ classId }));
-      showToast("Joined class successfully! 🎉", "success");
+    } catch (err) {
+      setErrorMsg("Connection error. Please check your internet and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <Toast toasts={toasts} removeToast={removeToast} />
-      <h2>Join Class</h2>
+    <div className="jc-page">
+      <div className="jc-card">
 
-      <form onSubmit={handleJoin}>
-        <input type="number" placeholder="Roll No." value={rollNo} onChange={(e) => setRollNo(e.target.value)} required />
-        <input placeholder="Enrollment Number" value={enrollment} onChange={(e) => setEnrollment(e.target.value)} required />
-        <input placeholder="Student Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <div className="jc-header">
+          <div className="jc-logo">🎓</div>
+          <h1 className="jc-college">GOV. POLYTECHNIC SAKOLI</h1>
+          <h2 className="jc-title">Join Class</h2>
+        </div>
 
-        <button type="submit">Join Class</button>
-      </form>
+        {classInfo && (
+          <div className="jc-class-banner">
+            <strong>{classInfo.className}</strong>
+            &nbsp;·&nbsp; {classInfo.semester}
+            &nbsp;·&nbsp; {classInfo.year}
+            &nbsp;·&nbsp; {classInfo.branch}
+          </div>
+        )}
+
+        {successMsg ? (
+          <div className="jc-success">{successMsg}</div>
+        ) : (
+          <>
+            <form onSubmit={handleJoin} className="jc-form">
+
+              <input
+                className="jc-input"
+                type="number"
+                placeholder="Roll No."
+                value={rollNo}
+                autoFocus
+                onChange={(e) => { setRollNo(e.target.value); setErrorMsg(""); }}
+              />
+
+              <input
+                className="jc-input"
+                placeholder="Enrollment Number"
+                value={enrollment}
+                onChange={(e) => { setEnrollment(e.target.value); setErrorMsg(""); }}
+              />
+
+              <input
+                className="jc-input"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => { setName(e.target.value); setErrorMsg(""); }}
+              />
+
+              <input
+                className="jc-input"
+                type="password"
+                placeholder="Create Password (you'll use this to login)"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setErrorMsg(""); }}
+              />
+
+              {errorMsg && <p className="jc-error">{errorMsg}</p>}
+
+              <button type="submit" className="jc-btn" disabled={loading}>
+                {loading ? "Joining..." : "Join Class"}
+              </button>
+
+            </form>
+
+            <p className="jc-already">
+              Already joined?{" "}
+              <span onClick={() => navigate("/StudentLogin")}>Login Here →</span>
+            </p>
+          </>
+        )}
+
+      </div>
     </div>
   );
 }

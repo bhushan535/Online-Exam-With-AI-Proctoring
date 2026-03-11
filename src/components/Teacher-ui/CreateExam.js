@@ -34,7 +34,7 @@ const [classes,setClasses] = useState([]);
 
 useEffect(()=>{
 
-fetch("http://localhost:5000/api/classes")
+fetch(`${process.env.REACT_APP_API_URL}/api/classes`)
 .then(res=>res.json())
 .then(data=>setClasses(data));
 
@@ -117,7 +117,7 @@ totalMarks:Number(totalQuestions) * Number(marksPerQuestion)
 
 };
 
-const res = await fetch("http://localhost:5000/api/exams",{
+const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`,{
 
 method:"POST",
 

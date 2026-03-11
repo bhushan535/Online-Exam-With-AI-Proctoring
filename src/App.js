@@ -45,7 +45,6 @@ import JoinClass from "./components/Student-ui/JoinClass";
 function App() {
 return ( <BrowserRouter> <Routes>
 
-```
     {/* FRONT PAGE */}
     <Route path="/" element={<FrontPage />} />
 

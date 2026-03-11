@@ -25,7 +25,7 @@ function AddQuestion() {
 
   /* ================= FETCH EXAM DETAILS ================= */
   const fetchExam = async () => {
-    const res = await fetch(`http://localhost:5000/api/exams`);
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
     const data = await res.json();
     const exam = data.find((e) => e._id === examId);
     if (exam) {
@@ -35,7 +35,7 @@ function AddQuestion() {
 
   /* ================= FETCH QUESTIONS ================= */
   const fetchQuestions = async () => {
-    const res = await fetch(`http://localhost:5000/api/questions/${examId}`);
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/questions/${examId}`);
     const data = await res.json();
     setQuestions(data);
   };
@@ -57,11 +57,11 @@ function AddQuestion() {
 
     const payload = { examId, questionText, options, correctAnswer };
 
-    let url = "http://localhost:5000/api/questions";
+    let url = `${process.env.REACT_APP_API_URL}/api/questions`;
     let method = "POST";
 
     if (isEditing) {
-      url = `http://localhost:5000/api/questions/${editId}`;
+      url = `${process.env.REACT_APP_API_URL}/api/questions/${editId}`;
       method = "PUT";
     }
 
@@ -86,7 +86,7 @@ function AddQuestion() {
 
   /* ================= DELETE ================= */
   const deleteQuestion = async (id) => {
-    await fetch(`http://localhost:5000/api/questions/${id}`, { method: "DELETE" });
+    await fetch(`${process.env.REACT_APP_API_URL}/api/questions/${id}`, { method: "DELETE" });
     fetchQuestions();
   };
 

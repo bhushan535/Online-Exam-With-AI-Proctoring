@@ -21,7 +21,7 @@ function EditExam() {
 
   /* ================= FETCH EXAM ================= */
   useEffect(() => {
-    fetch(`http://localhost:5000/api/exams/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/exams/${id}`)
       .then((res) => res.json())
       .then((exam) => {
         if (!exam || exam.success === false) {
@@ -68,7 +68,7 @@ function EditExam() {
       return;
     }
 
-    const res = await fetch(`http://localhost:5000/api/exams/${id}`, {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

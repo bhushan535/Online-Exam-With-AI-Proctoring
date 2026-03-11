@@ -13,7 +13,7 @@ useEffect(()=>{
 
 if(!student || !student.classId) return;
 
-fetch(`http://localhost:5000/api/exams/student/${student.classId}`)
+fetch(`${process.env.REACT_APP_API_URL}/api/exams/student/${student.classId}`)
 .then(res=>res.json())
 .then(data=>{
 

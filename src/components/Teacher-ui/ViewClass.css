@@ -183,4 +183,22 @@ hr {
   font-size: 13px;
 }
 
+/* Action buttons row */
+.action-btns-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
+.template-btn {
+  padding: 8px 14px; background: #7c3aed; color: white;
+  border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.template-btn:hover { background: #6d28d9; }
+
+.import-btn {
+  padding: 8px 14px; background: #0891b2; color: white;
+  border: none; border-radius: 4px; font-size: 13px; font-weight: 600;
+  cursor: pointer; display: inline-block;
+}
+.import-btn:hover { background: #0e7490; }
