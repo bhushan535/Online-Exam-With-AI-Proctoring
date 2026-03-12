@@ -4,6 +4,7 @@ import Toast      from "../Toast";
 import useToast   from "../useToast";
 import PopupModal from "../PopupModal";
 import "./AttemptExamPage.css";
+import ProctoringEngine from "../../proctoring/ProctoringEngine";
 
 function AttemptExamPage() {
   const { examId } = useParams();
@@ -18,8 +19,6 @@ function AttemptExamPage() {
   const [submitted, setSubmitted] = useState(false);
 
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [tabWarnings, setTabWarnings] = useState(0);
-  const [showTabBanner, setShowTabBanner] = useState(false);
 
   const { toasts, showToast, removeToast } = useToast();
 
@@ -88,17 +87,7 @@ function AttemptExamPage() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [submitted]);
 
-  /* 🚫 TAB SWITCH WARNING — banner, not alert */
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden && !submitted) {
-        setTabWarnings(prev => prev + 1);
-        setShowTabBanner(true);
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [submitted]);
+  // Tab switching handled by ProctoringEngine now
 
   const stripPrefix = (text) => {
     if (!text) return "";
@@ -169,11 +158,13 @@ function AttemptExamPage() {
     <div className="attempt-exam-layout">
       <Toast toasts={toasts} removeToast={removeToast} />
 
-      {showTabBanner && (
-        <div className="tab-warn-banner">
-          ⛔ Warning: Tab switching detected! ({tabWarnings} time{tabWarnings > 1 ? "s" : ""}) — This will be reported to your teacher.
-          <button onClick={() => setShowTabBanner(false)}>✕</button>
-        </div>
+      {!submitted && (
+        <ProctoringEngine
+          examId={examId}
+          studentId={JSON.parse(localStorage.getItem("student"))?.enrollment || "Unknown"}
+          onAutoSubmit={() => submitExam(true)}
+          onWarning={(event) => showToast("Proctoring Warning: Please focus on the exam.", "warning")}
+        />
       )}
 
       {/* Main Content Area */}

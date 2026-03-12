@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Toast    from "../Toast";
 import useToast from "../useToast";
+import ProctorLogsModal from "./ProctorLogsModal";
 import "./StudentResults.css";
 
 function StudentResults() {
@@ -13,6 +14,8 @@ function StudentResults() {
   const [summary,  setSummary]  = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [sortMode, setSortMode] = useState("highest");
+  const [showLogsModal, setShowLogsModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
@@ -131,7 +134,7 @@ function StudentResults() {
               <tr>
                 <th>Roll No</th><th>Student Name</th><th>Enrollment</th>
                 <th>Score</th><th>%</th><th>Grade</th>
-                <th>Correct</th><th>Wrong</th><th>Skipped</th><th>Result</th>
+                <th>Correct</th><th>Wrong</th><th>Skipped</th><th>Result</th><th>Proctor Logs</th>
               </tr>
             </thead>
             <tbody>
@@ -147,12 +150,28 @@ function StudentResults() {
                   <td className="er-wrong">{r.wrong}</td>
                   <td className="er-skip">{r.unattempted}</td>
                   <td><span className={r.percentage >= 40 ? "er-pass-tag" : "er-fail-tag"}>{r.percentage >= 40 ? "Pass" : "Fail"}</span></td>
+                  <td>
+                    <button 
+                      style={{ padding: "4px 8px", fontSize: "0.8rem", cursor: "pointer", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#f8fafc" }}
+                      onClick={() => { setSelectedStudent({ id: r.studentId, name: r.studentName }); setShowLogsModal(true); }}
+                    >
+                      View Logs
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      <ProctorLogsModal 
+        isOpen={showLogsModal}
+        onClose={() => setShowLogsModal(false)}
+        examId={examId}
+        studentId={selectedStudent?.id}
+        studentName={selectedStudent?.name}
+      />
     </div>
   );
 }
