@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Toast      from "../Toast";
-import useToast   from "../useToast";
+import Toast from "../Toast";
+import useToast from "../useToast";
 import PopupModal from "../PopupModal";
 import "./AddQuestion.css";
 
@@ -18,7 +18,6 @@ function AddQuestion() {
   const [editId, setEditId] = useState(null);
 
   const [totalQuestionsAllowed, setTotalQuestionsAllowed] = useState(0);
-
   const [deleteModal, setDeleteModal] = useState({ open: false, targetId: null });
 
   const { toasts, showToast, removeToast } = useToast();
@@ -28,9 +27,7 @@ function AddQuestion() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
     const data = await res.json();
     const exam = data.find((e) => e._id === examId);
-    if (exam) {
-      setTotalQuestionsAllowed(exam.totalQuestions);
-    }
+    if (exam) setTotalQuestionsAllowed(exam.totalQuestions);
   };
 
   /* ================= FETCH QUESTIONS ================= */
@@ -55,7 +52,23 @@ function AddQuestion() {
       return;
     }
 
-    const payload = { examId, questionText, options, correctAnswer };
+    // ✅ Trim everything before saving — fixes leading/trailing space bug
+    const trimmedOptions = options.map((o) => o.trim());
+    const trimmedCorrect = correctAnswer.trim();
+    const trimmedQuestion = questionText.trim();
+
+    // Validate correctAnswer is one of the trimmed options
+    if (!trimmedOptions.includes(trimmedCorrect)) {
+      showToast("Please select a valid correct answer.", "error");
+      return;
+    }
+
+    const payload = {
+      examId,
+      questionText: trimmedQuestion,
+      options: trimmedOptions,
+      correctAnswer: trimmedCorrect,
+    };
 
     let url = `${process.env.REACT_APP_API_URL}/api/questions`;
     let method = "POST";
@@ -79,7 +92,6 @@ function AddQuestion() {
     }
 
     showToast(isEditing ? "Question updated successfully!" : "Question added successfully!", "success");
-
     resetForm();
     fetchQuestions();
   };
@@ -92,9 +104,10 @@ function AddQuestion() {
 
   /* ================= EDIT ================= */
   const handleEdit = (q) => {
-    setQuestionText(q.questionText);
-    setOptions(q.options);
-    setCorrectAnswer(q.correctAnswer);
+    // Trim when loading into form for editing too
+    setQuestionText(q.questionText.trim());
+    setOptions(q.options.map((o) => o.trim()));
+    setCorrectAnswer(q.correctAnswer.trim());
     setEditId(q._id);
     setIsEditing(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -113,6 +126,9 @@ function AddQuestion() {
     if (!text) return "";
     return text.replace(/^\s*[\(\[]?[A-Da-d][\)\]\.]\s*/, "").trim();
   };
+
+  // ✅ Trimmed options for dropdown — prevents space mismatch in select
+  const trimmedOptionsForDisplay = options.map((o) => o.trim());
 
   const isLimitReached = questions.length >= totalQuestionsAllowed && !isEditing;
 
@@ -146,7 +162,8 @@ function AddQuestion() {
                   const newOptions = [...options];
                   newOptions[i] = e.target.value;
                   setOptions(newOptions);
-                  if (correctAnswer === options[i]) {
+                  // Reset correctAnswer if the option it was set to changes
+                  if (correctAnswer.trim() === options[i].trim()) {
                     setCorrectAnswer("");
                   }
                 }}
@@ -156,15 +173,16 @@ function AddQuestion() {
 
             <label>Correct Answer</label>
             <select
-              value={correctAnswer}
+              value={correctAnswer.trim()}
               onChange={(e) => setCorrectAnswer(e.target.value)}
               required
-              disabled={options.filter(opt => opt.trim() !== "").length === 0}
+              disabled={trimmedOptionsForDisplay.filter((o) => o !== "").length === 0}
             >
               <option value="">-- Select Correct Answer --</option>
-              {options
-                .filter((opt) => opt.trim() !== "")
+              {trimmedOptionsForDisplay
+                .filter((opt) => opt !== "")
                 .map((opt, i) => (
+                  // ✅ value is trimmed — no more leading/trailing space saved
                   <option key={i} value={opt}>{opt}</option>
                 ))}
             </select>

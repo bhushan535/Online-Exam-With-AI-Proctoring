@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Toast      from "../Toast";
-import useToast   from "../useToast";
+import Toast from "../Toast";
+import useToast from "../useToast";
 import PopupModal from "../PopupModal";
 import "./AttemptExamPage.css";
 import ProctoringEngine from "../../proctoring/ProctoringEngine";
@@ -10,6 +10,7 @@ function AttemptExamPage() {
   const { examId } = useParams();
   const navigate = useNavigate();
   const checked = useRef(false);
+  const submittedRef = useRef(false); // prevents double-submit race condition
 
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,7 +18,6 @@ function AttemptExamPage() {
   const [reviewStatus, setReviewStatus] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const { toasts, showToast, removeToast } = useToast();
@@ -59,7 +59,7 @@ function AttemptExamPage() {
     };
     fetchData();
     // eslint-disable-next-line
-  }, [examId, navigate]);
+  }, [examId]);
 
   /* ⏳ TIMER */
   useEffect(() => {
@@ -78,16 +78,14 @@ function AttemptExamPage() {
   /* 🚫 PREVENT REFRESH */
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (!submitted) {
+      if (!submittedRef.current) {
         e.preventDefault();
         e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [submitted]);
-
-  // Tab switching handled by ProctoringEngine now
+  }, []);
 
   const stripPrefix = (text) => {
     if (!text) return "";
@@ -113,15 +111,31 @@ function AttemptExamPage() {
   const prevQuestion = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1); };
   const nextQuestion = () => { if (currentIndex < questions.length - 1) setCurrentIndex(currentIndex + 1); };
 
-  /* SUBMIT EXAM */
-  const submitExam = async (auto = false) => {
-    if (submitted) return;
+  /* 🔇 STOP ALL MEDIA — camera + mic off after submit */
+  const stopAllMedia = () => {
+    const videos = document.querySelectorAll("video");
+    videos.forEach(video => {
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
+    });
+    // Signal AudioDetector to cleanup
+    window.dispatchEvent(new CustomEvent("proctor:stop"));
+  };
+
+  /* ✅ SUBMIT EXAM */
+  const submitExam = useCallback(async (auto = false) => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     setSubmitted(true);
+
     localStorage.removeItem("instructionAccepted");
+    stopAllMedia();
 
     try {
       const student = JSON.parse(localStorage.getItem("student")) || {};
-      await fetch(`${process.env.REACT_APP_API_URL}/api/exams/submit`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -130,18 +144,24 @@ function AttemptExamPage() {
           studentId: student.enrollment || "Unknown"
         })
       });
+
+      const result = await res.json();
+      const score = result.score ?? "?";
+      const total = result.total ?? questions.length;
+
+      if (auto) {
+        showToast(`⏰ Time up! Auto-submitted. Score: ${score}/${total}`, "warning", 5000);
+      } else {
+        showToast(`🎉 Submitted! Score: ${score}/${total}`, "success", 4000);
+      }
     } catch (err) {
       console.log(err);
+      showToast(auto ? "⏰ Time is up! Exam auto-submitted." : "🎉 Exam submitted successfully!", auto ? "warning" : "success", 5000);
     }
 
-    if (auto) {
-      showToast("Time is up! Exam auto-submitted. ⏰", "warning", 5000);
-    } else {
-      showToast("Exam submitted successfully! 🎉", "success", 4000);
-    }
-
-    setTimeout(() => navigate("/StudentHome"), 2000);
-  };
+    setTimeout(() => navigate("/StudentResults"), 2500);
+    // eslint-disable-next-line
+  }, [answers, examId, questions.length, navigate]);
 
   if (questions.length === 0) {
     return <div className="loading-screen"><div className="spinner"></div></div>;
@@ -163,11 +183,10 @@ function AttemptExamPage() {
           examId={examId}
           studentId={JSON.parse(localStorage.getItem("student"))?.enrollment || "Unknown"}
           onAutoSubmit={() => submitExam(true)}
-          onWarning={(event) => showToast("Proctoring Warning: Please focus on the exam.", "warning")}
+          onWarning={(event) => showToast("⚠️ Proctoring Warning: Please focus on the exam.", "warning")}
         />
       )}
 
-      {/* Main Content Area */}
       <div className="main-exam-area">
         <div className="exam-header">
           <h2 className="exam-title">Online Examination</h2>
@@ -180,7 +199,10 @@ function AttemptExamPage() {
           <div className="q-header">
             <span className="q-number">Question {currentIndex + 1} of {questions.length}</span>
             <div className="q-actions">
-              <span className={`review-toggle ${reviewStatus[currentQuestion._id] ? 'active' : ''}`} onClick={() => toggleReview(currentQuestion._id)}>
+              <span
+                className={`review-toggle ${reviewStatus[currentQuestion._id] ? 'active' : ''}`}
+                onClick={() => toggleReview(currentQuestion._id)}
+              >
                 {reviewStatus[currentQuestion._id] ? '🚩 Marked' : '🏁 Mark for Review'}
               </span>
             </div>
@@ -194,7 +216,6 @@ function AttemptExamPage() {
               if (!rawOption) return null;
               const cleanOption = stripPrefix(rawOption);
               const isSelected = answers[currentQuestion._id] === rawOption;
-
               return (
                 <div
                   key={i}
@@ -218,13 +239,10 @@ function AttemptExamPage() {
             <button className="nav-btn clear" onClick={() => clearResponse(currentQuestion._id)} disabled={!answers[currentQuestion._id]}>Clear Response</button>
             <button className="nav-btn next" disabled={currentIndex === questions.length - 1} onClick={nextQuestion}>Next →</button>
           </div>
-          <button className="submit-exam-btn" onClick={() => setShowSubmitModal(true)}>
-            Submit Exam
-          </button>
+          <button className="submit-exam-btn" onClick={() => setShowSubmitModal(true)}>Submit Exam</button>
         </div>
       </div>
 
-      {/* Right Side Panel */}
       <div className="side-panel">
         <div className="status-summary">
           <h3>Exam Status</h3>
@@ -234,7 +252,6 @@ function AttemptExamPage() {
             <div className="s-box alt-review"><b>{reviewCount}</b> Marked</div>
           </div>
         </div>
-
         <div className="palette-container">
           <h3>Question Palette</h3>
           <div className="palette-grid">
@@ -242,13 +259,7 @@ function AttemptExamPage() {
               const isAttempted = !!answers[q._id];
               const isReview = !!reviewStatus[q._id];
               const isActive = currentIndex === index;
-              const classNames = [
-                "palette-btn",
-                isAttempted ? "answered" : "unanswered",
-                isReview ? "review" : "",
-                isActive ? "current" : ""
-              ].filter(Boolean).join(" ");
-
+              const classNames = ["palette-btn", isAttempted ? "answered" : "unanswered", isReview ? "review" : "", isActive ? "current" : ""].filter(Boolean).join(" ");
               return (
                 <button key={q._id} onClick={() => setCurrentIndex(index)} className={classNames}>
                   {index + 1}
@@ -259,14 +270,13 @@ function AttemptExamPage() {
         </div>
       </div>
 
-      {/* Submit Confirmation PopupModal */}
       <PopupModal
         isOpen={showSubmitModal}
         type="warning"
         title="Submit Exam?"
         message="Once submitted, you cannot change your answers."
         details={[
-          { icon: "✅", label: "Answered",     value: `${attemptedCount} questions`,   color: "#16a34a" },
+          { icon: "✅", label: "Answered", value: `${attemptedCount} questions`, color: "#16a34a" },
           { icon: "❌", label: "Not Answered", value: `${unattemptedCount} questions`, color: "#dc2626" },
         ]}
         confirmText="Yes, Submit"

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./ExamInstructions.css";
-import Toast    from "../Toast";
+import Toast from "../Toast";
 import useToast from "../useToast";
 
 function ExamInstructions() {
   const { examId } = useParams();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
 
-  const [agree,       setAgree]       = useState(false);
-  const [exam,        setExam]        = useState(null);
+  const [agree, setAgree] = useState(false);
+  const [exam, setExam] = useState(null);
   const [enteredCode, setEnteredCode] = useState("");
-  const [codeError,   setCodeError]   = useState("");
-  const [loading,     setLoading]     = useState(true);
+  const [codeError, setCodeError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const { toasts, showToast, removeToast } = useToast();
@@ -46,9 +46,9 @@ function ExamInstructions() {
     try {
       const student = JSON.parse(localStorage.getItem("student")) || {};
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/verify-code`, {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({
+        body: JSON.stringify({
           examId,
           code: enteredCode.trim(),
           studentId: student.enrollment
@@ -63,7 +63,7 @@ function ExamInstructions() {
       }
 
       localStorage.setItem("instructionAccepted", examId);
-      navigate(`/exam-countdown/${examId}`);
+      navigate(`/camera-check/${examId}`);
     } catch (err) {
       console.error(err);
       showToast("Server error. Please try again.", "error");

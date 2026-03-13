@@ -12,72 +12,65 @@ const Question = require("../models/Question");
 /* ======================
 CREATE EXAM
 ====================== */
-router.post("/exams", async (req,res)=>{
-  try{
-    const{
-      examName, branch, year, semester, subject, subCode, examDate, totalQuestions, duration, marksPerQuestion, totalMarks, classId
-    }=req.body;
+router.post("/exams", async (req, res) => {
+  try {
+    const {
+      examName, branch, year, semester, subject, subCode,
+      examDate, totalQuestions, duration, marksPerQuestion, totalMarks, classId
+    } = req.body;
 
-    if(!examName || !branch || !year || !semester || !subject || !subCode || !examDate || !classId){
-      return res.status(400).json({ success:false, message:"Missing required fields" });
+    if (!examName || !branch || !year || !semester || !subject || !subCode || !examDate || !classId) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    const safeDate = new Date(examDate);
-
     const exam = new Exam({
-      examName, branch, year, semester, subject, subCode, examDate:safeDate,
-      totalQuestions:Number(totalQuestions) || 0,
+      examName, branch, year, semester, subject, subCode,
+      examDate: new Date(examDate),
+      totalQuestions: Number(totalQuestions) || 0,
       marksPerQuestion: Number(marksPerQuestion) || 1,
-      duration:Number(duration) || 0,
-      totalMarks:Number(totalMarks) || 0,
-      classId, isPublished:false
+      duration: Number(duration) || 0,
+      totalMarks: Number(totalMarks) || 0,
+      classId,
+      isPublished: false
     });
 
     await exam.save();
-    res.status(201).json({ success:true, message:"Exam created successfully", exam });
-  }
-  catch(err){
-    console.error("CREATE EXAM ERROR:",err);
-    res.status(500).json({ success:false, message:err.message });
+    res.status(201).json({ success: true, message: "Exam created successfully", exam });
+  } catch (err) {
+    console.error("CREATE EXAM ERROR:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 /* ======================
 GENERATE STUDENT CODES
 ====================== */
-router.post("/exams/generate-codes/:examId", async (req,res)=>{
-  try{
+router.post("/exams/generate-codes/:examId", async (req, res) => {
+  try {
     const examId = req.params.examId;
-    const {classId} = req.body;
+    const { classId } = req.body;
 
     const classData = await Class.findById(classId);
-    if(!classData){
-      return res.status(404).json({ message:"Class not found" });
-    }
+    if (!classData) return res.status(404).json({ message: "Class not found" });
 
     const students = classData.students;
-    if(!students.length){
-      return res.json([]);
-    }
-    
-    // 🔥 Delete old codes first
+    if (!students.length) return res.json([]);
+
     await ExamAccess.deleteMany({ examId });
 
     const codes = [];
-
-    for(const student of students){
-      const code = Math.floor(100000 + Math.random()*900000).toString();
+    for (const student of students) {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
       const access = new ExamAccess({
-        examId, studentId:student.enrollment, accessCode:code, used:false
+        examId, studentId: student.enrollment, accessCode: code, used: false
       });
       await access.save();
-      codes.push({ studentName:student.name, studentId:student.enrollment, code });
+      codes.push({ studentName: student.name, studentId: student.enrollment, code });
     }
     res.json(codes);
-  }
-  catch(err){
-    console.error("GENERATE CODES ERROR:",err);
-    res.status(500).json({ message:err.message });
+  } catch (err) {
+    console.error("GENERATE CODES ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -94,7 +87,6 @@ router.post("/exams/verify-code", async (req, res) => {
 
     const cleanCode = code.trim();
 
-    // Cast examId string to ObjectId safely
     let examObjectId;
     try {
       examObjectId = new mongoose.Types.ObjectId(examId);
@@ -102,61 +94,46 @@ router.post("/exams/verify-code", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid exam ID format" });
     }
 
-    // 1️⃣ Check ExamAccess (per-student generated code)
-    const access = await ExamAccess.findOne({
-      examId: examObjectId,
-      accessCode: cleanCode,
-    });
+    const access = await ExamAccess.findOne({ examId: examObjectId, accessCode: cleanCode });
 
     if (access) {
       if (access.used) {
         return res.status(400).json({ success: false, message: "Code already used. Contact your teacher." });
       }
-
-      // If studentId passed from frontend, ensure it matches
       if (studentId && access.studentId && access.studentId !== studentId) {
-          return res.status(400).json({ success: false, message: "Code mismatch for student." });
+        return res.status(400).json({ success: false, message: "Code mismatch for student." });
       }
-
       access.used = true;
       await access.save();
       return res.json({ success: true, message: "Code Verified" });
     }
 
-    // 2️⃣ Fallback: Check exam's own examCode field (single shared code set by teacher)
     const exam = await Exam.findById(examObjectId);
-    if (!exam) {
-      return res.status(404).json({ success: false, message: "Exam not found" });
-    }
+    if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
 
     if (exam.examCode && exam.examCode.trim() === cleanCode) {
       return res.json({ success: true, message: "Code Verified" });
     }
 
-    return res.status(400).json({
-      success: false,
-      message: "Invalid code. Please check and try again.",
-    });
-
+    return res.status(400).json({ success: false, message: "Invalid code. Please check and try again." });
   } catch (err) {
     console.error("VERIFY CODE ERROR:", err);
     res.status(500).json({ success: false, message: "Server error: " + err.message });
   }
 });
 
-
 /* ======================
-SUBMIT EXAM (placed before generic :id routes)
+SUBMIT EXAM
 ====================== */
 router.post("/exams/submit", async (req, res) => {
   try {
     const { examId, answers, studentId } = req.body;
-    
+
     const Result = require("../models/Result");
 
     const questions = await Question.find({ examId });
     const exam = await Exam.findById(examId);
-    
+
     if (!exam) return res.status(404).json({ message: "Exam not found" });
 
     // Prevent duplicate submissions
@@ -165,7 +142,7 @@ router.post("/exams/submit", async (req, res) => {
       return res.json({
         success: true,
         score: existing.score,
-        totalMarks: existing.totalMarks,
+        total: existing.totalMarks,
         alreadySubmitted: true
       });
     }
@@ -173,15 +150,24 @@ router.post("/exams/submit", async (req, res) => {
     const marksPerQuestion = exam.marksPerQuestion || (exam.totalMarks / exam.totalQuestions);
     let score = 0, correct = 0, wrong = 0, unattempted = 0;
 
-    questions.forEach(q => {
+    questions.forEach((q) => {
       const studentAnswer = answers[q._id.toString()];
-      if (!studentAnswer) {
+
+      if (!studentAnswer || studentAnswer.trim() === "") {
         unattempted++;
-      } else if (studentAnswer.trim() === q.correctAnswer.trim()) {
-        correct++;
-        score += marksPerQuestion;
       } else {
-        wrong++;
+        // ✅ Normalize both sides: trim + lowercase + collapse spaces
+        // This handles leading/trailing spaces AND mid-word truncation won't match
+        const normalize = (str) => str.trim().toLowerCase().replace(/\s+/g, " ");
+        const sAns = normalize(studentAnswer);
+        const cAns = normalize(q.correctAnswer);
+
+        if (sAns === cAns) {
+          correct++;
+          score += marksPerQuestion;
+        } else {
+          wrong++;
+        }
       }
     });
 
@@ -193,15 +179,15 @@ router.post("/exams/submit", async (req, res) => {
     else if (percentage >= 60) grade = "C";
     else if (percentage >= 45) grade = "D";
 
-    // Try to get student name from Class
+    // Get student name from Class
     let studentName = studentId;
     try {
       const classData = await Class.findById(exam.classId);
       if (classData) {
-        const found = classData.students.find(s => s.enrollment === studentId);
+        const found = classData.students.find((s) => s.enrollment === studentId);
         if (found) studentName = found.name;
       }
-    } catch(e) {}
+    } catch (e) { }
 
     const result = new Result({
       examId,
@@ -219,7 +205,18 @@ router.post("/exams/submit", async (req, res) => {
     });
 
     await result.save();
-    res.json({ success: true, score, totalMarks: exam.totalMarks, correct, wrong, unattempted, percentage, grade });
+
+    // ✅ Return both `score` and `total` — AttemptExamPage uses result.total
+    res.json({
+      success: true,
+      score,
+      total: exam.totalMarks,
+      correct,
+      wrong,
+      unattempted,
+      percentage,
+      grade
+    });
 
   } catch (err) {
     console.error("SUBMIT ERROR:", err);
@@ -232,14 +229,13 @@ router.post("/exams/submit", async (req, res) => {
 /* ======================
 GET ALL EXAMS
 ====================== */
-router.get("/exams", async (req,res)=>{
-  try{
-    const exams = await Exam.find().sort({createdAt:-1});
+router.get("/exams", async (req, res) => {
+  try {
+    const exams = await Exam.find().sort({ createdAt: -1 });
     res.json(exams);
-  }
-  catch(err){
-    console.error("GET EXAMS ERROR:",err);
-    res.status(500).json({ message:err.message });
+  } catch (err) {
+    console.error("GET EXAMS ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -253,55 +249,46 @@ router.get("/exams/student/:classId", async (req, res) => {
       isPublished: true
     }).sort({ examDate: 1 });
     res.json(exams);
-  }
-  catch (err) {
+  } catch (err) {
     console.error("STUDENT EXAMS ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
-
 
 // 3. Specific named PUT routes
 
 /* ======================
 PUBLISH / UNPUBLISH
 ====================== */
-router.put("/exams/toggle-publish/:id", async (req,res)=>{
-  try{
+router.put("/exams/toggle-publish/:id", async (req, res) => {
+  try {
     const exam = await Exam.findById(req.params.id);
-    if(!exam){
-      return res.status(404).json({ success:false, message:"Exam not found" });
-    }
+    if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
     exam.isPublished = !exam.isPublished;
     await exam.save();
     res.json({
-      success:true,
+      success: true,
       message: exam.isPublished ? "Exam Published" : "Exam Unpublished",
       exam
     });
-  }
-  catch(err){
-    console.error("TOGGLE PUBLISH ERROR:",err);
-    res.status(500).json({ success:false, message:err.message });
+  } catch (err) {
+    console.error("TOGGLE PUBLISH ERROR:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
-
 
 // 4. Generic parameter routes LAST
 
 /* ======================
 GET SINGLE EXAM
 ====================== */
-router.get("/exams/:id", async (req,res)=>{
-  try{
+router.get("/exams/:id", async (req, res) => {
+  try {
     const exam = await Exam.findById(req.params.id);
-    if(!exam){
-        return res.status(404).json({ success: false, message: "Exam not found" });
-    }
+    if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
     res.json(exam);
-  }
-  catch(err){
-    console.error("GET EXAM ERROR:",err);
+  } catch (err) {
+    console.error("GET EXAM ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -309,43 +296,38 @@ router.get("/exams/:id", async (req,res)=>{
 /* ======================
 UPDATE EXAM
 ====================== */
-router.put("/exams/:id", async (req,res)=>{
-  try{
-    const exam = await Exam.findByIdAndUpdate(req.params.id, req.body, {new: true});
-    if(!exam){
-        return res.status(404).json({ success: false, message: "Exam not found" });
-    }
-    res.json({ success:true, message:"Exam updated successfully", exam });
-  }
-  catch(err){
-    console.error("UPDATE EXAM ERROR:",err);
+router.put("/exams/:id", async (req, res) => {
+  try {
+    const exam = await Exam.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
+    res.json({ success: true, message: "Exam updated successfully", exam });
+  } catch (err) {
+    console.error("UPDATE EXAM ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-
 /* ======================
-DELETE EXAM
+DELETE EXAM — cascade delete questions, results, proctorlogs, examaccesses
 ====================== */
 router.delete("/exams/:id", async (req, res) => {
   try {
     const exam = await Exam.findByIdAndDelete(req.params.id);
     if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
 
-    // IMPORTANT: Also delete all ExamAccess codes linked to this exam
-    await ExamAccess.deleteMany({ examId: req.params.id });
-
-    // IMPORTANT: Also delete all Questions linked to this exam
-    await Question.deleteMany({ examId: req.params.id });
-    
-    // Also delete results if they exist
     const Result = require("../models/Result");
-    await Result.deleteMany({ examId: req.params.id });
+    const ProctorLog = require("../models/ProctorLog");
 
-    res.json({ success: true, message: "Exam deleted successfully" });
+    await ExamAccess.deleteMany({ examId: req.params.id });
+    await Question.deleteMany({ examId: req.params.id });
+    await Result.deleteMany({ examId: req.params.id });
+    await ProctorLog.deleteMany({ examId: req.params.id });
+
+    res.json({ success: true, message: "Exam and all related data deleted successfully" });
   } catch (err) {
     console.error("DELETE EXAM ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 module.exports = router;

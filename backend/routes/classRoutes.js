@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Class = require("../models/Class");
+const Result = require("../models/Result");
+const ProctorLog = require("../models/ProctorLog");
+const Exam = require("../models/Exam");
+const ExamAccess = require("../models/ExamAccess");
 
 // ==============================
 // CREATE CLASS
@@ -32,10 +36,7 @@ router.post("/classes", async (req, res) => {
       class: newClass,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -57,11 +58,7 @@ router.get("/classes", async (req, res) => {
 router.get("/class/:id", async (req, res) => {
   try {
     const cls = await Class.findById(req.params.id);
-
-    if (!cls) {
-      return res.status(404).json({ message: "Class not found" });
-    }
-
+    if (!cls) return res.status(404).json({ message: "Class not found" });
     res.json(cls);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -76,7 +73,6 @@ router.post("/class/join/:classId", async (req, res) => {
     const { rollNo, enrollment, name, password } = req.body;
     const { classId } = req.params;
 
-    // ✅ basic validation
     if (!rollNo || !enrollment || !name || !password) {
       return res.status(400).json({
         success: false,
@@ -85,18 +81,9 @@ router.post("/class/join/:classId", async (req, res) => {
     }
 
     const cls = await Class.findById(classId);
-    if (!cls) {
-      return res.status(404).json({
-        success: false,
-        message: "Class not found",
-      });
-    }
+    if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
 
-    // ❌ SAME ENROLLMENT IN ANY CLASS
-    const enrollmentExists = await Class.findOne({
-      "students.enrollment": enrollment,
-    });
-
+    const enrollmentExists = await Class.findOne({ "students.enrollment": enrollment });
     if (enrollmentExists) {
       return res.status(400).json({
         success: false,
@@ -104,11 +91,7 @@ router.post("/class/join/:classId", async (req, res) => {
       });
     }
 
-    // ❌ SAME ROLL NO IN SAME CLASS
-    const rollExists = cls.students.find(
-      (s) => s.rollNo === Number(rollNo)
-    );
-
+    const rollExists = cls.students.find((s) => s.rollNo === Number(rollNo));
     if (rollExists) {
       return res.status(400).json({
         success: false,
@@ -116,11 +99,7 @@ router.post("/class/join/:classId", async (req, res) => {
       });
     }
 
-    // ❌ SAME ENROLLMENT IN SAME CLASS (extra safety)
-    const alreadyJoined = cls.students.find(
-      (s) => s.enrollment === enrollment
-    );
-
+    const alreadyJoined = cls.students.find((s) => s.enrollment === enrollment);
     if (alreadyJoined) {
       return res.status(400).json({
         success: false,
@@ -128,26 +107,12 @@ router.post("/class/join/:classId", async (req, res) => {
       });
     }
 
-    // ✅ ADD STUDENT
-    cls.students.push({
-      rollNo: Number(rollNo),
-      enrollment,
-      name,
-      password,
-      joinedAt: new Date(),
-    });
-
+    cls.students.push({ rollNo: Number(rollNo), enrollment, name, password, joinedAt: new Date() });
     await cls.save();
 
-    res.json({
-      success: true,
-      message: "Joined class successfully",
-    });
+    res.json({ success: true, message: "Joined class successfully" });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -160,22 +125,24 @@ router.post("/class/import-students/:classId", async (req, res) => {
     const classDoc = await Class.findById(req.params.classId);
     if (!classDoc) return res.status(404).json({ success: false, message: "Class not found" });
 
-    const existing    = new Set(classDoc.students.map(s => s.enrollment));
-    const newStudents = students.filter(s => !existing.has(String(s.enrollment)));
+    const existing = new Set(classDoc.students.map((s) => s.enrollment));
+    const newStudents = students.filter((s) => !existing.has(String(s.enrollment)));
 
-    classDoc.students.push(...newStudents.map(s => ({
-      rollNo:     Number(s.rollNo),
-      enrollment: String(s.enrollment).trim(),
-      name:       String(s.name).trim(),
-      password:   String(s.password).trim(),
-      joinedAt:   new Date(),
-    })));
+    classDoc.students.push(
+      ...newStudents.map((s) => ({
+        rollNo: Number(s.rollNo),
+        enrollment: String(s.enrollment).trim(),
+        name: String(s.name).trim(),
+        password: String(s.password).trim(),
+        joinedAt: new Date(),
+      }))
+    );
 
     await classDoc.save();
 
     res.json({
       success: true,
-      added:   newStudents.length,
+      added: newStudents.length,
       skipped: students.length - newStudents.length,
       message: `${newStudents.length} students imported. ${students.length - newStudents.length} duplicates skipped.`,
     });
@@ -193,83 +160,88 @@ router.put("/class/:id", async (req, res) => {
 
     const updatedClass = await Class.findByIdAndUpdate(
       req.params.id,
-      {
-        className,
-        branch,
-        year,
-        semester,
-      },
+      { className, branch, year, semester },
       { new: true }
     );
 
-    if (!updatedClass) {
-      return res.status(404).json({
-        success: false,
-        message: "Class not found",
-      });
-    }
+    if (!updatedClass) return res.status(404).json({ success: false, message: "Class not found" });
 
-    res.json({
-      success: true,
-      message: "Class updated successfully",
-      class: updatedClass,
-    });
+    res.json({ success: true, message: "Class updated successfully", class: updatedClass });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 // ==============================
-// DELETE CLASS
+// DELETE CLASS — cascade delete exams, results, proctorlogs, examaccesses
 // ==============================
 router.delete("/class/:id", async (req, res) => {
   try {
-    const deletedClass = await Class.findByIdAndDelete(req.params.id);
+    const cls = await Class.findById(req.params.id);
+    if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
 
-    if (!deletedClass) {
-      return res.status(404).json({
-        success: false,
-        message: "Class not found",
-      });
+    // 1. Is class ke saare exams dhundo
+    const exams = await Exam.find({ classId: req.params.id });
+    const examIds = exams.map((e) => e._id);
+
+    if (examIds.length > 0) {
+      // 2. Un exams ke results delete karo
+      await Result.deleteMany({ examId: { $in: examIds } });
+      // 3. Un exams ke proctorlogs delete karo
+      await ProctorLog.deleteMany({ examId: { $in: examIds } });
+      // 4. Un exams ke examaccesses delete karo
+      await ExamAccess.deleteMany({ examId: { $in: examIds } });
+      // 5. Exams khud delete karo
+      await Exam.deleteMany({ classId: req.params.id });
     }
 
-    res.json({
-      success: true,
-      message: "Class deleted successfully",
-    });
+    // 6. Class delete karo
+    await Class.findByIdAndDelete(req.params.id);
+
+    res.json({ success: true, message: "Class and all related data deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 // ==============================
-// DELETE STUDENT FROM CLASS
+// DELETE STUDENT FROM CLASS — cascade delete results + proctorlogs
 // ==============================
 router.delete("/class/:classId/student/:studentId", async (req, res) => {
   try {
     const { classId, studentId } = req.params;
 
     const cls = await Class.findById(classId);
-    if (!cls) {
-      return res.status(404).json({ message: "Class not found" });
+    if (!cls) return res.status(404).json({ message: "Class not found" });
+
+    // Student ka enrollment number nikalo pehle (studentId yahan subdocument _id hai)
+    const student = cls.students.find((s) => s._id.toString() === studentId);
+    if (!student) return res.status(404).json({ message: "Student not found in class" });
+
+    const enrollment = student.enrollment;
+
+    // Is class ke exam IDs nikalo
+    const exams = await Exam.find({ classId });
+    const examIds = exams.map((e) => e._id);
+
+    // Results delete — is student ke, sirf is class ke exams ke
+    if (examIds.length > 0) {
+      await Result.deleteMany({ studentId: enrollment, examId: { $in: examIds } });
+      await ProctorLog.deleteMany({ studentId: enrollment, examId: { $in: examIds } });
+      await ExamAccess.deleteMany({ studentId: enrollment, examId: { $in: examIds } });
     }
 
-    cls.students = cls.students.filter(
-      (s) => s._id.toString() !== studentId
-    );
-
+    // Student ko class se remove karo
+    cls.students = cls.students.filter((s) => s._id.toString() !== studentId);
     await cls.save();
 
     res.json({
       success: true,
-      message: "Student removed successfully",
+      message: `Student ${enrollment} and all related data deleted successfully`,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
-
-
 
 module.exports = router;

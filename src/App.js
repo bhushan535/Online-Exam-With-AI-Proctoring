@@ -31,6 +31,7 @@ import EditExam from "./components/Teacher-ui/EditExam";
 import AttemptExam from "./components/Student-ui/AttemptExam";
 import AttemptExamPage from "./components/Student-ui/AttemptExamPage";
 import ExamInstructions from "./components/Student-ui/ExamInstructions";
+import Cameracheckscreen from "./components/Student-ui/Cameracheckscreen";
 
 /* RESULTS */
 import StudentResults from "./components/Teacher-ui/StudentResults";
@@ -43,7 +44,7 @@ import StudentClassLogin from "./components/Student-ui/StudentClassLogin";
 import JoinClass from "./components/Student-ui/JoinClass";
 
 function App() {
-return ( <BrowserRouter> <Routes>
+  return (<BrowserRouter> <Routes>
 
     {/* FRONT PAGE */}
     <Route path="/" element={<FrontPage />} />
@@ -74,6 +75,7 @@ return ( <BrowserRouter> <Routes>
     {/* STUDENT EXAM */}
     <Route path="/attempt-exams" element={<AttemptExam />} />
     <Route path="/exam-instructions/:examId" element={<ExamInstructions />} />
+    <Route path="/camera-check/:examId" element={<Cameracheckscreen />} />
     <Route path="/exam-countdown/:examId" element={<ExamStartCountdown />} />
     <Route path="/attempt-exam/:examId" element={<AttemptExamPage />} />
 
@@ -87,9 +89,9 @@ return ( <BrowserRouter> <Routes>
     <Route path="/join-class/:classId" element={<JoinClass />} />
 
   </Routes>
-</BrowserRouter>
+  </BrowserRouter>
 
-);
+  );
 }
 
 export default App;

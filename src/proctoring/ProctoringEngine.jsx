@@ -75,9 +75,9 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
     if (event.severity === "medium" || event.severity === "high") {
       setLastViolation(event);
       if (event.severity === "medium") {
-         setWarningCount(prev => prev + 1);
+        setWarningCount(prev => prev + 1);
       } else if (event.severity === "high") {
-         setWarningCount(prev => prev + 2); // High equals 2 strikes roughly in count display 
+        setWarningCount(prev => prev + 2); // High equals 2 strikes roughly in count display 
       }
     }
 
@@ -88,10 +88,10 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
   const processRawEvent = (rawEvents) => {
     if (!rawEvents) return;
     const events = Array.isArray(rawEvents) ? rawEvents : [rawEvents];
-    
+
     events.forEach(event => {
-       const finalEvent = processViolation(event, mergedConfig);
-       if (finalEvent) handleFinalViolation(finalEvent);
+      const finalEvent = processViolation(event, mergedConfig);
+      if (finalEvent) handleFinalViolation(finalEvent);
     });
   };
 
@@ -125,7 +125,7 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
     initClipboardBlocker(handleSecurityViolation);
     initMultiMonitorDetector(handleSecurityViolation);
     initDevToolsDetector(handleSecurityViolation);
-    
+
     if (mergedConfig.audio.enabled) {
       initAudioDetector(handleSecurityViolation, mergedConfig);
     }
@@ -152,7 +152,7 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
       active = false;
       clearInterval(personInterval);
       clearInterval(objectInterval);
-      
+
       destroyTabDetector();
       destroyFullscreen();
       destroyKeyboardBlocker();
@@ -166,10 +166,20 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
   return (
     <>
       <FaceDetector onFaceStatus={handleFaceStatus} videoRef={videoRef} />
-      <HeadPoseDetector videoRef={videoRef} onPose={handleHeadPose} config={mergedConfig} />
+
+
+      {/* <HeadPoseDetector videoRef={videoRef} onPose={handleHeadPose} config={mergedConfig} />
+      {false && (
+        <GazeDetector videoRef={videoRef} onGaze={handleGaze} config={mergedConfig} />
+      )} */}
+
+      {false && (
+        <HeadPoseDetector videoRef={videoRef} onPose={handleHeadPose} config={mergedConfig} />
+      )}
       {false && (
         <GazeDetector videoRef={videoRef} onGaze={handleGaze} config={mergedConfig} />
       )}
+
       <ProctoringOverlay
         videoRef={videoRef}
         warningCount={warningCount}

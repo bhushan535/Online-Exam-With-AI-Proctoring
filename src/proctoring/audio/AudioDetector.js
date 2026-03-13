@@ -10,14 +10,15 @@ let intervalId = null;
 export async function initAudioDetector(onViolation, config) {
   if (audioContext) return;
 
+  // Listen for exam submit event → auto cleanup
+  window.addEventListener("proctor:stop", stopAudioDetector, { once: true });
+
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioContext.createAnalyser();
     microphone = audioContext.createMediaStreamSource(stream);
-    
-    // We use a ScriptProcessorNode to get raw audio data periodically
-    // (Deprecated but widely supported, AudioWorklet is better but more complex to inline)
+
     scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
     analyser.smoothingTimeConstant = 0.8;
@@ -30,20 +31,17 @@ export async function initAudioDetector(onViolation, config) {
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
     intervalId = setInterval(() => {
+      // ✅ null check — prevents crash after unmount or stopAllMedia
+      if (!analyser || !dataArray) return;
+
       analyser.getByteFrequencyData(dataArray);
-      
+
       let sum = 0;
       for (let i = 0; i < dataArray.length; i++) {
-        sum += dataArray[i] * dataArray[i]; // sum of squares
+        sum += dataArray[i] * dataArray[i];
       }
       const rms = Math.sqrt(sum / dataArray.length);
-      
-      // Prevent -Infinity for pure silence
       const db = rms > 0 ? 20 * Math.log10(rms / 255) : -100;
-      
-      // Web Audio gives negative dB (0 is full volume).
-      // We'll normalize it so 0 is silence, and higher numbers are louder
-      // This maps roughly -100dB..0dB to 0..100
       const normalizedDb = Math.max(0, db + 100);
 
       const violation = evaluateAudio(normalizedDb, config);
@@ -58,23 +56,23 @@ export async function initAudioDetector(onViolation, config) {
 }
 
 export function stopAudioDetector() {
-  if (intervalId) clearInterval(intervalId);
-  if (scriptProcessor) scriptProcessor.disconnect();
-  if (analyser) analyser.disconnect();
-  if (microphone) microphone.disconnect();
-  
+  // ✅ Clear interval FIRST before nulling analyser — prevents null crash
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+
+  if (scriptProcessor) { scriptProcessor.disconnect(); scriptProcessor = null; }
+  if (analyser) { analyser.disconnect(); analyser = null; }
+  if (microphone) { microphone.disconnect(); microphone = null; }
+
   if (audioContext && audioContext.state !== "closed") {
     audioContext.close();
   }
-  
+  audioContext = null;
+
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
+    stream = null;
   }
-  
-  audioContext = null;
-  analyser = null;
-  microphone = null;
-  scriptProcessor = null;
-  stream = null;
-  intervalId = null;
 }
