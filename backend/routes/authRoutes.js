@@ -161,6 +161,7 @@ router.get('/me', authenticate, async (req, res) => {
           id: org._id,
           name: org.name,
           type: org.type,
+          logo: org.logo,
         };
       }
     }
@@ -222,6 +223,7 @@ router.post('/login', async (req, res) => {
           id: org._id,
           name: org.name,
           type: org.type,
+          logo: org.logo,
         };
       }
     }

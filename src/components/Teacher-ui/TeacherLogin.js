@@ -1,40 +1,41 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "./TeacherLogin.css";
 
 function TeacherLogin() {
   const navigate = useNavigate();
-  const [UserName, setUserName] = useState("");
+  const location = useLocation();
+  const { login } = useAuth();
+  
+  // Get role from query param
+  const queryParams = new URLSearchParams(location.search);
+  const roleParam = queryParams.get('role'); // 'teacher' or 'principal'
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/teacher/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ UserName, password }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        localStorage.setItem("teacher", JSON.stringify(data.teacher));
-        navigate("/TeacherHome");
-      } else {
-        setError(data.message || "Invalid UserName or Password");
-      }
+      await login(email, password);
+      navigate("/TeacherHome");
     } catch (err) {
-      setError("Server not responding");
+      setError(err.response?.data?.message || "Invalid Email or Password");
+    } finally {
+      setLoading(false);
     }
   };
 
-  /* Enter key triggers login */
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleLogin();
@@ -44,15 +45,16 @@ function TeacherLogin() {
   return (
     <div className="container">
       <div className="box">
-        <center><h2>Teacher Login</h2></center>
+        <center><h2>{roleParam === 'principal' ? 'Organization Login' : 'Teacher Login'}</h2></center>
 
         <input
           className="input"
-          type="text"
-          placeholder="Enter Username"
-          value={UserName}
-          onChange={(e) => setUserName(e.target.value)}
+          type="email"
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           onKeyDown={handleKeyDown}
+          autoFocus
         />
 
         <input
@@ -64,12 +66,16 @@ function TeacherLogin() {
           onKeyDown={handleKeyDown}
         />
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={{ color: "red", fontSize: '14px' }}>{error}</p>}
 
         <br />
-        <button className="btn" onClick={handleLogin}>
-          Login
+        <button className="btn" onClick={handleLogin} disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
+
+        <p style={{ marginTop: '15px', fontSize: '14px', textAlign: 'center' }}>
+          Don't have an account? <a href="/signup">Sign up</a>
+        </p>
       </div>
     </div>
   );

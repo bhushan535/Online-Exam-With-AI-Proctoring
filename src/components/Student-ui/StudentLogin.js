@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "./StudentLogin.css";
 
 function StudentLogin() {
+  const { studentLogin } = useAuth();
   const [enrollment, setEnrollment] = useState("");
   const [password,   setPassword]   = useState("");
   const [errorMsg,   setErrorMsg]   = useState("");
@@ -17,21 +19,10 @@ function StudentLogin() {
     setErrorMsg("");
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/student/login`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ enrollment, password }),
-      });
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        localStorage.setItem("student", JSON.stringify(result.student));
-        navigate("/StudentHome");
-      } else {
-        setErrorMsg(result.message || "Invalid credentials. Please try again.");
-      }
+      await studentLogin(enrollment, password);
+      navigate("/StudentHome");
     } catch (err) {
-      setErrorMsg("Connection error. Please check your internet.");
+      setErrorMsg(err.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }

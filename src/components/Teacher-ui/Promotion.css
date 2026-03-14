@@ -1,0 +1,82 @@
+.promotion-container {
+    padding: 40px;
+    color: white;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.promotion-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.promotion-header p {
+    color: #94a3b8;
+    margin-bottom: 30px;
+}
+
+.promotion-form {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.promotion-grid {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.promo-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.promo-section h3 {
+    font-size: 1rem;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.promo-section input, .promo-section select {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+}
+
+.promo-arrow {
+    font-size: 2rem;
+    color: #94a3b8;
+}
+
+.promote-btn {
+    width: 100%;
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.promote-btn:hover:not(:disabled) {
+    background: #4f46e5;
+}
+
+.promote-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

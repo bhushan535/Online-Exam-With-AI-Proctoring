@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./StudentLogin.css";
+import { BASE_URL } from '../../config';
 
 function StudentClassLogin() {
   const { classId } = useParams();
@@ -19,7 +20,7 @@ function StudentClassLogin() {
     setErrorMsg("");
 
     try {
-      const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/student/class-login`, {
+      const res  = await fetch(`${BASE_URL}/student/class-login`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ enrollment, password, classId }),

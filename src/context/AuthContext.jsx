@@ -1,5 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../config';
+
+// BASE_URL is http://localhost:5000/api
+axios.defaults.baseURL = BASE_URL.replace(/\/api$/, ''); 
 
 const AuthContext = createContext();
 
@@ -13,6 +17,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [org, setOrg] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
@@ -29,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await axios.get('/api/auth/me');
       setUser(res.data.user);
+      if (res.data.organization) setOrg(res.data.organization);
     } catch (error) {
       console.error('Failed to fetch user:', error);
       logout();
@@ -39,10 +45,31 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await axios.post('/api/auth/login', { email, password });
-    const { token, user } = res.data;
+    const { token, user, organization } = res.data;
     localStorage.setItem('token', token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setToken(token);
     setUser(user);
+    if (organization) setOrg(organization);
+    return res.data;
+  };
+
+  const studentLogin = async (enrollment, password) => {
+    const res = await axios.post('/api/student/login', { enrollment, password });
+    const { token, user, organization } = res.data;
+    
+    localStorage.setItem('token', token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setToken(token);
+    setUser(user);
+    if (organization) setOrg(organization);
+    
+    // Legacy support for components that look for "student" in localStorage
+    localStorage.setItem('student', JSON.stringify({
+      ...user,
+      enrollment: user.enrollment || enrollment
+    }));
+    
     return res.data;
   };
 
@@ -51,25 +78,31 @@ export const AuthProvider = ({ children }) => {
       ? '/api/auth/signup/teacher-solo'
       : '/api/auth/signup/principal';
     const res = await axios.post(endpoint, userData);
-    const { token, user } = res.data;
+    const { token, user, organization } = res.data;
     localStorage.setItem('token', token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setToken(token);
     setUser(user);
+    if (organization) setOrg(organization);
     return res.data;
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('student');
     setToken(null);
     setUser(null);
+    setOrg(null);
     delete axios.defaults.headers.common['Authorization'];
   };
 
   const value = {
     user,
+    org,
     token,
     loading,
     login,
+    studentLogin,
     signup,
     logout,
     isAuthenticated: !!user,

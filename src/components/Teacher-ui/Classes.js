@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import Toast      from "../Toast";
 import useToast   from "../useToast";
 import PopupModal from "../PopupModal";
 import "./Classes.css";
+import { BASE_URL } from '../../config';
 
 function Classes() {
+  const { user, token } = useAuth();
   const [classes, setClasses] = useState([]);
   const [search, setSearch] = useState("");
   const [branch, setBranch] = useState("");
@@ -19,17 +22,33 @@ function Classes() {
   const [deleteModal, setDeleteModal] = useState({ open: false, targetId: null });
 
   const fetchClasses = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/classes`);
-    const data = await res.json();
-    setClasses(data);
+    try {
+      const res = await fetch(`${BASE_URL}/classes`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setClasses(data);
+      } else {
+        setClasses([]);
+      }
+    } catch (err) {
+      console.error("Fetch classes error:", err);
+      setClasses([]);
+    }
   };
 
   useEffect(() => {
-    fetchClasses();
-  }, []);
+    if (token) fetchClasses();
+  }, [token]);
 
   const confirmDeleteClass = async (id) => {
-    await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}`, { method: "DELETE" });
+    await fetch(`${BASE_URL}/class/${id}`, { 
+      method: "DELETE",
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     fetchClasses();
     showToast("Class deleted.", "info");
   };
@@ -56,7 +75,9 @@ function Classes() {
   return (
     <div className="classes-page">
       <Toast toasts={toasts} removeToast={removeToast} />
-      <h2 className="classes-title">All Classes</h2>
+      <h2 className="classes-title">
+        {user?.role === 'principal' ? 'Organization Classes' : 'My Classes'}
+      </h2>
 
       <div className="filter-bar">
         <input type="text" placeholder="Search by class name" value={search} onChange={(e) => setSearch(e.target.value)} />

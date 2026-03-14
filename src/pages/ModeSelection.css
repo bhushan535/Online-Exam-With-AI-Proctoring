@@ -15,17 +15,19 @@
 .mode-card {
   flex: 1;
   max-width: 400px;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  padding: 30px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 20px;
+  padding: 40px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
 .mode-card:hover {
   border-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  transform: translateY(-10px);
 }
 
 .icon {

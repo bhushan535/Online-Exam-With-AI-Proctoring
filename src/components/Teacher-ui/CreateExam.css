@@ -124,3 +124,54 @@
     font-size: 22px;
   }
 }
+
+/* =========================
+   PROCTORING SETTINGS
+========================= */
+.proctoring-settings-section {
+  margin-top: 30px;
+  padding-top: 25px;
+  border-top: 2px dashed #e2e8f0;
+}
+
+.proctoring-settings-section h3 {
+  font-size: 16px;
+  color: #1e293b;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proctor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #edf2f7;
+}
+
+.proctor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.proctor-field label {
+  margin-top: 0 !important;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.proctor-field input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.proctor-field input[type="number"] {
+  height: 38px;
+  width: 100%;
+}

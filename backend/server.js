@@ -26,6 +26,7 @@ app.use("/api", require("./routes/resultRoutes"));   // ← fixed: was "/api/res
 app.use("/api/violations", require("./routes/proctorRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/principal", require("./routes/principalRoutes"));
+app.use("/api", require("./routes/noticeRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

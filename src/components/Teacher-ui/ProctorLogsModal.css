@@ -103,17 +103,61 @@
 .severity-high .plm-log-severity { background: #ef4444; color: white; }
 .severity-medium .plm-log-severity { background: #f59e0b; color: white; }
 
-.plm-log-meta {
+.plm-log-time {
   font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 12px;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.plm-log-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.meta-badge {
+  font-size: 0.75rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 12px;
   color: #475569;
-  margin-bottom: 10px;
+}
+
+.plm-snapshot-container {
+  position: relative;
+  margin-top: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
 }
 
 .plm-snapshot {
-  max-width: 100%;
-  border-radius: 4px;
-  border: 1px solid #cbd5e1;
-  margin-top: 10px;
+  width: 100%;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.plm-snapshot:hover {
+  transform: scale(1.02);
+}
+
+.snapshot-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  text-align: center;
+  backdrop-filter: blur(2px);
 }
 
 .plm-empty {

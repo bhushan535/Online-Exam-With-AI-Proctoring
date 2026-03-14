@@ -107,6 +107,14 @@ sharedWithTeachers: [{
   },
 }],
 
+proctoringConfig: {
+  enabled: { type: Boolean, default: true },
+  autoSubmitLimit: { type: Number, default: 0 }, // 0 = no auto-submit
+  requireFullScreen: { type: Boolean, default: false },
+  disableTabSwitching: { type: Boolean, default: false },
+  warningLimit: { type: Number, default: 3 },
+},
+
 status: {
   type: String,
   enum: ['draft', 'published', 'active', 'completed', 'archived'],
