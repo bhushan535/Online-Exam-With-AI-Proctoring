@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Toast    from "../Toast";
 import useToast from "../useToast";
 import "./CreateExam.css";
+import { BASE_URL } from '../../config';
 
 function CreateExam() {
 
@@ -20,6 +21,16 @@ const [examDate,setExamDate] = useState("");
 const [totalQuestions,setTotalQuestions] = useState("");
 const [duration,setDuration] = useState("");
 const [marksPerQuestion,setMarksPerQuestion] = useState("");
+const [visibility, setVisibility] = useState("private");
+
+/* PROCTORING CONFIG */
+const [proctoringConfig, setProctoringConfig] = useState({
+  enabled: true,
+  autoSubmitLimit: 0,
+  requireFullScreen: false,
+  disableTabSwitching: false,
+  warningLimit: 3
+});
 
 /* CLASS DATA */
 
@@ -34,7 +45,7 @@ const [classes,setClasses] = useState([]);
 
 useEffect(()=>{
 
-fetch(`${process.env.REACT_APP_API_URL}/api/classes`)
+fetch(`${BASE_URL}/classes`)
 .then(res=>res.json())
 .then(data=>setClasses(data));
 
@@ -113,11 +124,12 @@ examDate,
 totalQuestions:Number(totalQuestions),
 duration:Number(duration),
 marksPerQuestion:Number(marksPerQuestion),
-totalMarks:Number(totalQuestions) * Number(marksPerQuestion)
-
+totalMarks:Number(totalQuestions) * Number(marksPerQuestion),
+visibility,
+proctoringConfig
 };
 
-const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`,{
+const res = await fetch(`${BASE_URL}/exams`,{
 
 method:"POST",
 
@@ -265,9 +277,61 @@ onChange={(e)=>setMarksPerQuestion(e.target.value)}
 required
 />
 
+<label>Visibility</label>
+<select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+  <option value="private">Private (Only Me)</option>
+  <option value="organization">Organization (Shared with Institution)</option>
+</select>
+
 <p className="total-marks-preview">
   Total Exam Marks: <strong>{(Number(totalQuestions) && Number(marksPerQuestion)) ? Number(totalQuestions) * Number(marksPerQuestion) : 0}</strong>
 </p>
+
+<div className="proctoring-settings-section">
+  <h3>🛡️ Proctoring Settings</h3>
+  <div className="proctor-grid">
+    <div className="proctor-field">
+      <label>Enable AI Proctoring</label>
+      <input 
+        type="checkbox" 
+        checked={proctoringConfig.enabled}
+        onChange={(e) => setProctoringConfig({...proctoringConfig, enabled: e.target.checked})}
+      />
+    </div>
+    <div className="proctor-field">
+      <label>Full Screen Required</label>
+      <input 
+        type="checkbox" 
+        checked={proctoringConfig.requireFullScreen}
+        onChange={(e) => setProctoringConfig({...proctoringConfig, requireFullScreen: e.target.checked})}
+      />
+    </div>
+    <div className="proctor-field">
+      <label>Disable Tab Switching</label>
+      <input 
+        type="checkbox" 
+        checked={proctoringConfig.disableTabSwitching}
+        onChange={(e) => setProctoringConfig({...proctoringConfig, disableTabSwitching: e.target.checked})}
+      />
+    </div>
+    <div className="proctor-field">
+      <label>Warning Limit</label>
+      <input 
+        type="number" 
+        value={proctoringConfig.warningLimit}
+        onChange={(e) => setProctoringConfig({...proctoringConfig, warningLimit: Number(e.target.value)})}
+      />
+    </div>
+    <div className="proctor-field">
+      <label>Auto-Submit Limit (0 to disable)</label>
+      <input 
+        type="number" 
+        value={proctoringConfig.autoSubmitLimit}
+        onChange={(e) => setProctoringConfig({...proctoringConfig, autoSubmitLimit: Number(e.target.value)})}
+      />
+    </div>
+  </div>
+</div>
 
 <button type="submit">
 Create Exam

@@ -65,3 +65,39 @@
 .teacher-btn:hover {
   background-color: #1e8a37;
 }
+
+.org-btn {
+  background-color: #6f42c1;
+}
+
+.org-btn:hover {
+  background-color: #5a32a3;
+}
+
+.signup-container {
+  margin-top: 30px;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+.signup-container p {
+  color: #666;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.signup-link {
+  display: inline-block;
+  padding: 10px 25px;
+  border: 2px solid #007bff;
+  color: #007bff;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.signup-link:hover {
+  background-color: #007bff;
+  color: white;
+}

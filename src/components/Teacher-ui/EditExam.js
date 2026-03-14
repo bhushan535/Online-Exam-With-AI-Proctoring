@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Toast    from "../Toast";
 import useToast from "../useToast";
 import "./CreateExam.css";
+import { BASE_URL } from '../../config';
 
 function EditExam() {
   const { id } = useParams();
@@ -15,13 +16,21 @@ function EditExam() {
     examName: "", subject: "", semester: "",
     examDate: "", startTime: "", endTime: "",
     totalMarks: "", duration: "", totalQuestions: "",
+    visibility: "private",
+    proctoringConfig: {
+      enabled: true,
+      autoSubmitLimit: 0,
+      requireFullScreen: false,
+      disableTabSwitching: false,
+      warningLimit: 3
+    }
   });
 
   const [status, setStatus] = useState("");
 
   /* ================= FETCH EXAM ================= */
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/exams/${id}`)
+    fetch(`${BASE_URL}/exams/${id}`)
       .then((res) => res.json())
       .then((exam) => {
         if (!exam || exam.success === false) {
@@ -50,13 +59,33 @@ function EditExam() {
           totalMarks: exam.totalMarks,
           duration: exam.duration,
           totalQuestions: exam.totalQuestions,
+          visibility: exam.visibility || "private",
+          proctoringConfig: exam.proctoringConfig || {
+            enabled: true,
+            autoSubmitLimit: 0,
+            requireFullScreen: false,
+            disableTabSwitching: false,
+            warningLimit: 3
+          }
         });
       });
     // eslint-disable-next-line
   }, [id, navigate]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    if (name.startsWith("proctoring.")) {
+      const field = name.split(".")[1];
+      setForm({
+        ...form,
+        proctoringConfig: {
+          ...form.proctoringConfig,
+          [field]: type === "checkbox" ? checked : (type === "number" ? Number(value) : value)
+        }
+      });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   /* ================= SUBMIT ================= */
@@ -68,7 +97,7 @@ function EditExam() {
       return;
     }
 
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/${id}`, {
+    const res = await fetch(`${BASE_URL}/exams/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -124,6 +153,68 @@ function EditExam() {
 
           <label>Total Questions</label>
           <input type="number" name="totalQuestions" value={form.totalQuestions} onChange={handleChange} disabled={isLocked} />
+
+          <label>Visibility</label>
+          <select name="visibility" value={form.visibility} onChange={handleChange} disabled={isLocked}>
+            <option value="private">Private (Only Me)</option>
+            <option value="organization">Organization (Shared with Institution)</option>
+          </select>
+
+          <div className="proctoring-settings-section">
+            <h3>🛡️ Proctoring Settings</h3>
+            <div className="proctor-grid">
+              <div className="proctor-field">
+                <label>Enable AI Proctoring</label>
+                <input 
+                  type="checkbox" 
+                  name="proctoring.enabled"
+                  checked={form.proctoringConfig.enabled}
+                  onChange={handleChange}
+                  disabled={isLocked}
+                />
+              </div>
+              <div className="proctor-field">
+                <label>Full Screen Required</label>
+                <input 
+                  type="checkbox" 
+                  name="proctoring.requireFullScreen"
+                  checked={form.proctoringConfig.requireFullScreen}
+                  onChange={handleChange}
+                  disabled={isLocked}
+                />
+              </div>
+              <div className="proctor-field">
+                <label>Disable Tab Switching</label>
+                <input 
+                  type="checkbox" 
+                  name="proctoring.disableTabSwitching"
+                  checked={form.proctoringConfig.disableTabSwitching}
+                  onChange={handleChange}
+                  disabled={isLocked}
+                />
+              </div>
+              <div className="proctor-field">
+                <label>Warning Limit</label>
+                <input 
+                  type="number" 
+                  name="proctoring.warningLimit"
+                  value={form.proctoringConfig.warningLimit}
+                  onChange={handleChange}
+                  disabled={isLocked}
+                />
+              </div>
+              <div className="proctor-field">
+                <label>Auto-Submit Limit (0 to disable)</label>
+                <input 
+                  type="number" 
+                  name="proctoring.autoSubmitLimit"
+                  value={form.proctoringConfig.autoSubmitLimit}
+                  onChange={handleChange}
+                  disabled={isLocked}
+                />
+              </div>
+            </div>
+          </div>
 
           {!isLocked && (
             <button type="submit">Update Exam</button>

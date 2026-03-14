@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Toast    from "../Toast";
 import useToast from "../useToast";
 import "./CreateClass.css";
+import { BASE_URL } from '../../config';
 
 function CreateClass() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ function CreateClass() {
 
     const payload = { className, branch, year, semester };
 
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/classes`, {
+    const res = await fetch(`${BASE_URL}/classes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

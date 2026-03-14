@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./ExamResults.css";
+import { BASE_URL } from '../../config';
 
 function ExamResults() {
   const { examId } = useParams();
@@ -15,16 +16,16 @@ function ExamResults() {
   useEffect(() => {
     const load = async () => {
       try {
-        const eRes  = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
+        const eRes  = await fetch(`${BASE_URL}/exams`);
         const exams = await eRes.json();
         const found = Array.isArray(exams) ? exams.find(e => e._id === examId) : null;
         setExam(found || null);
 
-        const rRes  = await fetch(`${process.env.REACT_APP_API_URL}/api/results/exam/${examId}`);
+        const rRes  = await fetch(`${BASE_URL}/results/exam/${examId}`);
         const rData = await rRes.json();
         if (rData.success) setResults(rData.results);
 
-        const sRes  = await fetch(`${process.env.REACT_APP_API_URL}/api/results/exam/${examId}/summary`);
+        const sRes  = await fetch(`${BASE_URL}/results/exam/${examId}/summary`);
         const sData = await sRes.json();
         if (sData.success) setSummary(sData.summary);
       } catch (err) {

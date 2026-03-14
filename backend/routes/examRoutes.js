@@ -38,7 +38,7 @@ router.post("/exams", authenticate, async (req, res) => {
       isPublished: false,
       createdBy: userId,
       organizationId: organizationId,
-      visibility: organizationId ? 'organization' : 'private',
+      visibility: req.body.visibility || (organizationId ? (req.userMode === 'organization' ? 'organization' : 'private') : 'private'),
       editableBy: 'creator_only',
       status: 'draft',
       isArchived: false
@@ -204,13 +204,29 @@ router.post("/exams/submit", async (req, res) => {
     else if (percentage >= 60) grade = "C";
     else if (percentage >= 45) grade = "D";
 
-    // Get student name from Class
+    // Get student name and academic context from Class/Student
     let studentName = studentId;
+    let studentSemester = "";
+    let studentYear = "";
+
     try {
       const classData = await Class.findById(exam.classId);
       if (classData) {
         const found = classData.students.find((s) => s.enrollment === studentId);
-        if (found) studentName = found.name;
+        if (found) {
+          studentName = found.name;
+          // Fallback context from class if not in Student model
+          studentSemester = classData.semester;
+          studentYear = classData.year;
+        }
+      }
+
+      // Try to get precise context from Student profile (especially for Org mode)
+      const Student = require("../models/Student");
+      const studentProfile = await Student.findOne({ enrollmentNo: studentId });
+      if (studentProfile) {
+        if (studentProfile.currentSemester) studentSemester = studentProfile.currentSemester;
+        if (studentProfile.currentYear) studentYear = studentProfile.currentYear;
       }
     } catch (e) { }
 
@@ -218,6 +234,8 @@ router.post("/exams/submit", async (req, res) => {
       examId,
       studentId,
       studentName,
+      semester: studentSemester,
+      year: studentYear,
       answers,
       score,
       totalMarks: exam.totalMarks,
@@ -272,8 +290,7 @@ router.get("/exams", authenticate, async (req, res) => {
                 { createdBy: userId },
                 { 
                   organizationId: orgId, 
-                  visibility: 'organization',
-                  'sharedWithTeachers.teacherId': userId 
+                  visibility: 'organization'
                 }
             ]
         };
@@ -411,6 +428,58 @@ router.delete("/exams/:id", authenticate, async (req, res) => {
     res.json({ success: true, message: "Exam and all related data deleted successfully" });
   } catch (err) {
     console.error("DELETE EXAM ERROR:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ======================
+CLONE EXAM
+====================== */
+router.post("/exams/clone/:id", authenticate, async (req, res) => {
+  try {
+    const originalExam = await Exam.findById(req.params.id);
+    if (!originalExam) return res.status(404).json({ success: false, message: "Exam not found" });
+
+    const userId = req.userId || (req.user && req.user._id);
+    
+    // Create new exam object (stripping IDs)
+    const cloneData = originalExam.toObject();
+    delete cloneData._id;
+    delete cloneData.createdAt;
+    delete cloneData.updatedAt;
+    
+    // Set new owner and metadata
+    cloneData.examName = `${cloneData.examName} (Copy)`;
+    cloneData.createdBy = userId;
+    cloneData.isPublished = false;
+    cloneData.status = 'draft';
+    cloneData.isArchived = false;
+
+    // Organization context
+    if (req.userMode === 'organization') {
+        cloneData.organizationId = req.organizationId;
+        cloneData.visibility = 'private'; // Start copies as private
+    } else {
+        cloneData.organizationId = null;
+        cloneData.visibility = 'private';
+    }
+
+    const newExam = new Exam(cloneData);
+    await newExam.save();
+
+    // Clone questions
+    const questions = await Question.find({ examId: req.params.id });
+    for (let q of questions) {
+        const qData = q.toObject();
+        delete qData._id;
+        qData.examId = newExam._id;
+        const newQ = new Question(qData);
+        await newQ.save();
+    }
+
+    res.status(201).json({ success: true, message: "Exam cloned successfully", exam: newExam });
+  } catch (err) {
+    console.error("CLONE EXAM ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });

@@ -4,6 +4,7 @@ import Toast from "../Toast";
 import useToast from "../useToast";
 import PopupModal from "../PopupModal";
 import "./AddQuestion.css";
+import { BASE_URL } from '../../config';
 
 function AddQuestion() {
   const { examId } = useParams();
@@ -24,7 +25,7 @@ function AddQuestion() {
 
   /* ================= FETCH EXAM DETAILS ================= */
   const fetchExam = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
+    const res = await fetch(`${BASE_URL}/exams`);
     const data = await res.json();
     const exam = data.find((e) => e._id === examId);
     if (exam) setTotalQuestionsAllowed(exam.totalQuestions);
@@ -32,7 +33,7 @@ function AddQuestion() {
 
   /* ================= FETCH QUESTIONS ================= */
   const fetchQuestions = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/questions/${examId}`);
+    const res = await fetch(`${BASE_URL}/questions/${examId}`);
     const data = await res.json();
     setQuestions(data);
   };
@@ -70,11 +71,11 @@ function AddQuestion() {
       correctAnswer: trimmedCorrect,
     };
 
-    let url = `${process.env.REACT_APP_API_URL}/api/questions`;
+    let url = `${BASE_URL}/questions`;
     let method = "POST";
 
     if (isEditing) {
-      url = `${process.env.REACT_APP_API_URL}/api/questions/${editId}`;
+      url = `${BASE_URL}/questions/${editId}`;
       method = "PUT";
     }
 
@@ -98,7 +99,7 @@ function AddQuestion() {
 
   /* ================= DELETE ================= */
   const deleteQuestion = async (id) => {
-    await fetch(`${process.env.REACT_APP_API_URL}/api/questions/${id}`, { method: "DELETE" });
+    await fetch(`${BASE_URL}/questions/${id}`, { method: "DELETE" });
     fetchQuestions();
   };
 

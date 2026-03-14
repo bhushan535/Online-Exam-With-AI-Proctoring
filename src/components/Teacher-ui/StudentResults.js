@@ -4,6 +4,7 @@ import Toast    from "../Toast";
 import useToast from "../useToast";
 import ProctorLogsModal from "./ProctorLogsModal";
 import "./StudentResults.css";
+import { BASE_URL } from '../../config';
 
 function StudentResults() {
   const { examId } = useParams();
@@ -21,14 +22,14 @@ function StudentResults() {
   useEffect(() => {
     const load = async () => {
       try {
-        const rRes  = await fetch(`${process.env.REACT_APP_API_URL}/api/results/exam/${examId}`);
+        const rRes  = await fetch(`${BASE_URL}/results/exam/${examId}`);
         const rData = await rRes.json();
         if (rData.success) {
           setExam(rData.exam);
           setResults(rData.results || []);
         }
 
-        const sRes  = await fetch(`${process.env.REACT_APP_API_URL}/api/results/exam/${examId}/summary`);
+        const sRes  = await fetch(`${BASE_URL}/results/exam/${examId}/summary`);
         const sData = await sRes.json();
         if (sData.success) setSummary(sData.summary);
       } catch (err) {

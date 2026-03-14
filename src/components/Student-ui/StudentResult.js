@@ -1,37 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 import "./StudentResult.css";
 
 function StudentResult() {
   const navigate = useNavigate();
-  const student  = JSON.parse(localStorage.getItem("student") || "{}");
+  const { user } = useAuth();
+  
+  // Support both context-based user and legacy student object
+  const student = user || JSON.parse(localStorage.getItem("student") || "{}");
 
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const [filterSem, setFilterSem] = useState(urlParams.get("semester") || "");
+  const [filterYear, setFilterYear] = useState(urlParams.get("year") || "");
+
   useEffect(() => {
-    if (!student?.enrollment) {
+    // Determine enrollment from the student object (either from context or localStorage)
+    const enrollment = student.enrollment; 
+
+    if (!enrollment) {
       navigate("/StudentHome");
       return;
     }
-    fetch(`${process.env.REACT_APP_API_URL}/api/results/student/${student.enrollment}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) setResults(d.results);
+    
+    axios.get(`/api/results/student/${enrollment}`)
+      .then(res => {
+        if (res.data.success) setResults(res.data.results);
         else setError("Could not load results.");
       })
       .catch(() => setError("Connection error."))
       .finally(() => setLoading(false));
     // eslint-disable-next-line
-  }, []);
+  }, [student]);
+
+  const filteredResults = results.filter(r => {
+    const semMatch = filterSem === "" || r.semester === filterSem;
+    const yearMatch = filterYear === "" || r.year === filterYear;
+    return semMatch && yearMatch;
+  });
+
+  const uniqueSemesters = [...new Set(results.map(r => r.semester).filter(Boolean))];
+  const uniqueYears = [...new Set(results.map(r => r.year).filter(Boolean))];
 
   /* Summary stats */
-  const totalExams   = results.length;
-  const avgPct       = totalExams ? Math.round(results.reduce((s, r) => s + r.percentage, 0) / totalExams) : 0;
+  const totalExams   = filteredResults.length;
+  const avgPct       = totalExams ? Math.round(filteredResults.reduce((s, r) => s + r.percentage, 0) / totalExams) : 0;
   const gradeRank    = { A: 5, B: 4, C: 3, D: 2, F: 1 };
-  const bestGrade    = totalExams ? results.reduce((b, r) => ((gradeRank[r.grade] || 0) > (gradeRank[b] || 0) ? r.grade : b), "F") : "—";
-  const totalCorrect = results.reduce((s, r) => s + (r.correct || 0), 0);
+  const bestGrade    = totalExams ? filteredResults.reduce((b, r) => ((gradeRank[r.grade] || 0) > (gradeRank[b] || 0) ? r.grade : b), "F") : "—";
+  const totalCorrect = filteredResults.reduce((s, r) => s + (r.correct || 0), 0);
 
   /* Helpers */
   const gradeColor = (g) => ({ A: "#16a34a", B: "#2563eb", C: "#d97706", D: "#ea580c", F: "#dc2626" }[g] || "#6b7280");
@@ -60,6 +81,29 @@ function StudentResult() {
         </div>
       </div>
 
+      {/* Semester/Year Filter Bar */}
+      {(uniqueSemesters.length > 0 || uniqueYears.length > 0) && (
+        <div className="sr-filter-bar">
+          <div className="sr-filter-group">
+            <label>Semester:</label>
+            <select value={filterSem} onChange={(e) => setFilterSem(e.target.value)}>
+              <option value="">All Semesters</option>
+              {uniqueSemesters.map(sem => <option key={sem} value={sem}>{sem}</option>)}
+            </select>
+          </div>
+          <div className="sr-filter-group">
+            <label>Year:</label>
+            <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
+              <option value="">All Years</option>
+              {uniqueYears.map(yr => <option key={yr} value={yr}>{yr}</option>)}
+            </select>
+          </div>
+          {(filterSem || filterYear) && (
+            <button className="sr-reset-btn" onClick={() => { setFilterSem(""); setFilterYear(""); }}>Reset</button>
+          )}
+        </div>
+      )}
+
       {/* Summary row */}
       {totalExams > 0 && (
         <div className="sr-summary">
@@ -71,16 +115,20 @@ function StudentResult() {
       )}
 
       {/* Results list */}
-      {results.length === 0 ? (
+      {filteredResults.length === 0 ? (
         <div className="sr-empty">
           <div className="sr-empty-icon">📭</div>
-          <h3>No results yet</h3>
-          <p>Attempt an exam first. Your results will appear here.</p>
-          <button className="sr-go-btn" onClick={() => navigate("/attempt-exams")}>Go Attempt Exam →</button>
+          <h3>No results found</h3>
+          <p>{(filterSem || filterYear) ? "Try changing your filters." : "Attempt an exam first. Your results will appear here."}</p>
+          {(filterSem || filterYear) ? (
+             <button className="sr-go-btn" onClick={() => { setFilterSem(""); setFilterYear(""); }}>Clear Filters</button>
+          ) : (
+             <button className="sr-go-btn" onClick={() => navigate("/attempt-exams")}>Go Attempt Exam →</button>
+          )}
         </div>
       ) : (
         <div className="sr-list">
-          {results.map((r) => (
+          {filteredResults.map((r) => (
             <div className="sr-card" key={r._id}>
 
               {/* Card top */}

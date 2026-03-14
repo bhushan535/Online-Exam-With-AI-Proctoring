@@ -1,30 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 import "./AttemptExam.css";
 
 function AttemptExam() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [exams, setExams] = useState([]);
 
-const navigate = useNavigate();
-const [exams,setExams] = useState([]);
+  // Support both context-based user and legacy student object
+  const student = user || JSON.parse(localStorage.getItem("student") || "{}");
 
-const student = JSON.parse(localStorage.getItem("student"));
+  useEffect(() => {
+    const classId = student.classId || (student.role === 'student' ? student.classId : null);
+    if (!classId) return;
 
-useEffect(()=>{
-
-if(!student || !student.classId) return;
-
-fetch(`${process.env.REACT_APP_API_URL}/api/exams/student/${student.classId}`)
-.then(res=>res.json())
-.then(data=>{
-
-/* SHOW ONLY PUBLISHED EXAMS */
-
-const published = data.filter(e => e.isPublished);
-setExams(published);
-
-});
-
-},[student]);
+    axios.get(`/api/exams/student/${classId}`)
+      .then(res => {
+        const published = res.data.filter(e => e.isPublished);
+        setExams(published);
+      })
+      .catch(err => console.error("Error fetching exams:", err));
+  }, [student]);
 
 /* EXAM STATUS */
 

@@ -202,3 +202,87 @@ hr {
   cursor: pointer; display: inline-block;
 }
 .import-btn:hover { background: #0e7490; }
+
+/* Org Add Buttons */
+.org-add-btn {
+  padding: 8px 14px; background: #ea580c; color: white;
+  border: none; border-radius: 4px; font-size: 13px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.org-add-btn:hover { background: #c2410c; }
+
+/* Search Modal Specifics */
+.org-search-modal {
+  max-width: 600px;
+  width: 90%;
+}
+
+.org-search-bar {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.org-search-bar .search-icon { color: #64748b; margin-right: 10px; }
+.org-search-bar input {
+  background: none; border: none; outline: none; width: 100%; font-size: 1rem;
+}
+
+.org-students-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.org-student-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.org-student-item:hover { background: #f8fafc; }
+.org-student-item.selected { background: #eff6ff; }
+
+.org-student-item .selection-box {
+  font-size: 1.2rem;
+  margin-right: 15px;
+  color: #94a3b8;
+}
+
+.org-student-item.selected .selection-box { color: #3b82f6; }
+
+.org-student-item .student-info { display: flex; flex-direction: column; }
+.org-student-item .name { font-weight: 600; color: #1e293b; }
+.org-student-item .enrollment { font-size: 0.85rem; color: #64748b; }
+.org-student-item .branch { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; }
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.selected-count { font-weight: 600; color: #3b82f6; }
+
+.add-btn-final {
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-btn-final:disabled { background: #cbd5e1; cursor: not-allowed; }
+.add-btn-final:hover:not(:disabled) { background: #2563eb; }

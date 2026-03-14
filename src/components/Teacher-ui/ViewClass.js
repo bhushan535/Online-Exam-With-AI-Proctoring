@@ -1,20 +1,30 @@
-import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import * as XLSX from "xlsx";
 import Toast      from "../Toast";
 import useToast   from "../useToast";
 import PopupModal from "../PopupModal";
+import { FaSchool, FaSearch, FaCheckSquare, FaSquare } from "react-icons/fa";
 import "./ViewClass.css";
+import { BASE_URL } from '../../config';
 
 function ViewClass() {
   const { id } = useParams();
+  const { token, user } = useAuth();
   const [cls, setCls] = useState(null);
   const { toasts, showToast, removeToast } = useToast();
   const [deleteModal, setDeleteModal] = useState({ open: false, targetId: null });
 
+  // Organization Student Search
+  const [showOrgAddModal, setShowOrgAddModal] = useState(false);
+  const [orgSearchQuery, setOrgSearchQuery] = useState("");
+  const [orgStudents, setOrgStudents] = useState([]);
+  const [selectedEnrollments, setSelectedEnrollments] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   /* ================= FETCH CLASS ================= */
   const fetchClass = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}`);
+    const res = await fetch(`${BASE_URL}/class/${id}`);
     const data = await res.json();
     setCls(data);
   };
@@ -99,7 +109,7 @@ function ViewClass() {
           password:   String(r["Password"]).trim(),
         }));
 
-        const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/class/import-students/${id}`, {
+        const res  = await fetch(`${BASE_URL}/class/import-students/${id}`, {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ students }),
@@ -122,7 +132,7 @@ function ViewClass() {
 
   /* ================= DELETE STUDENT ================= */
   const confirmDeleteStudent = async (studentId) => {
-    await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}/student/${studentId}`, { method: "DELETE" });
+    await fetch(`${BASE_URL}/class/${id}/student/${studentId}`, { method: "DELETE" });
     fetchClass();
     showToast("Student removed.", "info");
   };
@@ -138,7 +148,7 @@ function ViewClass() {
       return;
     }
 
-    await fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}/student/${student._id}`, {
+    await fetch(`${BASE_URL}/class/${id}/student/${student._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, rollNo, password }),
@@ -146,6 +156,64 @@ function ViewClass() {
 
     fetchClass();
     showToast("Student updated!", "success");
+  };
+
+  /* ================= SEARCH ORG STUDENTS ================= */
+  const searchOrgStudents = async (q) => {
+    setIsSearching(true);
+    try {
+      const res = await fetch(`${BASE_URL}/class/${id}/org-students?query=${q}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrgStudents(data.students);
+      }
+    } catch (err) {
+      showToast("Error searching students", "error");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showOrgAddModal) {
+      searchOrgStudents(orgSearchQuery);
+    }
+  }, [orgSearchQuery, showOrgAddModal]);
+
+  const toggleStudentSelection = (enrollment) => {
+    setSelectedEnrollments(prev => 
+      prev.includes(enrollment) 
+        ? prev.filter(e => e !== enrollment) 
+        : [...prev, enrollment]
+    );
+  };
+
+  const handleAddOrgStudents = async () => {
+    if (selectedEnrollments.length === 0) return;
+    try {
+      const res = await fetch(`${BASE_URL}/class/${id}/add-org-students`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ studentEnrollments: selectedEnrollments }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, "success");
+        setShowOrgAddModal(false);
+        setSelectedEnrollments([]);
+        setOrgSearchQuery("");
+        fetchClass();
+      } else {
+        showToast(data.message, "error");
+      }
+    } catch (err) {
+      showToast("Error adding students", "error");
+    }
   };
 
   return (
@@ -176,6 +244,11 @@ function ViewClass() {
       <div className="export-row">
         <h3>Joined Students ({sortedStudents.length})</h3>
         <div className="action-btns-row">
+          {user?.mode === 'organization' && (
+            <button className="org-add-btn" onClick={() => setShowOrgAddModal(true)}>
+              <FaSchool /> Add From Organization
+            </button>
+          )}
           <button className="export-btn" onClick={exportStudents}>📥 Export List</button>
           <button className="template-btn" onClick={downloadTemplate}>📄 Download Template</button>
           <label className="import-btn">
@@ -235,6 +308,66 @@ function ViewClass() {
         }}
         onCancel={() => setDeleteModal({ open: false, targetId: null })}
       />
+      {/* Add From Organization Modal */}
+      {showOrgAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-content org-search-modal">
+            <div className="modal-header">
+              <h3><FaSchool /> Add Students from Institution</h3>
+              <button className="close-btn" onClick={() => setShowOrgAddModal(false)}>&times;</button>
+            </div>
+            
+            <div className="org-search-bar">
+              <FaSearch className="search-icon" />
+              <input 
+                type="text" 
+                placeholder="Search by Name or Enrollment..." 
+                value={orgSearchQuery}
+                onChange={(e) => setOrgSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="org-students-list">
+              {isSearching ? (
+                <div className="search-loading">Searching pool...</div>
+              ) : orgStudents.length === 0 ? (
+                <div className="no-results">No students found or already in class.</div>
+              ) : (
+                orgStudents.map(student => (
+                  <div 
+                    key={student.enrollmentNo} 
+                    className={`org-student-item ${selectedEnrollments.includes(student.enrollmentNo) ? 'selected' : ''}`}
+                    onClick={() => toggleStudentSelection(student.enrollmentNo)}
+                  >
+                    <div className="selection-box">
+                      {selectedEnrollments.includes(student.enrollmentNo) ? <FaCheckSquare /> : <FaSquare />}
+                    </div>
+                    <div className="student-info">
+                      <span className="name">{student.userId?.name}</span>
+                      <span className="enrollment">{student.enrollmentNo}</span>
+                      <span className="branch">{student.branch}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <span className="selected-count">{selectedEnrollments.length} selected</span>
+              <div className="btn-group">
+                <button className="cancel-btn" onClick={() => setShowOrgAddModal(false)}>Cancel</button>
+                <button 
+                  className="add-btn-final" 
+                  disabled={selectedEnrollments.length === 0}
+                  onClick={handleAddOrgStudents}
+                >
+                  Add to Class
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

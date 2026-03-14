@@ -5,6 +5,8 @@ const Result = require("../models/Result");
 const ProctorLog = require("../models/ProctorLog");
 const Exam = require("../models/Exam");
 const ExamAccess = require("../models/ExamAccess");
+const User = require("../models/User");
+const Student = require("../models/Student");
 const { authenticate } = require('../middleware/auth');
 
 
@@ -51,11 +53,23 @@ router.post("/classes", authenticate, async (req, res) => {
 });
 
 // ==============================
-// GET ALL CLASSES
+// GET ALL CLASSES (Filtered)
 // ==============================
-router.get("/classes", async (req, res) => {
+router.get("/classes", authenticate, async (req, res) => {
   try {
-    const classes = await Class.find().sort({ createdAt: -1 });
+    const userId = req.userId || (req.user && req.user._id);
+    const orgId = req.organizationId || null;
+    let filter = {};
+
+    if (req.userRole === 'principal') {
+      filter = { organizationId: orgId };
+    } else if (req.userRole === 'teacher' && req.userMode === 'organization') {
+      filter = { organizationId: orgId };
+    } else if (req.userRole === 'teacher' && req.userMode === 'solo') {
+      filter = { createdBy: userId, mode: 'solo' };
+    }
+
+    const classes = await Class.find(filter).sort({ createdAt: -1 });
     res.json(classes);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -118,6 +132,40 @@ router.post("/class/join/:classId", async (req, res) => {
     }
 
     cls.students.push({ rollNo: Number(rollNo), enrollment, name, password, joinedAt: new Date() });
+
+    // Sync with Organization pool
+    if (cls.mode === 'organization' && cls.organizationId) {
+      try {
+        const studentEmail = `${enrollment.toLowerCase()}@institution.com`;
+        let studentUser = await User.findOne({ email: studentEmail });
+        
+        if (!studentUser) {
+          studentUser = new User({
+            name,
+            email: studentEmail,
+            password,
+            role: 'student',
+            mode: 'organization',
+            organizationId: cls.organizationId
+          });
+          await studentUser.save();
+
+          const studentProfile = new Student({
+            userId: studentUser._id,
+            enrollmentNo: enrollment,
+            organizationId: cls.organizationId,
+            branch: cls.branch,
+            currentSemester: cls.semester,
+            currentYear: cls.year,
+            addedBy: cls.createdBy
+          });
+          await studentProfile.save();
+        }
+      } catch (syncErr) {
+        console.error("Sync error in join class:", syncErr);
+      }
+    }
+
     await cls.save();
 
     res.json({ success: true, message: "Joined class successfully" });
@@ -137,6 +185,42 @@ router.post("/class/import-students/:classId", async (req, res) => {
 
     const existing = new Set(classDoc.students.map((s) => s.enrollment));
     const newStudents = students.filter((s) => !existing.has(String(s.enrollment)));
+
+    // Sync with Organization Student pool if in Org mode
+    if (classDoc.mode === 'organization' && classDoc.organizationId) {
+      for (const s of newStudents) {
+        try {
+          // Check if User exists by enrollment-based email
+          const studentEmail = `${s.enrollment.toLowerCase()}@institution.com`;
+          let studentUser = await User.findOne({ email: studentEmail });
+          
+          if (!studentUser) {
+            studentUser = new User({
+              name: s.name,
+              email: studentEmail,
+              password: s.password, // bcrypt hash handled by pre-save
+              role: 'student',
+              mode: 'organization',
+              organizationId: classDoc.organizationId
+            });
+            await studentUser.save();
+
+            const studentProfile = new Student({
+              userId: studentUser._id,
+              enrollmentNo: s.enrollment,
+              organizationId: classDoc.organizationId,
+              branch: classDoc.branch,
+              currentSemester: classDoc.semester,
+              currentYear: classDoc.year,
+              addedBy: classDoc.createdBy
+            });
+            await studentProfile.save();
+          }
+        } catch (syncErr) {
+          console.error(`Failed to sync student ${s.enrollment}:`, syncErr);
+        }
+      }
+    }
 
     classDoc.students.push(
       ...newStudents.map((s) => ({
@@ -251,6 +335,80 @@ router.delete("/class/:classId/student/:studentId", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// ==============================
+// SEARCH ORG STUDENTS (Not in this class)
+// ==============================
+router.get("/class/:classId/org-students", authenticate, async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const { query } = req.query; // Search by name/enrollment
+    const Student = require("../models/Student");
+
+    const cls = await Class.findById(classId);
+    if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
+
+    const existingEnrollments = cls.students.map(s => s.enrollment);
+
+    let filter = {
+      organizationId: req.organizationId,
+      enrollmentNo: { $nin: existingEnrollments }
+    };
+
+    let students = await Student.find(filter)
+      .populate('userId', 'name email')
+      .limit(20);
+
+    if (query) {
+      students = students.filter(s => 
+        s.userId?.name.toLowerCase().includes(query.toLowerCase()) || 
+        s.enrollmentNo.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    res.json({ success: true, students });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==============================
+// ADD ORG STUDENTS TO CLASS
+// ==============================
+router.post("/class/:classId/add-org-students", authenticate, async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const { studentEnrollments } = req.body; // Array of enrollments
+    const Student = require("../models/Student");
+
+    const cls = await Class.findById(classId);
+    if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
+
+    const studentsToFetch = await Student.find({
+      enrollmentNo: { $in: studentEnrollments },
+      organizationId: req.organizationId
+    }).populate('userId');
+
+    let addedCount = 0;
+    for (let sItem of studentsToFetch) {
+      if (!cls.students.find(s => s.enrollment === sItem.enrollmentNo)) {
+        cls.students.push({
+          rollNo: cls.students.length + 1, // Auto-assign next roll no
+          enrollment: sItem.enrollmentNo,
+          name: sItem.userId?.name || "Unknown",
+          password: "OrgUser", // Placeholder since we use central auth for org students
+          joinedAt: new Date()
+        });
+        addedCount++;
+      }
+    }
+
+    await cls.save();
+    res.json({ success: true, message: `Successfully added ${addedCount} students to class.` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 

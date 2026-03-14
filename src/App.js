@@ -8,7 +8,6 @@ import FrontPage from "./components/Authentication/FrontPage";
 
 /* STUDENT AUTH */
 import StudentLogin from "./components/Student-ui/StudentLogin";
-import Registration from "./components/Student-ui/Registration";
 
 /* TEACHER AUTH */
 import TeacherLogin from "./components/Teacher-ui/TeacherLogin";
@@ -45,8 +44,17 @@ import ExamStartCountdown from "./components/Student-ui/ExamStartCountdown";
 import StudentClassLogin from "./components/Student-ui/StudentClassLogin";
 import JoinClass from "./components/Student-ui/JoinClass";
 
-/* MODE SELECTION */
+/* PRINCIPAL MANAGEMENT */
+import TeacherManagement from "./components/Teacher-ui/TeacherManagement";
+import OrgSettings from "./components/Teacher-ui/OrgSettings";
+import Promotion from "./components/Teacher-ui/Promotion";
+import StudentManagement from "./components/Teacher-ui/StudentManagement";
+import Analytics from "./components/Teacher-ui/Analytics";
+import NoticeManagement from "./components/Teacher-ui/NoticeManagement";
+
+/* PAGES */
 import ModeSelection from "./pages/ModeSelection";
+import Registration from "./components/Authentication/Registration";
 
 
 function App() {
@@ -57,23 +65,18 @@ function App() {
     {/* FRONT PAGE */}
     <Route path="/" element={<FrontPage />} />
 
-    {/* NEW AUTH ROUTES */}
+    {/* AUTH ROUTES */}
     <Route path="/login" element={<TeacherLogin />} />
     <Route path="/signup" element={<ModeSelection />} />
-    <Route path="/signup/teacher-solo" element={<Registration />} />
-    <Route path="/signup/principal" element={<Registration />} /> 
+    <Route path="/signup/teacher-solo" element={<Registration role="teacher" mode="solo" />} />
+    <Route path="/signup/principal" element={<Registration role="principal" mode="organization" />} /> 
 
-
-    {/* STUDENT AUTH */}
+    {/* STUDENT AUTH (Legacy/Special) */}
     <Route path="/StudentLogin" element={<StudentLogin />} />
-    <Route path="/Registration" element={<Registration />} />
-
-    {/* TEACHER AUTH */}
-    <Route path="/TeacherLogin" element={<TeacherLogin />} />
 
     {/* DASHBOARDS */}
     <Route path="/TeacherHome" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <TeacherHome />
       </ProtectedRoute>
     } />
@@ -85,44 +88,44 @@ function App() {
 
     {/* CLASS MANAGEMENT */}
     <Route path="/CreateClass" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <CreateClass />
       </ProtectedRoute>
     } />
     <Route path="/Classes" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <Classes />
       </ProtectedRoute>
     } />
     <Route path="/class/:id" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <ViewClass />
       </ProtectedRoute>
     } />
     <Route path="/edit-class/:id" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <EditClass />
       </ProtectedRoute>
     } />
 
     {/* EXAMS */}
     <Route path="/CreateExam" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <CreateExam />
       </ProtectedRoute>
     } />
     <Route path="/Exams" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <Exams />
       </ProtectedRoute>
     } />
     <Route path="/add-question/:examId" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <AddQuestion />
       </ProtectedRoute>
     } />
     <Route path="/edit-exam/:id" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <EditExam />
       </ProtectedRoute>
     } />
@@ -156,7 +159,7 @@ function App() {
 
     {/* RESULTS */}
     <Route path="/student-results/:examId" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <StudentResults />
       </ProtectedRoute>
     } />
@@ -166,7 +169,7 @@ function App() {
       </ProtectedRoute>
     } />
     <Route path="/exam-results/:examId" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
+      <ProtectedRoute allowedRoles={['teacher', 'principal']}>
         <ExamResults />
       </ProtectedRoute>
     } />
@@ -174,6 +177,38 @@ function App() {
     {/* CLASS JOIN */}
     <Route path="/class-login/:classCode" element={<StudentClassLogin />} />
     <Route path="/join-class/:classId" element={<JoinClass />} />
+
+    {/* PRINCIPAL ONLY */}
+    <Route path="/TeacherManagement" element={
+      <ProtectedRoute allowedRoles={['principal']}>
+        <TeacherManagement />
+      </ProtectedRoute>
+    } />
+    <Route path="/OrgSettings" element={
+      <ProtectedRoute allowedRoles={['principal']}>
+        <OrgSettings />
+      </ProtectedRoute>
+    } />
+    <Route path="/Promotion" element={
+      <ProtectedRoute allowedRoles={['principal']}>
+        <Promotion />
+      </ProtectedRoute>
+    } />
+    <Route path="/StudentManagement" element={
+      <ProtectedRoute allowedRoles={['principal']}>
+        <StudentManagement />
+      </ProtectedRoute>
+    } />
+    <Route path="/Analytics" element={
+      <ProtectedRoute allowedRoles={['principal']}>
+        <Analytics />
+      </ProtectedRoute>
+    } />
+    <Route path="/Notices" element={
+      <ProtectedRoute allowedRoles={['principal']}>
+        <NoticeManagement />
+      </ProtectedRoute>
+    } />
 
   </Routes>
   </BrowserRouter>

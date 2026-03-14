@@ -5,6 +5,7 @@ import useToast from "../useToast";
 import PopupModal from "../PopupModal";
 import "./AttemptExamPage.css";
 import ProctoringEngine from "../../proctoring/ProctoringEngine";
+import { BASE_URL } from '../../config';
 
 function AttemptExamPage() {
   const { examId } = useParams();
@@ -13,6 +14,7 @@ function AttemptExamPage() {
   const submittedRef = useRef(false); // prevents double-submit race condition
 
   const [questions, setQuestions] = useState([]);
+  const [proctoringConfig, setProctoringConfig] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [reviewStatus, setReviewStatus] = useState({});
@@ -36,19 +38,19 @@ function AttemptExamPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const examRes = await fetch(`${process.env.REACT_APP_API_URL}/api/exams`);
-        const exams = await examRes.json();
-        const exam = exams.find(e => e._id === examId);
+        const examRes = await fetch(`${BASE_URL}/exams/${examId}`);
+        const exam = await examRes.json();
 
-        if (!exam) {
+        if (!exam || exam.success === false) {
           showToast("Exam not found. Redirecting...", "error");
           setTimeout(() => navigate("/attempt-exams"), 1500);
           return;
         }
 
+        setProctoringConfig(exam.proctoringConfig);
         setTimeLeft(exam.duration * 60);
 
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/questions/${examId}`);
+        const res = await fetch(`${BASE_URL}/questions/${examId}`);
         const data = await res.json();
         setQuestions(data);
       } catch (err) {
@@ -135,7 +137,7 @@ function AttemptExamPage() {
 
     try {
       const student = JSON.parse(localStorage.getItem("student")) || {};
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/submit`, {
+      const res = await fetch(`${BASE_URL}/exams/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -178,10 +180,11 @@ function AttemptExamPage() {
     <div className="attempt-exam-layout">
       <Toast toasts={toasts} removeToast={removeToast} />
 
-      {!submitted && (
+      {!submitted && proctoringConfig && (
         <ProctoringEngine
           examId={examId}
           studentId={JSON.parse(localStorage.getItem("student"))?.enrollment || "Unknown"}
+          config={proctoringConfig}
           onAutoSubmit={() => submitExam(true)}
           onWarning={(event) => showToast("⚠️ Proctoring Warning: Please focus on the exam.", "warning")}
         />

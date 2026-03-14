@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./JoinClass.css";
+import { BASE_URL } from '../../config';
 
 function JoinClass() {
   const { classId } = useParams();
@@ -17,7 +18,7 @@ function JoinClass() {
 
   // Fetch class name to show at top of form
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
+    fetch(`${BASE_URL}/class/${classId}`)
       .then(r => r.json())
       .then(d => { if (d) setClassInfo(d); })
       .catch(() => {});
@@ -34,7 +35,7 @@ function JoinClass() {
 
     setLoading(true);
     try {
-      const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/class/join/${classId}`, {
+      const res  = await fetch(`${BASE_URL}/class/join/${classId}`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ rollNo: Number(rollNo), enrollment, name, password }),

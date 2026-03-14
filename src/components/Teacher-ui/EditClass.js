@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Toast    from "../Toast";
 import useToast from "../useToast";
 import "./EditClass.css";
+import { BASE_URL } from '../../config';
 
 function EditClass() {
   const { id } = useParams();
@@ -25,7 +26,7 @@ function EditClass() {
 
   /* ================= FETCH CLASS ================= */
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/class/${id}`)
+    fetch(`${BASE_URL}/class/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setClassName(data.className);
@@ -41,7 +42,7 @@ function EditClass() {
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/classes/${id}`, {
+    const res = await fetch(`${BASE_URL}/classes/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ className, branch, year, semester }),

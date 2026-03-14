@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./ExamInstructions.css";
 import Toast from "../Toast";
 import useToast from "../useToast";
+import { BASE_URL } from '../../config';
 
 function ExamInstructions() {
   const { examId } = useParams();
@@ -18,7 +19,7 @@ function ExamInstructions() {
   const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/exams/${examId}`)
+    fetch(`${BASE_URL}/exams/${examId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch exam");
         return res.json();
@@ -45,7 +46,7 @@ function ExamInstructions() {
 
     try {
       const student = JSON.parse(localStorage.getItem("student")) || {};
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/exams/verify-code`, {
+      const res = await fetch(`${BASE_URL}/exams/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

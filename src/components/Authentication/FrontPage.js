@@ -18,8 +18,19 @@ function FrontPage() {
                     Student Login
                 </Link>
 
-                <Link to="/TeacherLogin" className="btn teacher-btn">
+                <Link to="/login?role=teacher" className="btn teacher-btn">
                     Teacher Login
+                </Link>
+
+                <Link to="/login?role=principal" className="btn org-btn">
+                    Organization Login
+                </Link>
+            </div>
+            
+            <div className="signup-container">
+                <p>New to the platform?</p>
+                <Link to="/signup" className="signup-link">
+                    Create an account today
                 </Link>
             </div>
             </div>

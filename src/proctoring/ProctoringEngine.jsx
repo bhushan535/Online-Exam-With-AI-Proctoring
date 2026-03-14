@@ -28,9 +28,9 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
   const [warningCount, setWarningCount] = useState(0);
   const [lastViolation, setLastViolation] = useState(null);
 
-  // Deep merge config (simplified for this example, a real robust merge might be needed if config is complex)
+  // Deep merge config with granular settings from the exam
   const mergedConfig = useMemo(() => {
-    return {
+    const base = {
       ...defaultConfig,
       ...config,
       face: { ...defaultConfig.face, ...config.face },
@@ -43,7 +43,29 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
       objects: { ...defaultConfig.objects, ...config.objects },
       persons: { ...defaultConfig.persons, ...config.persons },
     };
+
+    // Override with granular proctoring configuration if present
+    if (config) {
+      if (config.autoSubmitLimit > 0) {
+        base.strikes.autoSubmitAt = config.autoSubmitLimit;
+      } else if (config.autoSubmitLimit === 0) {
+        base.strikes.autoSubmitAt = 999; // Effectively disabled
+      }
+      
+      if (config.requireFullScreen !== undefined) {
+        base.fullscreen.enforced = config.requireFullScreen;
+      }
+      
+      // We'll use warningLimit to control some internal logic if needed
+      // For now mapping autoSubmitLimit to autoSubmitAt is the primary 
+    }
+
+    return base;
   }, [config]);
+
+  if (config && config.enabled === false) {
+    return null;
+  }
 
   const submitExam = () => onAutoSubmit?.();
   const warnStudent = (msg) => onWarning?.(msg);
@@ -119,8 +141,14 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
   useEffect(() => {
     let active = true;
 
-    initTabDetector(handleSecurityViolation);
-    initFullscreen(handleSecurityViolation, mergedConfig);
+    if (config?.disableTabSwitching !== false) {
+      initTabDetector(handleSecurityViolation);
+    }
+    
+    if (mergedConfig.fullscreen.enforced) {
+       initFullscreen(handleSecurityViolation, mergedConfig);
+    }
+
     initKeyboardBlocker(handleSecurityViolation);
     initClipboardBlocker(handleSecurityViolation);
     initMultiMonitorDetector(handleSecurityViolation);
