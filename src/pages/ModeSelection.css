@@ -1,0 +1,54 @@
+.mode-selection {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.mode-cards {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.mode-card {
+  flex: 1;
+  max-width: 400px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.mode-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+}
+
+.icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.mode-card ul {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.mode-card button {
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-link {
+  margin-top: 30px;
+}

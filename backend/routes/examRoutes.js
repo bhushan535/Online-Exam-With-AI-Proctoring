@@ -6,13 +6,14 @@ const Exam = require("../models/Exam");
 const ExamAccess = require("../models/ExamAccess");
 const Class = require("../models/Class");
 const Question = require("../models/Question");
+const { authenticate } = require('../middleware/auth');
 
 // 1. Specific named POST routes first
 
 /* ======================
 CREATE EXAM
 ====================== */
-router.post("/exams", async (req, res) => {
+router.post("/exams", authenticate, async (req, res) => {
   try {
     const {
       examName, branch, year, semester, subject, subCode,
@@ -23,6 +24,9 @@ router.post("/exams", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
+    const userId = req.userId || (req.user && req.user._id);
+    const organizationId = req.organizationId || null;
+
     const exam = new Exam({
       examName, branch, year, semester, subject, subCode,
       examDate: new Date(examDate),
@@ -31,8 +35,29 @@ router.post("/exams", async (req, res) => {
       duration: Number(duration) || 0,
       totalMarks: Number(totalMarks) || 0,
       classId,
-      isPublished: false
+      isPublished: false,
+      createdBy: userId,
+      organizationId: organizationId,
+      visibility: organizationId ? 'organization' : 'private',
+      editableBy: 'creator_only',
+      status: 'draft',
+      isArchived: false
     });
+
+    if (organizationId) {
+      const Organization = require('../models/Organization');
+      const org = await Organization.findById(organizationId);
+      
+      if (org) {
+        // Add all other teachers with view permission
+        exam.sharedWithTeachers = org.teachers
+          .filter(t => t.userId.toString() !== userId.toString())
+          .map(t => ({
+            teacherId: t.userId,
+            permission: 'view'
+          }));
+      }
+    }
 
     await exam.save();
     res.status(201).json({ success: true, message: "Exam created successfully", exam });
@@ -227,11 +252,39 @@ router.post("/exams/submit", async (req, res) => {
 // 2. Specific named GET routes
 
 /* ======================
-GET ALL EXAMS
+GET ALL EXAMS (Filtered by Role/Mode/Visibility)
 ====================== */
-router.get("/exams", async (req, res) => {
+router.get("/exams", authenticate, async (req, res) => {
   try {
-    const exams = await Exam.find().sort({ createdAt: -1 });
+    const userId = req.userId || (req.user && req.user._id);
+    const orgId = req.organizationId || null;
+    let filter = {};
+
+    // Logic for returning exams
+    // 1. If Principal: See all exams in their organization
+    if (req.userRole === 'principal') {
+        filter = { organizationId: orgId };
+    } 
+    // 2. If Teacher in Organization: See exams they created OR exams shared with them in org
+    else if (req.userRole === 'teacher' && req.userMode === 'organization') {
+        filter = { 
+            $or: [
+                { createdBy: userId },
+                { 
+                  organizationId: orgId, 
+                  visibility: 'organization',
+                  'sharedWithTeachers.teacherId': userId 
+                }
+            ]
+        };
+    } 
+    // 3. If Solo Teacher: See ONLY their own exams
+    else if (req.userRole === 'teacher' && req.userMode === 'solo') {
+         filter = { createdBy: userId, mode: 'solo' };
+    }
+    // 4. If Student: Shouldn't use this route typically, but if so, only see published exams they have access to
+
+    const exams = await Exam.find(filter).sort({ createdAt: -1 });
     res.json(exams);
   } catch (err) {
     console.error("GET EXAMS ERROR:", err);
@@ -282,10 +335,22 @@ router.put("/exams/toggle-publish/:id", async (req, res) => {
 /* ======================
 GET SINGLE EXAM
 ====================== */
-router.get("/exams/:id", async (req, res) => {
+router.get("/exams/:id", authenticate, async (req, res) => {
   try {
     const exam = await Exam.findById(req.params.id);
     if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
+
+    // Authorization Check
+    const userId = req.userId || (req.user && req.user._id);
+    if (req.userRole === 'teacher') {
+       const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
+       const isShared = exam.sharedWithTeachers && exam.sharedWithTeachers.some(t => t.teacherId.toString() === userId.toString());
+       
+       if (!isCreator && !isShared && req.userRole !== 'principal') {
+           return res.status(403).json({ success: false, message: "You do not have permission to view this exam."});
+       }
+    }
+
     res.json(exam);
   } catch (err) {
     console.error("GET EXAM ERROR:", err);
@@ -296,10 +361,21 @@ router.get("/exams/:id", async (req, res) => {
 /* ======================
 UPDATE EXAM
 ====================== */
-router.put("/exams/:id", async (req, res) => {
+router.put("/exams/:id", authenticate, async (req, res) => {
   try {
-    const exam = await Exam.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    let exam = await Exam.findById(req.params.id);
     if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
+
+    // Enforce creator_only editing
+    const userId = req.userId || (req.user && req.user._id);
+    const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
+
+    // Principals can also edit, but other teachers cannot unless editableBy says so (currently only creator_only supported)
+    if (!isCreator && req.userRole !== 'principal') {
+         return res.status(403).json({ success: false, message: "Only creator can edit this exam" });
+    }
+
+    exam = await Exam.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({ success: true, message: "Exam updated successfully", exam });
   } catch (err) {
     console.error("UPDATE EXAM ERROR:", err);
@@ -310,10 +386,19 @@ router.put("/exams/:id", async (req, res) => {
 /* ======================
 DELETE EXAM — cascade delete questions, results, proctorlogs, examaccesses
 ====================== */
-router.delete("/exams/:id", async (req, res) => {
+router.delete("/exams/:id", authenticate, async (req, res) => {
   try {
-    const exam = await Exam.findByIdAndDelete(req.params.id);
+    let exam = await Exam.findById(req.params.id);
     if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
+
+    // Authorization logic
+    const userId = req.userId || (req.user && req.user._id);
+    const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
+    if (!isCreator && req.userRole !== 'principal') {
+         return res.status(403).json({ success: false, message: "Only creator can delete this exam" });
+    }
+
+    await Exam.findByIdAndDelete(req.params.id);
 
     const Result = require("../models/Result");
     const ProctorLog = require("../models/ProctorLog");

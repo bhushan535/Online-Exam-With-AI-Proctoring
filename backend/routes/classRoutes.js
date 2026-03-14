@@ -5,13 +5,16 @@ const Result = require("../models/Result");
 const ProctorLog = require("../models/ProctorLog");
 const Exam = require("../models/Exam");
 const ExamAccess = require("../models/ExamAccess");
+const { authenticate } = require('../middleware/auth');
+
 
 // ==============================
 // CREATE CLASS
 // ==============================
-router.post("/classes", async (req, res) => {
+router.post("/classes", authenticate, async (req, res) => {
   try {
     const { className, semester, branch, year } = req.body;
+
 
     if (!className || !semester || !branch || !year) {
       return res.status(400).json({
@@ -20,12 +23,19 @@ router.post("/classes", async (req, res) => {
       });
     }
 
+    const userId = req.userId || (req.user && req.user._id);
+
     const newClass = new Class({
       className,
       semester,
       branch,
       year,
       students: [],
+      createdBy: userId,
+      mode: req.userMode || 'solo',
+      organizationId: req.organizationId || null,
+      registrationOpen: true,
+      status: 'active'
     });
 
     await newClass.save();

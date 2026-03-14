@@ -1,5 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 /* FRONT PAGE */
 import FrontPage from "./components/Authentication/FrontPage";
@@ -43,11 +45,24 @@ import ExamStartCountdown from "./components/Student-ui/ExamStartCountdown";
 import StudentClassLogin from "./components/Student-ui/StudentClassLogin";
 import JoinClass from "./components/Student-ui/JoinClass";
 
+/* MODE SELECTION */
+import ModeSelection from "./pages/ModeSelection";
+
+
 function App() {
-  return (<BrowserRouter> <Routes>
+  return (
+  <AuthProvider>
+  <BrowserRouter> <Routes>
 
     {/* FRONT PAGE */}
     <Route path="/" element={<FrontPage />} />
+
+    {/* NEW AUTH ROUTES */}
+    <Route path="/login" element={<TeacherLogin />} />
+    <Route path="/signup" element={<ModeSelection />} />
+    <Route path="/signup/teacher-solo" element={<Registration />} />
+    <Route path="/signup/principal" element={<Registration />} /> 
+
 
     {/* STUDENT AUTH */}
     <Route path="/StudentLogin" element={<StudentLogin />} />
@@ -57,32 +72,104 @@ function App() {
     <Route path="/TeacherLogin" element={<TeacherLogin />} />
 
     {/* DASHBOARDS */}
-    <Route path="/TeacherHome" element={<TeacherHome />} />
-    <Route path="/StudentHome" element={<StudentHome />} />
+    <Route path="/TeacherHome" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <TeacherHome />
+      </ProtectedRoute>
+    } />
+    <Route path="/StudentHome" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <StudentHome />
+      </ProtectedRoute>
+    } />
 
     {/* CLASS MANAGEMENT */}
-    <Route path="/CreateClass" element={<CreateClass />} />
-    <Route path="/Classes" element={<Classes />} />
-    <Route path="/class/:id" element={<ViewClass />} />
-    <Route path="/edit-class/:id" element={<EditClass />} />
+    <Route path="/CreateClass" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <CreateClass />
+      </ProtectedRoute>
+    } />
+    <Route path="/Classes" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <Classes />
+      </ProtectedRoute>
+    } />
+    <Route path="/class/:id" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <ViewClass />
+      </ProtectedRoute>
+    } />
+    <Route path="/edit-class/:id" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <EditClass />
+      </ProtectedRoute>
+    } />
 
     {/* EXAMS */}
-    <Route path="/CreateExam" element={<CreateExam />} />
-    <Route path="/Exams" element={<Exams />} />
-    <Route path="/add-question/:examId" element={<AddQuestion />} />
-    <Route path="/edit-exam/:id" element={<EditExam />} />
+    <Route path="/CreateExam" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <CreateExam />
+      </ProtectedRoute>
+    } />
+    <Route path="/Exams" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <Exams />
+      </ProtectedRoute>
+    } />
+    <Route path="/add-question/:examId" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <AddQuestion />
+      </ProtectedRoute>
+    } />
+    <Route path="/edit-exam/:id" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <EditExam />
+      </ProtectedRoute>
+    } />
 
     {/* STUDENT EXAM */}
-    <Route path="/attempt-exams" element={<AttemptExam />} />
-    <Route path="/exam-instructions/:examId" element={<ExamInstructions />} />
-    <Route path="/camera-check/:examId" element={<Cameracheckscreen />} />
-    <Route path="/exam-countdown/:examId" element={<ExamStartCountdown />} />
-    <Route path="/attempt-exam/:examId" element={<AttemptExamPage />} />
+    <Route path="/attempt-exams" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <AttemptExam />
+      </ProtectedRoute>
+    } />
+    <Route path="/exam-instructions/:examId" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <ExamInstructions />
+      </ProtectedRoute>
+    } />
+    <Route path="/camera-check/:examId" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <Cameracheckscreen />
+      </ProtectedRoute>
+    } />
+    <Route path="/exam-countdown/:examId" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <ExamStartCountdown />
+      </ProtectedRoute>
+    } />
+    <Route path="/attempt-exam/:examId" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <AttemptExamPage />
+      </ProtectedRoute>
+    } />
 
     {/* RESULTS */}
-    <Route path="/student-results/:examId" element={<StudentResults />} />
-    <Route path="/StudentResults" element={<StudentResult />} />
-    <Route path="/exam-results/:examId" element={<ExamResults />} />
+    <Route path="/student-results/:examId" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <StudentResults />
+      </ProtectedRoute>
+    } />
+    <Route path="/StudentResults" element={
+      <ProtectedRoute allowedRoles={['student']}>
+        <StudentResult />
+      </ProtectedRoute>
+    } />
+    <Route path="/exam-results/:examId" element={
+      <ProtectedRoute allowedRoles={['teacher']}>
+        <ExamResults />
+      </ProtectedRoute>
+    } />
 
     {/* CLASS JOIN */}
     <Route path="/class-login/:classCode" element={<StudentClassLogin />} />
@@ -90,6 +177,7 @@ function App() {
 
   </Routes>
   </BrowserRouter>
+  </AuthProvider>
 
   );
 }

@@ -24,6 +24,8 @@ app.use("/api", require("./routes/teacherRoutes"));
 app.use("/api", require("./routes/studentAuthRoutes"));
 app.use("/api", require("./routes/resultRoutes"));   // ← fixed: was "/api/results" (doubled prefix)
 app.use("/api/violations", require("./routes/proctorRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/principal", require("./routes/principalRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

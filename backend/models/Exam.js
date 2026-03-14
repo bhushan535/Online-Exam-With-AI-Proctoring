@@ -67,6 +67,55 @@ type:String
 isPublished:{
 type:Boolean,
 default:false
+},
+
+createdBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+},
+
+organizationId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Organization',
+},
+
+visibility: {
+  type: String,
+  enum: ['private', 'organization', 'public'],
+  default: 'private',
+},
+
+editableBy: {
+  type: String,
+  enum: ['creator_only', 'collaborators'],
+  default: 'creator_only',
+},
+
+sharedWithTeachers: [{
+  teacherId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  permission: {
+    type: String,
+    enum: ['view', 'edit'],
+    default: 'view',
+  },
+  sharedAt: {
+    type: Date,
+    default: Date.now,
+  },
+}],
+
+status: {
+  type: String,
+  enum: ['draft', 'published', 'active', 'completed', 'archived'],
+  default: 'draft',
+},
+
+isArchived: {
+  type: Boolean,
+  default: false,
 }
 
 },
