@@ -106,7 +106,7 @@ const StudentManagement = () => {
 
   const handleSync = async () => {
     try {
-      const resp = await axios.post(`${BASE_URL}/api/principal/cleanup-students`, {}, {
+      const resp = await axios.post(`${BASE_URL}/principal/cleanup-students`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (resp.data.success) {

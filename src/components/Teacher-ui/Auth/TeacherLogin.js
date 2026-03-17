@@ -25,7 +25,7 @@ function TeacherLogin() {
     setLoading(true);
     setError("");
     try {
-      await login(email, password);
+      await login(email, password, roleParam);
       navigate("/TeacherHome");
     } catch (err) {
       setError(err.response?.data?.message || "Authentication failed");

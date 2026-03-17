@@ -177,7 +177,7 @@ router.get('/students', async (req, res) => {
     const { search, branch, semester } = req.query;
     let filter = { organizationId: req.organizationId };
     if (branch) filter.branch = branch;
-    if (semester) filter.currentSemester = Number(semester);
+    if (semester) filter.currentSemester = semester.toString();
     
     let students = await Student.find(filter).populate('userId', 'name email').sort({ rollNo: 1 });
     
@@ -205,36 +205,7 @@ router.get('/students', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
-});
 
-router.put('/organization', async (req, res) => {
-  try {
-    const { 
-        organizationName,
-        institutionType,
-        address, logo, settings, branches, academicYears, semesters, subjects 
-    } = req.body;
-    const organization = await Organization.findById(req.organizationId);
-    if (!organization) return res.status(404).json({ success: false, message: "Organization record missing" });
-
-    if (organizationName) organization.organizationName = organizationName;
-    if (institutionType) organization.institutionType = institutionType;
-    if (address) organization.address = address;
-    if (logo !== undefined) organization.logo = logo;
-    if (settings) organization.settings = settings;
-    if (branches) organization.branches = branches;
-    if (academicYears) organization.academicYears = academicYears;
-    if (semesters) organization.semesters = semesters;
-    if (subjects) {
-      organization.subjects = subjects;
-      organization.markModified('subjects');
-    }
-
-    const savedOrg = await organization.save();
-    res.json({ success: true, message: 'Archive updated', organization: savedOrg });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
 });
 
 router.post('/promote-students', async (req, res) => {
@@ -380,9 +351,9 @@ router.post('/cleanup-students', async (req, res) => {
                     if (!student.branch) student.branch = classRole.branch;
                     if (!student.currentSemester) student.currentSemester = classRole.semester;
                     
-                    // Sync Roll No if exists in class record
+                    // Sync Roll No if exists in class record or global profile is missing it
                     const studentInClass = classRole.students.find(st => st.enrollment === student.enrollmentNo);
-                    if (studentInClass && !student.rollNo) {
+                    if (studentInClass && (!student.rollNo || student.rollNo === 0)) {
                         student.rollNo = studentInClass.rollNo;
                     }
                     

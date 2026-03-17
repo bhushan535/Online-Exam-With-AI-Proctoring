@@ -236,6 +236,16 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Role verification (Strict Separation)
+    const { role } = req.body;
+    if (role && user.role !== role) {
+      const portalName = role === 'principal' ? 'Organization Login' : 'Faculty Access';
+      return res.status(401).json({
+        success: false,
+        message: `Role mismatch. This account is not authorized for the ${portalName} portal.`
+      });
+    }
+
     // Generate token
     const token = generateToken(user._id);
 

@@ -219,13 +219,15 @@ router.post("/class/join/:classId", async (req, res) => {
             enrollmentNo: normalizedEnrollment,
             organizationId: classDoc.organizationId,
             currentSemester: classDoc.semester,
-            branch: classDoc.branch
+            branch: classDoc.branch,
+            rollNo: Number(rollNo)
         });
         await studentProfile.save();
     } else {
         // Keep global profile in sync with current class context if needed
         studentProfile.currentSemester = classDoc.semester;
         studentProfile.branch = classDoc.branch;
+        studentProfile.rollNo = Number(rollNo);
         if (!studentProfile.userId) studentProfile.userId = user._id;
         await studentProfile.save();
     }
@@ -292,18 +294,20 @@ router.post("/class/import-students/:classId", authenticate, async (req, res) =>
                     organizationId: classDoc.organizationId,
                     currentSemester: classDoc.semester,
                     branch: classDoc.branch,
+                    rollNo: Number(s.rollNo),
                     addedBy: req.userId
                 });
-                await studentProfile.save();
-                results.added++;
-            } else {
-                // Keep global profile in sync with current class context if needed
-                studentProfile.currentSemester = classDoc.semester;
-                studentProfile.branch = classDoc.branch;
-                if (!studentProfile.userId) studentProfile.userId = user._id;
-                await studentProfile.save();
-                results.updated++;
-            }
+            await studentProfile.save();
+            results.added++;
+        } else {
+            // Keep global profile in sync with current class context if needed
+            studentProfile.currentSemester = classDoc.semester;
+            studentProfile.branch = classDoc.branch;
+            studentProfile.rollNo = Number(s.rollNo);
+            if (!studentProfile.userId) studentProfile.userId = user._id;
+            await studentProfile.save();
+            results.updated++;
+        }
 
             // 3. Update Class Roster
             const exists = classDoc.students.find(st => st.enrollment === enrollment);

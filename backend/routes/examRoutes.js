@@ -435,39 +435,60 @@ router.put("/exams/:id", authenticate, async (req, res) => {
 DELETE EXAM — cascade delete questions, results, proctorlogs, examaccesses
 ====================== */
 router.delete("/exams/:id", authenticate, async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    let exam = await Exam.findById(req.params.id);
-    if (!exam) return res.status(404).json({ success: false, message: "Exam not found" });
+    const examId = req.params.id;
+    let exam = await Exam.findById(examId).session(session);
+    
+    if (!exam) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ success: false, message: "Exam not found" });
+    }
 
     // Authorization logic
     const userId = req.userId || (req.user && req.user._id);
     const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
     if (!isCreator && req.userRole !== 'principal') {
-         return res.status(403).json({ success: false, message: "Only creator can delete this exam" });
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(403).json({ success: false, message: "Only creator can delete this exam" });
     }
 
-    await Exam.findByIdAndDelete(req.params.id);
+    // Capture metadata for logging before deletion
+    const examInfo = {
+      id: exam._id,
+      name: exam.examName,
+      subject: exam.subject,
+      createdBy: exam.createdBy,
+      deletedBy: userId,
+      at: new Date().toISOString()
+    };
+
+    // findOneAndDelete triggers the pre-hook in Exam.js for cascade delete
+    await Exam.findByIdAndDelete(examId).session(session);
 
     // Sync metadata to TeacherProfile
     const TeacherProfile = require('../models/TeacherProfile');
-    const mongoose = require('mongoose');
     await TeacherProfile.findOneAndUpdate(
       { userId: new mongoose.Types.ObjectId(userId) },
-      { $pull: { examsCreated: req.params.id } }
+      { $pull: { examsCreated: examId } },
+      { session }
     );
 
-    const Result = require("../models/Result");
-    const ProctorLog = require("../models/ProctorLog");
+    await session.commitTransaction();
+    session.endSession();
 
-    await ExamAccess.deleteMany({ examId: req.params.id });
-    await Question.deleteMany({ examId: req.params.id });
-    await Result.deleteMany({ examId: req.params.id });
-    await ProctorLog.deleteMany({ examId: req.params.id });
-
+    console.log(`[EXAM DELETED] Transaction committed. Details:`, examInfo);
     res.json({ success: true, message: "Exam and all related data deleted successfully" });
   } catch (err) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    session.endSession();
     console.error("DELETE EXAM ERROR:", err);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: "Failed to delete exam: " + err.message });
   }
 });
 
