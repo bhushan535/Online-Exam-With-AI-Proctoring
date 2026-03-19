@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Exams.css";
-import { FaBookOpen, FaEdit, FaTrash, FaPlus, FaSearch, FaCogs, FaCopy, FaChartBar, FaGlobe, FaLock } from "react-icons/fa";
+import { FaBookOpen, FaEdit, FaTrash, FaPlus, FaSearch, FaCogs, FaCopy, FaChartBar, FaGlobe, FaLock, FaBuilding, FaGraduationCap } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import Toast      from "../../Common/Toast";
@@ -10,12 +10,14 @@ import BackButton from "../../Common/BackButton";
 import { BASE_URL } from '../../../config';
 
 function Exams(){
-const { token, user } = useAuth();
+const { token, user, org } = useAuth();
 const [exams,setExams] = useState([]);
 const [activeTab, setActiveTab] = useState("my"); // "my" or "org"
 const [search,setSearch] = useState("");
 const [showCodes,setShowCodes] = useState(false);
 const [codes,setCodes] = useState([]);
+const [filterBranch, setFilterBranch] = useState("");
+const [filterSemester, setFilterSemester] = useState("");
 
 const [deleteModal, setDeleteModal] = useState({ open: false, targetId: null });
 
@@ -181,14 +183,27 @@ showToast("Failed to generate security codes", "error");
 
 };
 
+const uniqueBranches = [...new Set(exams.map(e => e.branch).filter(Boolean))].sort();
+const uniqueSemesters = [...new Set(exams.map(e => String(e.semester)).filter(Boolean))].sort((a,b)=> Number(a) - Number(b));
+
 const filteredExams = exams.filter((exam) => {
   const matchesSearch = exam.examName.toLowerCase().includes(search.toLowerCase()) || 
-                      exam.subject.toLowerCase().includes(search.toLowerCase());
+                      (exam.subject && exam.subject.toLowerCase().includes(search.toLowerCase()));
+  const matchesBranch = filterBranch === "" || exam.branch === filterBranch;
+  const matchesSem = filterSemester === "" || String(exam.semester) === filterSemester;
   
+  // Robust ID comparison function
+  const isOwner = (exam.createdBy === (user?._id || user?.id)) || 
+                  (exam.teacherId === (user?._id || user?.id));
+
+  if (user?.mode === 'solo') {
+    return matchesSearch && matchesBranch && matchesSem;
+  }
+
   if (activeTab === "my") {
-    return matchesSearch && exam.createdBy === (user?._id || user?.id);
+    return matchesSearch && matchesBranch && matchesSem && isOwner;
   } else {
-    return matchesSearch && exam.createdBy !== (user?._id || user?.id) && exam.visibility === 'organization';
+    return matchesSearch && matchesBranch && matchesSem && !isOwner && exam.visibility === 'organization';
   }
 });
 
@@ -272,6 +287,18 @@ return(
                         onChange={(e)=>setSearch(e.target.value)}
                     />
                 </div>
+                {user?.mode === 'organization' && (
+                    <div className="filter-controls" style={{ display: 'flex', gap: '1rem', flexShrink: 0 }}>
+                        <select value={filterBranch} onChange={(e) => setFilterBranch(e.target.value)}>
+                            <option value="">All Branches</option>
+                            {org?.branches?.map(b => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                        <select value={filterSemester} onChange={(e) => setFilterSemester(e.target.value)}>
+                            <option value="">All Semesters</option>
+                            {org?.semesters?.map(s => <option key={s} value={s}>Sem {s}</option>)}
+                        </select>
+                    </div>
+                )}
             </div>
 
             <div className="exams-grid-modern">
@@ -307,6 +334,15 @@ return(
                                         <div className="meta-item">
                                             <span>Total Marks</span>
                                             <p>{exam.totalMarks}</p>
+                                        </div>
+                                        {/* New Branch and Semester items */}
+                                        <div className="meta-item">
+                                            <span>Branch</span>
+                                            <p>{exam.branch || "N/A"}</p>
+                                        </div>
+                                        <div className="meta-item">
+                                            <span>Semester</span>
+                                            <p>{exam.semester || "N/A"}</p>
                                         </div>
                                     </div>
                                 </div>

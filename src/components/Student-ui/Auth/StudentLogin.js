@@ -31,7 +31,7 @@ function StudentLogin() {
 
   return (
     <div className="login-wrapper">
-      <div className="login-bg-overlay student-theme"></div>
+      {/* Global background handled in index.css */}
       <Link to="/" className="back-to-home"><FaArrowLeft /> Home</Link>
       
       <div className="login-glass-card animate-slide-up">

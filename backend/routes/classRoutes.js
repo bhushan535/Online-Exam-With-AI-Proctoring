@@ -8,6 +8,7 @@ const ExamAccess = require("../models/ExamAccess");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Organization = require("../models/Organization");
+const Subject = require("../models/Subject");
 const { authenticate } = require('../middleware/auth');
 
 // ==============================
@@ -15,9 +16,9 @@ const { authenticate } = require('../middleware/auth');
 // ==============================
 router.post("/classes", authenticate, async (req, res) => {
   try {
-    const { className, semester, branch, year } = req.body;
+    const { className, semester, branch, year, description, maxStudents } = req.body;
     if (!className || !semester || !branch || !year) {
-      return res.status(400).json({ success: false, message: "Class name, semester, branch, and year are required" });
+      return res.status(400).json({ success: false, message: "Required fields missing: Class name, Subject/Branch, Year, and Semester/Batch are mandatory." });
     }
 
     if (req.userRole === 'teacher' && req.userMode === 'organization') {
@@ -32,13 +33,34 @@ router.post("/classes", authenticate, async (req, res) => {
     const userId = req.userId || (req.user && req.user._id);
     const newClass = new Class({
       className, semester, branch, year,
+      description, maxStudents,
       students: [], createdBy: userId,
+      teacherId: userId, // Primary Isolation
       mode: req.userMode || 'solo',
       organizationId: req.organizationId || null,
       registrationOpen: true, status: 'active'
     });
 
     await newClass.save();
+
+    // If solo mode, ensure a Subject record exists using 'branch' as name
+    if (newClass.mode === 'solo') {
+      try {
+        await Subject.findOneAndUpdate(
+          { name: branch, teacherId: userId },
+          { 
+            name: branch, 
+            code: branch.substring(0, 3).toUpperCase() + Math.floor(100 + Math.random() * 900),
+            teacherId: userId,
+            branch: branch,
+            semester: semester
+          },
+          { upsert: true, new: true }
+        );
+      } catch (subErr) {
+        console.error("Failed to sync subject for solo class:", subErr);
+      }
+    }
 
     // Sync metadata to TeacherProfile
     const TeacherProfile = require('../models/TeacherProfile');
@@ -62,7 +84,7 @@ router.get("/classes", authenticate, async (req, res) => {
     if (req.userRole === 'principal' || (req.userRole === 'teacher' && req.userMode === 'organization')) {
       filter = { organizationId: orgId };
     } else {
-      filter = { createdBy: userId, mode: 'solo' };
+      filter = { teacherId: userId, mode: 'solo' };
     }
     const classes = await Class.find(filter).sort({ createdAt: -1 });
     res.json(classes);
@@ -71,8 +93,15 @@ router.get("/classes", authenticate, async (req, res) => {
 
 router.get("/class/:id", authenticate, async (req, res) => {
   try {
+    const userId = req.userId || (req.user && req.user._id);
     const cls = await Class.findById(req.params.id);
     if (!cls) return res.status(404).json({ message: "Class not found" });
+
+    // Ownership check for solo mode
+    if (cls.mode === 'solo' && cls.teacherId.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized access to this class." });
+    }
+
     res.json(cls);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
@@ -128,6 +157,7 @@ router.delete("/class/:id", authenticate, async (req, res) => {
     try {
         const cls = await Class.findById(req.params.id);
         if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
+
         const exams = await Exam.find({ classId: req.params.id });
         const examIds = exams.map(e => e._id);
         if (examIds.length > 0) {
@@ -136,6 +166,31 @@ router.delete("/class/:id", authenticate, async (req, res) => {
             await ExamAccess.deleteMany({ examId: { $in: examIds } });
             await Exam.deleteMany({ classId: req.params.id });
         }
+
+        // --- CASCADE DELETION FOR STUDENTS (SOLO MODE) ---
+        if (cls.mode === 'solo') {
+            const enrollmentsToDelete = cls.students.map(s => s.enrollment);
+            
+            for (const enrollment of enrollmentsToDelete) {
+                // Check if student exists in ANY OTHER class by the same teacher
+                const otherClasses = await Class.find({
+                    teacherId: cls.teacherId,
+                    _id: { $ne: cls._id },
+                    "students.enrollment": enrollment
+                });
+
+                if (otherClasses.length === 0) {
+                    // Orphaned student: delete Student profile and User account
+                    const studentProfile = await Student.findOne({ enrollmentNo: enrollment });
+                    if (studentProfile) {
+                        await User.findByIdAndDelete(studentProfile.userId);
+                        await Student.findByIdAndDelete(studentProfile._id);
+                    }
+                }
+            }
+        }
+        // --------------------------------------------------
+
         await Class.findByIdAndDelete(req.params.id);
 
         // Sync metadata to TeacherProfile

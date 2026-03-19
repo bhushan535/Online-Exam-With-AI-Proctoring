@@ -8,6 +8,12 @@ const classSchema = new mongoose.Schema(
       trim: true,
     },
 
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     branch: {
       type: String,
       required: true,
@@ -61,6 +67,12 @@ const classSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Organization',
       default: null,
+    },
+
+    teacherId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
 
     mode: {

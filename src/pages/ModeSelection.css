@@ -1,10 +1,7 @@
 .mode-selection-overlay {
   min-height: 100vh;
   width: 100%;
-  background: var(--bg-dark);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0, transparent 50%);
+  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -219,4 +216,99 @@
   .mode-hero h1 {
     font-size: 2.5rem;
   }
+}
+
+/* ============================================================
+   LIGHT MODE AESTHETIC OVERRIDES (Mode Selection)
+   ============================================================ */
+[data-theme='light'] .mode-selection-overlay {
+  background: transparent;
+}
+
+[data-theme='light'] .mode-badge {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+}
+
+[data-theme='light'] .mode-hero h1 {
+  background: none;
+  -webkit-text-fill-color: #000000;
+  color: #000000;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .mode-hero p {
+  color: #475569;
+}
+
+[data-theme='light'] .mode-glass-card {
+  background: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+  border-radius: 20px;
+}
+
+[data-theme='light'] .mode-glass-card:hover {
+  border-color: #000000;
+  box-shadow: 8px 8px 0px #000000;
+  transform: translateY(-6px);
+  background: #fafafa;
+}
+
+/* Remove colored accent bar at top of card */
+[data-theme='light'] .card-accent {
+  background: #000000;
+}
+
+[data-theme='light'] .mode-icon-box {
+  background: #f1f5f9;
+  color: #000000;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme='light'] .mode-glass-card:hover .mode-icon-box {
+  background: #ffffff;
+  color: #000000;
+  border-color: #000000;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .mode-glass-card h2 {
+  color: #000000;
+}
+
+[data-theme='light'] .mode-glass-card p {
+  color: #475569;
+}
+
+[data-theme='light'] .mode-features li {
+  color: #171717;
+}
+
+[data-theme='light'] .mode-features li .check {
+  color: #000000;
+}
+
+/* Buttons in cards - Now inheriting from global neobrutalist style */
+
+/* Bottom CTA */
+[data-theme='light'] .mode-bottom-cta {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+[data-theme='light'] .mode-bottom-cta p {
+  color: #475569;
+}
+
+[data-theme='light'] .mode-login-btn {
+  color: #000000;
+}
+
+[data-theme='light'] .mode-login-btn:hover {
+  filter: none;
+  color: #333333;
 }

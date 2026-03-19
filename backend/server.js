@@ -35,6 +35,7 @@ app.use("/api/org", require("./routes/orgRoutes"));
 app.use("/api/org", require("./routes/orgSettings"));
 app.use("/api/principal", require("./routes/principalRoutes"));
 app.use("/api", require("./routes/noticeRoutes"));
+app.use("/api", require("./routes/soloExamRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

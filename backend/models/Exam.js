@@ -79,6 +79,18 @@ organizationId: {
   ref: 'Organization',
 },
 
+teacherId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  required: true,
+},
+
+mode: {
+  type: String,
+  enum: ['solo', 'organization'],
+  default: 'solo',
+},
+
 visibility: {
   type: String,
   enum: ['private', 'organization', 'public'],

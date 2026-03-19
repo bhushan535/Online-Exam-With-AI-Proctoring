@@ -1,8 +1,6 @@
 .cc-premium-overlay {
     min-height: 100vh;
-    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent),
-                radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent),
-                var(--bg-dark);
+    background: transparent;
     display: flex;
     flex-direction: column;
     padding: 2rem;
@@ -53,6 +51,7 @@
     margin-bottom: 1.5rem;
     background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -245,4 +244,89 @@
     .glass-premium {
         padding: 2rem;
     }
+}
+
+/* Light Theme Overrides */
+[data-theme='light'] .cc-premium-overlay {
+    background: transparent;
+}
+
+[data-theme='light'] .cc-visual-sidebar h1 {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #000000;
+}
+
+[data-theme='light'] .cc-visual-sidebar h1 span {
+    color: #4f46e5;
+}
+
+[data-theme='light'] .cc-visual-sidebar p {
+    color: #475569;
+    font-weight: 600;
+}
+
+[data-theme='light'] .cc-step {
+    opacity: 0.6;
+}
+
+[data-theme='light'] .cc-step.active {
+    opacity: 1;
+}
+
+[data-theme='light'] .step-num {
+    background: #ffffff;
+    border-color: #000000;
+    color: #000000;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .cc-step.active .step-num {
+    background: #000000;
+    color: #ffffff;
+}
+
+[data-theme='light'] .step-label {
+    color: #000000;
+    font-weight: 700;
+}
+
+[data-theme='light'] .glass-premium {
+    background: #ffffff !important;
+    border: 3px solid #000000 !important;
+    box-shadow: 8px 8px 0px #000000 !important;
+}
+
+[data-theme='light'] .cc-form-header h2 {
+    color: #000000;
+}
+
+[data-theme='light'] .cc-form-header p {
+    color: #475569;
+    font-weight: 700;
+}
+
+[data-theme='light'] .cc-input-wrapper label {
+    color: #000000;
+    font-weight: 900;
+}
+
+[data-theme='light'] .cc-input-wrapper input, 
+[data-theme='light'] .cc-input-wrapper select,
+[data-theme='light'] .cc-textarea-premium {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+}
+
+[data-theme='light'] .cc-input-wrapper input:focus, 
+[data-theme='light'] .cc-input-wrapper select:focus {
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+[data-theme='light'] .cc-launch-btn {
+    /* Already handled by index.css but ensuring premium neobrutalist look */
+    border: 3px solid #000000 !important;
 }

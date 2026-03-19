@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     padding: 2.5rem;
-    color: white;
+    color: var(--text-main);
     font-family: 'Inter', sans-serif;
 }
 
@@ -84,6 +84,12 @@
     -webkit-text-fill-color: transparent;
 }
 
+[data-theme='light'] .vc-header-visual h1 {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #000000;
+}
+
 .vc-subtitle {
     color: var(--text-muted);
     font-size: 0.95rem;
@@ -94,9 +100,9 @@
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: rgba(255,255,255,0.02);
+    background: var(--bg-card);
     border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
 }
 
 .vc-info-item label {
@@ -139,11 +145,11 @@
 
 .link-input-group input {
     flex: 1;
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: var(--dropdown-bg);
+    border: 1px solid var(--glass-border);
     padding: 0.8rem 1rem;
     border-radius: 10px;
-    color: var(--text-muted);
+    color: var(--text-main);
     font-size: 0.8rem;
     outline: none;
 }
@@ -254,7 +260,7 @@
 }
 
 .vc-roster-table tbody tr {
-    background: rgba(255,255,255,0.02);
+    background: var(--bg-card);
     transition: all 0.3s;
 }
 
@@ -266,18 +272,18 @@
 .vc-roster-table td {
     padding: 1.2rem 1.5rem;
     font-size: 0.95rem;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
     border-style: solid none;
 }
 
 .vc-roster-table td:first-child {
     border-radius: 15px 0 0 15px;
-    border-left: 1px solid rgba(255,255,255,0.05);
+    border-left: 1px solid var(--glass-border);
 }
 
 .vc-roster-table td:last-child {
     border-radius: 0 15px 15px 0;
-    border-right: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid var(--glass-border);
 }
 
 .roll-pill {
@@ -290,7 +296,7 @@
 }
 
 .enroll-txt { color: var(--text-muted); font-family: monospace; }
-.name-txt { font-weight: 600; color: #fff; }
+.name-txt { font-weight: 600; color: var(--text-main); }
 
 .action-td {
     display: flex;
@@ -301,8 +307,8 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.05);
-    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
     color: var(--text-muted);
     cursor: pointer;
     display: flex;
@@ -415,4 +421,154 @@
     align-items: center;
     justify-content: center;
     background: var(--bg-dark);
+}
+/* Solo Mode Specific Refinements */
+.solo-mode-view .vc-link-card.prominent {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    padding: 2rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.solo-mode-view .link-header span {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.solo-mode-view .link-input-group input {
+    font-size: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.solo-mode-view .link-hint {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.solo-mode-view .vc-info-grid.simplified {
+    grid-template-columns: 1fr 1fr;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.solo-table .pass-txt code {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    color: #a5b4fc;
+    font-size: 0.9rem;
+}
+
+/* Base styles refinement for templates */
+.org-mode-view .vc-panel-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.solo-mode-view .vc-fast-enroll {
+    margin-bottom: 2rem;
+}
+
+.vc-selected-tag {
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.vc-modal-btns {
+    display: flex;
+    gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .vc-premium-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .vc-metadata-section {
+        position: static;
+    }
+}
+
+/* Light Mode Enhancements */
+[data-theme='light'] .vc-brand-badge {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+[data-theme='light'] .vc-subtitle {
+    color: #4b5563;
+    font-weight: 600;
+}
+
+[data-theme='light'] .vc-info-item label {
+    color: #000000;
+}
+
+[data-theme='light'] .vc-info-item span {
+    color: #000000;
+}
+
+[data-theme='light'] .link-header {
+    color: #000000;
+}
+
+[data-theme='light'] .link-input-group input {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+}
+
+[data-theme='light'] .vc-roster-header h3 {
+    color: #000000;
+}
+
+[data-theme='light'] .vc-roster-header p {
+    color: #000000;
+    font-weight: 700;
+}
+
+[data-theme='light'] .vc-roster-table th {
+    color: #000000;
+    font-weight: 900;
+    border-bottom: 2px solid #000000;
+}
+
+[data-theme='light'] .roll-pill {
+    background: #000000;
+    color: #ffffff;
+}
+
+[data-theme='light'] .enroll-txt {
+    color: #000000;
+    font-weight: 600;
+}
+
+[data-theme='light'] .mini-action-btn {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .mini-action-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #000000;
+}
+
+[data-theme='light'] .link-card {
+    border: 3px solid #000000 !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    background: #ffffff !important;
+    border-radius: 20px;
+}
+
+[data-theme='light'] .vc-roster-table tbody tr:hover {
+    background: #f1f5f9;
+    transform: none;
 }

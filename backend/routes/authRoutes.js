@@ -98,8 +98,8 @@ router.post('/signup/principal', async (req, res) => {
 
     // Create organization
     const organization = new Organization({
-      name: orgName,
-      type: orgType,
+      organizationName: orgName,
+      institutionType: orgType,
       address,
       principalId: user._id,
     });

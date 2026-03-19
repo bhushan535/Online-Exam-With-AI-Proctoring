@@ -89,6 +89,10 @@ return(
 
 <p><b>Subject:</b> {exam.subject}</p>
 
+<p><b>Branch:</b> {exam.branch || "N/A"}</p>
+
+<p><b>Semester:</b> {exam.semester || "N/A"}</p>
+
 <p>
 <b>Date:</b> {new Date(exam.examDate).toLocaleDateString("en-IN")}
 </p>

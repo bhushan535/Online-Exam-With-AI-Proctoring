@@ -6,6 +6,7 @@ const Exam = require("../models/Exam");
 const ExamAccess = require("../models/ExamAccess");
 const Class = require("../models/Class");
 const Question = require("../models/Question");
+const Subject = require("../models/Subject");
 const { authenticate } = require('../middleware/auth');
 
 // 1. Specific named POST routes first
@@ -17,10 +18,19 @@ router.post("/exams", authenticate, async (req, res) => {
   try {
     const {
       examName, branch, year, semester, subject, subCode,
-      examDate, totalQuestions, duration, marksPerQuestion, totalMarks, classId
+      examDate, totalQuestions, duration, marksPerQuestion, totalMarks, classId,
+      proctoringConfig
     } = req.body;
 
-    if (!examName || !branch || !year || !semester || !subject || !subCode || !examDate || !classId) {
+    const isSolo = req.userMode === 'solo';
+    
+    // In solo mode, branch/year/semester/subCode are optional or auto-filled
+    const requiredFields = [examName, subject, examDate, classId];
+    if (!isSolo) {
+      requiredFields.push(branch, year, semester, subCode);
+    }
+
+    if (requiredFields.some(field => !field)) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
@@ -28,7 +38,12 @@ router.post("/exams", authenticate, async (req, res) => {
     const organizationId = req.organizationId || null;
 
     const exam = new Exam({
-      examName, branch, year, semester, subject, subCode,
+      examName, 
+      branch: branch || subject || "N/A", // Default branch to subject in solo mode
+      year: year || "N/A",
+      semester: semester || "N/A",
+      subject, 
+      subCode: subCode || "N/A",
       examDate: new Date(examDate),
       totalQuestions: Number(totalQuestions) || 0,
       marksPerQuestion: Number(marksPerQuestion) || 1,
@@ -37,8 +52,11 @@ router.post("/exams", authenticate, async (req, res) => {
       classId,
       isPublished: false,
       createdBy: userId,
+      teacherId: userId, // Primary Isolation
+      mode: req.userMode || 'solo',
       organizationId: organizationId,
       visibility: req.body.visibility || (organizationId ? (req.userMode === 'organization' ? 'organization' : 'private') : 'private'),
+      proctoringConfig: proctoringConfig || { enabled: true },
       editableBy: 'creator_only',
       status: 'draft',
       isArchived: false
@@ -305,7 +323,7 @@ router.get("/exams", authenticate, async (req, res) => {
     } 
     // 3. If Solo Teacher: See ONLY their own exams
     else if (req.userRole === 'teacher' && req.userMode === 'solo') {
-         filter = { createdBy: userId, mode: 'solo' };
+         filter = { teacherId: userId };
     }
     // 4. If Student: Shouldn't use this route typically, but if so, only see published exams they have access to
 
@@ -330,6 +348,20 @@ router.get("/exams/student/:classId", async (req, res) => {
   } catch (err) {
     console.error("STUDENT EXAMS ERROR:", err);
     res.status(500).json({ message: err.message });
+  }
+});
+
+/* ======================
+GET TEACHER SUBJECTS (Solo Mode)
+====================== */
+router.get("/teacher/subjects", authenticate, async (req, res) => {
+  try {
+    const userId = req.userId || (req.user && req.user._id);
+    const subjects = await Subject.find({ teacherId: userId }).sort({ name: 1 });
+    res.json({ success: true, subjects });
+  } catch (err) {
+    console.error("GET SUBJECTS ERROR:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -391,6 +423,10 @@ router.get("/exams/:id", authenticate, async (req, res) => {
     // Authorization Check
     const userId = req.userId || (req.user && req.user._id);
     if (req.userRole === 'teacher') {
+       if (exam.mode === 'solo' && exam.teacherId.toString() !== userId.toString()) {
+           return res.status(403).json({ success: false, message: "Unauthorized access to this exam."});
+       }
+
        const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
        const isShared = exam.sharedWithTeachers && exam.sharedWithTeachers.some(t => t.teacherId.toString() === userId.toString());
        
@@ -432,7 +468,7 @@ router.put("/exams/:id", authenticate, async (req, res) => {
 });
 
 /* ======================
-DELETE EXAM — cascade delete questions, results, proctorlogs, examaccesses
+DELETE EXAM — Organization Mode (Creator or Principal)
 ====================== */
 router.delete("/exams/:id", authenticate, async (req, res) => {
   const session = await mongoose.startSession();
@@ -447,24 +483,14 @@ router.delete("/exams/:id", authenticate, async (req, res) => {
       return res.status(404).json({ success: false, message: "Exam not found" });
     }
 
-    // Authorization logic
+    // Authorization logic for Org Mode: Only creator or principal
     const userId = req.userId || (req.user && req.user._id);
     const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
     if (!isCreator && req.userRole !== 'principal') {
       await session.abortTransaction();
       session.endSession();
-      return res.status(403).json({ success: false, message: "Only creator can delete this exam" });
+      return res.status(403).json({ success: false, message: "Only creator or organization principal can delete this exam" });
     }
-
-    // Capture metadata for logging before deletion
-    const examInfo = {
-      id: exam._id,
-      name: exam.examName,
-      subject: exam.subject,
-      createdBy: exam.createdBy,
-      deletedBy: userId,
-      at: new Date().toISOString()
-    };
 
     // findOneAndDelete triggers the pre-hook in Exam.js for cascade delete
     await Exam.findByIdAndDelete(examId).session(session);
@@ -480,7 +506,7 @@ router.delete("/exams/:id", authenticate, async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    console.log(`[EXAM DELETED] Transaction committed. Details:`, examInfo);
+    console.log(`[ORG EXAM DELETED] Transaction committed for exam ${examId}`);
     res.json({ success: true, message: "Exam and all related data deleted successfully" });
   } catch (err) {
     if (session.inTransaction()) {

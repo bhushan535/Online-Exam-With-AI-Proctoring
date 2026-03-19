@@ -262,3 +262,75 @@
         width: 100%;
     }
 }
+
+/* LIGHT MODE AESTHETIC OVERRIDES (Classes) */
+[data-theme='light'] .class-card-modern {
+    /* Inherits Neobrutalist style from index.css */
+}
+
+[data-theme='light'] .class-card-modern:hover {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    border-color: #cbd5e1;
+    transform: translateY(-4px);
+}
+
+[data-theme='light'] .card-details span,
+[data-theme='light'] .card-details p {
+    color: #475569; /* Fixed font visibility issue */
+}
+
+[data-theme='light'] .class-card-modern h3 {
+    color: #0f172a;
+}
+
+[data-theme='light'] .create-class-header-btn {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+[data-theme='light'] .create-class-header-btn:hover {
+    background: #059669;
+    color: #ffffff;
+}
+
+[data-theme='light'] .action-btn.view {
+    background: var(--secondary-gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba(6, 182, 212, 0.2);
+}
+[data-theme='light'] .action-btn.view:hover { background: var(--secondary-gradient); filter: brightness(1.1); color: white; }
+
+[data-theme='light'] .action-btn.edit {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    box-shadow: none;
+}
+[data-theme='light'] .action-btn.edit:hover { background: #e2e8f0; color: #0f172a; }
+
+[data-theme='light'] .action-btn.delete {
+    background: #fee2e2;
+    border: none;
+    color: #ef4444;
+    box-shadow: none;
+}
+[data-theme='light'] .action-btn.delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+[data-theme='light'] .pagination-modern button {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    box-shadow: none;
+}
+
+[data-theme='light'] .pagination-modern button.active {
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: none;
+}

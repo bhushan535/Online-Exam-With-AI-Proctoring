@@ -193,7 +193,7 @@ const CurriculumManagement = () => {
                                     <div className="tag-cloud">
                                         {settings.branches.map((b, i) => (
                                             <span key={b} className="tag">
-                                                {b} <button type="button" onClick={() => removeTag('branches', i)}>&times;</button>
+                                                {b} <button type="button" className="tag-del-btn" onClick={() => removeTag('branches', i)}>&times;</button>
                                             </span>
                                         ))}
                                     </div>
@@ -212,7 +212,7 @@ const CurriculumManagement = () => {
                                     <div className="tag-cloud">
                                         {settings.academicYears.map((y, i) => (
                                             <span key={y} className="tag">
-                                                {y} <button type="button" onClick={() => removeTag('academicYears', i)}>&times;</button>
+                                                {y} <button type="button" className="tag-del-btn" onClick={() => removeTag('academicYears', i)}>&times;</button>
                                             </span>
                                         ))}
                                     </div>
@@ -231,7 +231,7 @@ const CurriculumManagement = () => {
                                     <div className="tag-cloud">
                                         {settings.semesters.map((s, i) => (
                                             <span key={s} className="tag">
-                                                {s} <button type="button" onClick={() => removeTag('semesters', i)}>&times;</button>
+                                                {s} <button type="button" className="tag-del-btn" onClick={() => removeTag('semesters', i)}>&times;</button>
                                             </span>
                                         ))}
                                     </div>

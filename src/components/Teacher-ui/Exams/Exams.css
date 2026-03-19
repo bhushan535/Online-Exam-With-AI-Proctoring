@@ -127,7 +127,15 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2.5rem;
-    gap: 2rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-controls select {
+    padding: 0.6rem 2.2rem 0.6rem 1.2rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    min-width: 140px;
 }
 
 .tab-switcher {
@@ -234,11 +242,11 @@
 
 .exam-meta-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 1rem;
     background: var(--bg-dark);
-    padding: 1rem;
-    border-radius: 18px;
+    padding: 1.2rem;
+    border-radius: 20px;
 }
 
 .meta-item span {
@@ -444,4 +452,98 @@ td { padding: 1rem; border-top: 1px solid var(--glass-border); }
     .search-bar-modern {
         width: 100%;
     }
+}
+
+/* LIGHT MODE AESTHETIC OVERRIDES (Exams) */
+[data-theme='light'] .content-filters select {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #171717;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+[data-theme='light'] .content-filters select:hover {
+    border-color: #cbd5e1;
+}
+/* Subtle overrides for content filters */
+[data-theme='light'] .content-filters select {
+    background-color: #ffffff;
+    border: 3px solid #000000;
+    color: #171717;
+    box-shadow: 4px 4px 0px #000000;
+}
+
+[data-theme='light'] .exam-card-v2:hover {
+    transform: translateY(-8px) !important;
+}
+
+[data-theme='light'] .exam-meta-grid {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+[data-theme='light'] .dashboard-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+[data-theme='light'] .create-exam-btn {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+[data-theme='light'] .create-exam-btn:hover {
+    filter: brightness(1.1);
+}
+
+[data-theme='light'] .tag-filters button.active {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme='light'] .tab-switcher {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+[data-theme='light'] .tab-switcher button.active {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+[data-theme='light'] .btn-publish.publish, 
+[data-theme='light'] .btn-full.results,
+[data-theme='light'] .btn-full.clone {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+}
+[data-theme='light'] .btn-full.results { background: var(--secondary-gradient); }
+[data-theme='light'] .btn-full.clone { background: var(--success-color); }
+
+[data-theme='light'] .btn-publish.publish:hover, 
+[data-theme='light'] .btn-full.results:hover,
+[data-theme='light'] .btn-full.clone:hover {
+    filter: brightness(1.1);
+}
+
+[data-theme='light'] .btn-publish.unpublish,
+[data-theme='light'] .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+}
+
+[data-theme='light'] .btn-publish.unpublish:hover,
+[data-theme='light'] .btn-secondary:hover {
+    background: #e2e8f0;
+    color: #0f172a;
 }

@@ -246,3 +246,96 @@
     }
     .hero-title { font-size: 2.5rem; }
 }
+
+/* ============================================================
+   LIGHT MODE AESTHETIC OVERRIDES (Front Page)
+   ============================================================ */
+[data-theme='light'] .front-wrapper {
+    background: #e2e8f0; 
+    background-image: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    color: #171717;
+}
+
+/* Elegant illuminated glow effect for the background (Monochrome) */
+[data-theme='light'] .geometric-bg {
+    background: 
+        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 1) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.6) 0%, transparent 55%),
+        radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
+    opacity: 1;
+}
+
+/* Add text shadow to hero title for better pop */
+[data-theme='light'] .hero-title,
+[data-theme='light'] .hero-title span {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Navigation */
+[data-theme='light'] .main-nav {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.8);
+}
+[data-theme='light'] .nav-logo { color: #000000; }
+[data-theme='light'] .nav-logo small {
+    background: #000000;
+    color: #ffffff;
+}
+[data-theme='light'] .shield-logo { color: #000000; }
+
+[data-theme='light'] .nav-btn.primary {
+    background: linear-gradient(180deg, #3f3f46 0%, #000000 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border: 1px solid #000000;
+}
+[data-theme='light'] .nav-btn.primary:hover {
+    background: #000000;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+/* Hero Section */
+[data-theme='light'] .hero-title,
+[data-theme='light'] .hero-title span {
+    color: #000000;
+    -webkit-text-fill-color: #000000;
+    background: none;
+}
+[data-theme='light'] .hero-subtitle { color: #475569; }
+[data-theme='light'] .hero-badge {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+}
+
+/* Glass Cards -> Monochrome structured */
+[data-theme='light'] .glass-card {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 5px 5px 0px #000000;
+    border-radius: 20px;
+}
+[data-theme='light'] .glass-card:hover {
+    border-color: #000000;
+    transform: translateY(-4px) !important;
+    box-shadow: 8px 8px 0px #000000;
+    background: #fafafa;
+}
+[data-theme='light'] .glass-card h3 { color: #000000; }
+[data-theme='light'] .glass-card p { color: #475569; }
+[data-theme='light'] .card-footer { color: #000000; }
+
+/* Adjust card icons to monochrome */
+[data-theme='light'] .card-icon.student,
+[data-theme='light'] .card-icon.teacher,
+[data-theme='light'] .card-icon.org {
+    background: #f1f5f9;
+    color: #000000;
+    border: 1px solid #e2e8f0;
+}
+
+/* Footer CTA */
+[data-theme='light'] .front-footer-cta p { color: #475569; }
+[data-theme='light'] .cta-link { color: #000000; }
+[data-theme='light'] .cta-link:hover { color: #333333; }

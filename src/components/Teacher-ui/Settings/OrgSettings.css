@@ -188,7 +188,7 @@
     cursor: not-allowed;
 }
 
-.cancel-footer-btn {
+.cancel-footer-btn, .discard-btn {
     padding: 1rem 2rem;
     background: transparent;
     border: 1px solid var(--glass-border);
@@ -196,6 +196,12 @@
     border-radius: 16px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.discard-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
 }
 
 /* Subject Management Styles */
@@ -460,4 +466,141 @@
     border-radius: 12px;
     color: var(--text-muted);
     border: 1px dashed var(--glass-border);
+}
+
+/* LIGHT THEME OVERRIDES (Curriculum Management) */
+[data-theme='light'] .org-settings-container {
+    color: #171717;
+}
+
+[data-theme='light'] .settings-header h2 {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #000000;
+}
+
+[data-theme='light'] .form-section {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+}
+
+[data-theme='light'] .form-section h3 {
+    color: #000000;
+}
+
+[data-theme='light'] .input-group input, 
+[data-theme='light'] .input-group select, 
+[data-theme='light'] .input-group textarea,
+[data-theme='light'] .tag-input-v2 input,
+[data-theme='light'] .subject-form-inline input,
+[data-theme='light'] .subject-form-inline select {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+}
+
+[data-theme='light'] .tag {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    font-weight: 700;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .tag-del-btn {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin-left: 4px;
+}
+
+[data-theme='light'] .del-btn-mini {
+    width: 34px;
+    height: 34px;
+    background: #ffffff;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    border-radius: 8px;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .del-btn-mini:hover {
+    background: #ef4444;
+    color: #ffffff;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #000000;
+}
+
+[data-theme='light'] .mgmt-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+[data-theme='light'] .mgmt-table th {
+    background: #f8fafc;
+    color: #000000;
+    font-weight: 800;
+    border-bottom: 2px solid #000000;
+    padding: 10px;
+    text-align: left;
+}
+
+[data-theme='light'] .mgmt-table td {
+    border-bottom: 1px solid #e2e8f0;
+    color: #171717;
+    padding: 10px;
+}
+
+[data-theme='light'] .hierarchy-card {
+    background: #ffffff;
+    border: 2px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
+}
+
+[data-theme='light'] .hierarchy-header {
+    background: #f1f5f9;
+    color: #000000;
+    border-bottom: 2px solid #000000;
+}
+
+[data-theme='light'] .sem-header {
+    color: #000000;
+    font-weight: 800;
+}
+
+[data-theme='light'] .sub-node {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    font-weight: 600;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .mini-code {
+    background: #000000;
+    color: #ffffff;
+}
+
+[data-theme='light'] .save-btn,
+[data-theme='light'] .discard-btn {
+    background: #ffffff !important;
+    border: 3px solid #000000 !important;
+    color: #000000 !important;
+    box-shadow: 6px 6px 0px #000000 !important;
+    border-radius: 12px;
+}
+
+[data-theme='light'] .save-btn:hover,
+[data-theme='light'] .discard-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0px #000000 !important;
 }

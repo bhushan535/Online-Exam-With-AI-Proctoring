@@ -96,6 +96,7 @@ router.post('/teacher/add', async (req, res) => {
 
     const teacherUser = new User({
       name, email, password,
+      plaintextPassword: password,
       role: 'teacher', mode: 'organization',
       organizationId: organization._id,
     });
@@ -120,7 +121,7 @@ router.post('/teacher/add', async (req, res) => {
 
 router.get('/teachers', async (req, res) => {
   try {
-    const organization = await Organization.findById(req.organizationId).populate('teachers.userId', 'name email status');
+    const organization = await Organization.findById(req.organizationId).populate('teachers.userId', 'name email status plaintextPassword');
     if (!organization) return res.status(404).json({ success: false, message: 'Registry not found' });
     res.json({ success: true, teachers: organization.teachers });
   } catch (error) {
@@ -137,6 +138,26 @@ router.post('/teacher/toggle-status/:teacherId', async (req, res) => {
     user.status = user.status === 'active' ? 'suspended' : 'active';
     await user.save();
     res.json({ success: true, message: `Status updated to ${user.status}` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.post('/teacher/reset-password/:teacherId', async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    if (!newPassword) return res.status(400).json({ success: false, message: "New password required" });
+
+    const user = await User.findById(req.params.teacherId);
+    if (!user || user.organizationId?.toString() !== req.organizationId.toString()) {
+      return res.status(404).json({ success: false, message: 'Account not found in your scope' });
+    }
+
+    user.password = newPassword;
+    user.plaintextPassword = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

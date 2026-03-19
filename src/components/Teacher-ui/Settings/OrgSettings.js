@@ -13,7 +13,7 @@ import "./OrgSettings.css";
 
 const OrgSettings = () => {
     const navigate = useNavigate();
-    const { token } = useAuth();
+    const { token, refreshOrg } = useAuth();
     const { toasts, showToast, removeToast } = useToast();
     
     const [settings, setSettings] = useState({
@@ -85,7 +85,7 @@ const OrgSettings = () => {
     // Save Handler
     const handleSave = async (e) => {
         if (e) e.preventDefault();
-        if (!settings.organizationName.trim() || settings.organizationName.length < 2) {
+        if (!settings.organizationName?.trim() || settings.organizationName?.length < 2) {
             showToast('Organization name is required', 'error');
             return;
         }
@@ -93,8 +93,17 @@ const OrgSettings = () => {
         setSaving(true);
         try {
             const res = await saveOrgSettings(settings);
-            setSettings(res.data);
+            const data = res.data;
+            setSettings({
+                ...data,
+                permissions: data.permissions || {
+                    allowTeacherStudentImport: false,
+                    principalApprovalLoop: false,
+                    internalExamSharing: false
+                }
+            });
             showToast('Profile updated successfully!', 'success');
+            await refreshOrg(); // Refresh global header context
             setTimeout(() => navigate('/TeacherHome'), 1500);
         } catch (err) {
             showToast('Save failed. Please try again.', 'error');
@@ -107,8 +116,16 @@ const OrgSettings = () => {
         setLoading(true);
         try {
             const res = await getOrgSettings();
-            setSettings(res.data);
-            setLogoPreview(res.data.logo || '');
+            const data = res.data;
+            setSettings({
+                ...data,
+                permissions: data.permissions || {
+                    allowTeacherStudentImport: false,
+                    principalApprovalLoop: false,
+                    internalExamSharing: false
+                }
+            });
+            setLogoPreview(data.logo || '');
             showToast('Settings reloaded', 'info');
         } catch {
             showToast('Failed to reload', 'error');
@@ -120,7 +137,7 @@ const OrgSettings = () => {
     const togglePermission = (key) => {
         setSettings(prev => ({
             ...prev,
-            permissions: { ...prev.permissions, [key]: !prev.permissions[key] }
+            permissions: { ...prev?.permissions, [key]: !prev?.permissions?.[key] }
         }));
     };
 
@@ -206,7 +223,7 @@ const OrgSettings = () => {
                                 </div>
                                 <input 
                                     type="checkbox" 
-                                    checked={settings.permissions.allowTeacherStudentImport} 
+                                    checked={settings?.permissions?.allowTeacherStudentImport || false} 
                                     onChange={() => togglePermission('allowTeacherStudentImport')}
                                 />
                                 <span className="slider"></span>
@@ -218,7 +235,7 @@ const OrgSettings = () => {
                                 </div>
                                 <input 
                                     type="checkbox" 
-                                    checked={settings.permissions.principalApprovalLoop} 
+                                    checked={settings?.permissions?.principalApprovalLoop || false} 
                                     onChange={() => togglePermission('principalApprovalLoop')}
                                 />
                                 <span className="slider"></span>
@@ -230,7 +247,7 @@ const OrgSettings = () => {
                                 </div>
                                 <input 
                                     type="checkbox" 
-                                    checked={settings.permissions.internalExamSharing} 
+                                    checked={settings?.permissions?.internalExamSharing || false} 
                                     onChange={() => togglePermission('internalExamSharing')}
                                 />
                                 <span className="slider"></span>

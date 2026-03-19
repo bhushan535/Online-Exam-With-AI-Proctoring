@@ -1,18 +1,32 @@
 const express = require("express");
 const router = express.Router();
+const { authenticate } = require('../middleware/auth');
+const Class = require('../models/Class');
+const Exam = require('../models/Exam');
 
-// Import required for backward compatibility
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+// GET Teacher Stats (Solo Mode friendly)
+router.get('/teacher/stats', authenticate, async (req, res) => {
+  try {
+    const classes = await Class.find({ createdBy: req.userId });
+    
+    let totalStudents = 0;
+    classes.forEach(c => {
+      totalStudents += c.students.length;
+    });
 
-// Helper function for token generation
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
+    const totalExams = await Exam.countDocuments({ teacherId: req.userId });
 
-// LEGACY LOGIN REMOVED - Use /api/auth/login instead
-router.post('/teacher/login', async (req, res) => {
-    res.status(410).json({ success: false, message: "Legacy login is disabled. Please use the organization login." });
+    res.json({
+      success: true,
+      stats: {
+        totalClasses: classes.length,
+        totalStudents: totalStudents,
+        totalExams: totalExams
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error fetching stats" });
+  }
 });
 
 module.exports = router;

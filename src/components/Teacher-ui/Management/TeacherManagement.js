@@ -5,7 +5,7 @@ import Toast from "../../Common/Toast";
 import useToast from "../../Common/useToast";
 import PopupModal from "../../Common/PopupModal";
 import BackButton from "../../Common/BackButton";
-import { FaUserPlus, FaUserShield, FaUsers, FaBuilding, FaIdCard, FaEnvelope, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaUserPlus, FaUserShield, FaUsers, FaBuilding, FaIdCard, FaEnvelope, FaTimes, FaTrash, FaKey, FaLock } from 'react-icons/fa';
 import "./TeacherManagement.css";
 
 const TeacherManagement = () => {
@@ -84,6 +84,31 @@ const TeacherManagement = () => {
     }
   };
 
+  const handleResetPassword = async (teacherId, teacherName) => {
+    const newPassword = window.prompt(`Enter new password for ${teacherName}:`);
+    if (!newPassword) return;
+
+    try {
+      const res = await fetch(`${BASE_URL}/principal/teacher/reset-password/${teacherId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newPassword })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast("Password reset successfully", "success");
+        fetchTeachers();
+      } else {
+        showToast(data.message, "error");
+      }
+    } catch (err) {
+      showToast("Password reset failed", "error");
+    }
+  };
+
   const handleDeleteTeacher = async (teacherId, teacherName) => {
     if (!window.confirm(`Are you absolutely sure you want to delete ${teacherName}? This action is irreversible and will delete their entire profile and account.`)) {
         return;
@@ -130,6 +155,7 @@ const TeacherManagement = () => {
               <th><FaIdCard /> Name / Employee ID</th>
               <th><FaEnvelope /> Contact Info</th>
               <th><FaBuilding /> Department</th>
+              <th><FaKey /> Password</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -145,6 +171,9 @@ const TeacherManagement = () => {
                 </td>
                 <td>{t.userId?.email}</td>
                 <td>{t.department || <span className="unassigned">General</span>}</td>
+                <td className="password-cell">
+                   <code>{t.userId?.plaintextPassword || '••••••••'}</code>
+                </td>
                 <td>
                   <span className={`status-pill pill-${t.userId?.status}`}>
                     {t.userId?.status}
@@ -159,6 +188,14 @@ const TeacherManagement = () => {
                     >
                       <FaUserShield /> 
                       <span>{t.userId?.status === 'active' ? " Suspend" : " Activate"}</span>
+                    </button>
+                    <button 
+                      className="btn-action-icon reset" 
+                      title="Reset Password"
+                      onClick={() => handleResetPassword(t.userId?._id, t.userId?.name)}
+                    >
+                      <FaLock /> 
+                      <span> Reset</span>
                     </button>
                     <button 
                       className="btn-action-icon delete" 

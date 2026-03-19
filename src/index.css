@@ -2,7 +2,7 @@
   /* Color Palette - Premium & Modern Dark Theme */
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%);
-  --bg-dark: #0a0a0c;
+  --bg-dark: #04040c;
   --bg-card: rgba(255, 255, 255, 0.03);
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
@@ -19,6 +19,151 @@
   --dropdown-border: rgba(255, 255, 255, 0.1);
   --dropdown-accent: #3b82f6;
   --dropdown-accent-glow: rgba(59, 130, 246, 0.15);
+}
+
+/* Light Mode Overrides */
+[data-theme='light'] {
+  color-scheme: light;
+  --bg-dark: #fff9dc;
+  --bg-card: #fafafa;
+  --text-main: #171717;
+  --text-muted: #475569;
+  --glass-bg: #ffffff;
+  --glass-border: #e5e7eb;
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  --dropdown-bg: #ffffff;
+  --dropdown-border: #e5e7eb;
+  --dropdown-accent-glow: rgba(0, 0, 0, 0.05);
+
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  --primary-color: #6366f1;
+  --accent-color: #f43f5e;
+}
+
+/* Light Mode Specific Visual Targets */
+[data-theme='light'] h1,
+[data-theme='light'] h2,
+[data-theme='light'] h3,
+[data-theme='light'] h4 {
+  color: #000000;
+  font-weight: 900;
+}
+
+/* Thick black borders on featured content cards/frames */
+/* Slightly offset layered border/shadow look on cards */
+[data-theme='light'] .glass-v2,
+[data-theme='light'] .card,
+[data-theme='light'] .stat-card,
+[data-theme='light'] .glass-premium,
+[data-theme='light'] .marks-summary-card,
+[data-theme='light'] .top-bar,
+[data-theme='light'] .notices-feed-horizontal,
+[data-theme='light'] .branch-column,
+[data-theme='light'] .exam-card-v2,
+[data-theme='light'] .stats-glass,
+[data-theme='light'] .search-discovery-bar,
+[data-theme='light'] .search-results-section,
+[data-theme='light'] .hero-stat-card,
+[data-theme='light'] .action-tile,
+[data-theme='light'] .feed-item,
+[data-theme='light'] .sub-pill,
+[data-theme='light'] .result-item,
+[data-theme='light'] .mini-stat,
+[data-theme='light'] .teachers-table-wrapper,
+[data-theme='light'] .modern-modal-card,
+[data-theme='light'] .vc-metadata-section,
+[data-theme='light'] .class-card-modern,
+[data-theme='light'] .filter-section,
+[data-theme='light'] .search-box,
+[data-theme='light'] .pagination-modern button,
+[data-theme='light'] .premium-summary,
+[data-theme='light'] .solo-redesign .premium-input {
+  border: 3px solid #000000 !important;
+  box-shadow: 6px 6px 0px #000000 !important;
+  background: #ffffff !important;
+  border-radius: 20px;
+  color: #000000 !important;
+}
+
+/* Neobrutalist Button Style for Light Mode */
+[data-theme='light'] button:not(.theme-toggle-btn):not(.tag-del-btn):not(.del-btn-mini),
+[data-theme='light'] .ce-submit-btn,
+[data-theme='light'] .btn,
+[data-theme='light'] .mode-primary-btn,
+[data-theme='light'] .btn-icon,
+[data-theme='light'] .mini-action-btn {
+  background: #ffffff !important;
+  color: #171717 !important;
+  -webkit-text-fill-color: #171717 !important;
+  border-radius: 9999px !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  font-weight: 800 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-theme='light'] button:not(.theme-toggle-btn):hover,
+[data-theme='light'] .ce-submit-btn:hover,
+[data-theme='light'] .mode-primary-btn:hover,
+[data-theme='light'] .btn-icon:hover,
+[data-theme='light'] .mini-action-btn:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #000000 !important;
+}
+
+/* Ensure SVGs inside buttons follow text color */
+[data-theme='light'] button svg {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+/* Icons should follow component colors instead of forced black */
+[data-theme='light'] .icon-primary {
+  color: var(--primary-color);
+}
+
+/* Thin gray outlines for input/address/social containers */
+[data-theme='light'] input:not([type="checkbox"]),
+[data-theme='light'] .ce-group input,
+[data-theme='light'] select,
+[data-theme='light'] textarea {
+  border: 2px solid #000000;
+  background-color: var(--bg-card);
+  color: #171717;
+  border-radius: 12px;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+[data-theme='light'] input:focus,
+[data-theme='light'] select:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Large rounded social/button containers with thin gray borders */
+[data-theme='light'] .proctoring-toggle-belt,
+[data-theme='light'] .proctoring-info-footer {
+  border: 2px solid #000000;
+  background: var(--bg-card);
+  border-radius: 24px;
+}
+
+/* Override dark mode text gradients for headings */
+[data-theme='light'] .ce-header h1 {
+  background: none;
+  -webkit-text-fill-color: #000000;
+  color: #000000;
+}
+
+[data-theme='light'] .ce-badge {
+  background: #f3f4f6;
+  color: #000000;
+  border: 1px solid #d1d5db;
 }
 
 /* Global Select Normalization */
@@ -41,8 +186,8 @@ select {
 }
 
 select:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--glass-border);
+  background-color: var(--glass-bg);
 }
 
 select:focus {
@@ -54,6 +199,15 @@ option {
   background-color: #1e1e24;
   color: var(--text-main);
   padding: 1rem;
+}
+
+[data-theme='light'] option {
+  background-color: #ffffff;
+  color: #171717;
+}
+
+[data-theme='light'] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
 }
 
 * {
@@ -70,8 +224,24 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 70% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 15% 85%, rgba(59, 130, 246, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+  background-attachment: fixed;
   color: var(--text-main);
   line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
+  min-height: 100vh;
+}
+
+[data-theme='light'] body {
+  background-image: 
+    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 1) 0%, transparent 70%),
+    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+    radial-gradient(circle at 50% 120%, rgba(255, 255, 255, 0.5) 0%, transparent 60%);
 }
 
 code {
@@ -80,7 +250,9 @@ code {
 }
 
 /* Global Transition for Buttons & Cards */
-button, .card, .stat-card {
+button,
+.card,
+.stat-card {
   transition: var(--transition-smooth);
 }
 

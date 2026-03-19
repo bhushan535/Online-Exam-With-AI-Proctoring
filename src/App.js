@@ -55,6 +55,7 @@ import NoticeManagement from "./components/Teacher-ui/Management/NoticeManagemen
 import OrgSettings from "./components/Teacher-ui/Settings/OrgSettings";
 import CurriculumManagement from "./components/Teacher-ui/Settings/CurriculumManagement";
 import CurriculumGallery from "./components/Teacher-ui/Settings/CurriculumGallery";
+import ThemeToggle from "./components/Common/ThemeToggle";
 
 
 function App() {
@@ -220,7 +221,8 @@ function App() {
       </ProtectedRoute>
     } />
 
-  </Routes>
+    </Routes>
+    <ThemeToggle />
   </BrowserRouter>
   </AuthProvider>
 

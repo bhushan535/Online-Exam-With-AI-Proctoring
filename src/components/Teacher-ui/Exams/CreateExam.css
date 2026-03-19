@@ -82,6 +82,11 @@
     letter-spacing: 1px;
 }
 
+[data-theme='light'] .ce-group label {
+    color: #000000;
+    opacity: 0.8;
+}
+
 .ce-group input {
     padding: 1rem 1.2rem;
     background: var(--bg-dark);
@@ -101,6 +106,13 @@
     background: rgba(255,255,255,0.02) !important;
     color: var(--text-muted) !important;
     border-style: dashed !important;
+}
+
+[data-theme='light'] .readonly-input {
+    background: #f9fafb !important;
+    color: #000000 !important;
+    border: 1px dashed #000000 !important;
+    opacity: 0.8;
 }
 
 .readonly-input.highlight {
@@ -141,9 +153,35 @@
     margin-top: 2rem;
 }
 
+[data-theme='light'] .marks-summary-card {
+    color: #000000 !important;
+}
+
 .summary-label { font-size: 0.9rem; font-weight: 600; opacity: 0.9; margin-bottom: 0.5rem; }
 .summary-value { font-size: 3rem; font-weight: 900; }
 .summary-value span { font-size: 1rem; margin-left: 0.4rem; opacity: 0.7; }
+
+.solo-layout .ce-form-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.solo-layout .ce-section { height: 100%; display: flex; flex-direction: column; }
+.solo-layout .card-config .marks-summary-card { margin-top: auto; }
+
+/* Solo Redesign Spacing & Hierarchy */
+.solo-redesign .section-head { margin-bottom: 3.5rem; }
+.solo-redesign .ce-group label { color: var(--text-main); font-size: 0.75rem; opacity: 0.8; letter-spacing: 1.5px; }
+.solo-redesign .identity-group { margin-bottom: 3rem; }
+.solo-redesign .spacing-v2 { gap: 2.5rem; margin-bottom: 2.5rem; }
+.solo-redesign .premium-input { border-color: rgba(99, 102, 241, 0.3); background: rgba(0,0,0,0.2); font-size: 1.1rem; padding: 1.2rem !important; }
+
+.premium-summary {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+    box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.6);
+    border: 1px solid rgba(255,255,255,0.2);
+    transform: scale(1.02);
+    margin-top: 3rem;
+}
 
 /* Proctoring */
 .proctoring-toggle-belt {

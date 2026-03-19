@@ -1,34 +1,42 @@
 .instruction-page {
   min-height: 100vh;
-  background-color: #f1f5f9;
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
-  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-primary);
+  transition: background 0.3s ease;
 }
 
 .instruction-card {
-  background: white;
+  background: var(--bg-card);
   width: 100%;
-  max-width: 850px;
-  border-radius: 20px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 1200px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .header-gradient {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  background: var(--primary-gradient);
   color: white;
-  padding: 35px 40px;
+  padding: 40px;
   text-align: center;
 }
 
 .header-gradient h2 {
-  margin: 0 0 15px 0;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
 }
 
 .exam-meta {
@@ -37,8 +45,8 @@
   justify-content: center;
   gap: 15px;
   font-size: 15px;
-  font-weight: 500;
-  opacity: 0.9;
+  font-weight: 600;
+  opacity: 0.95;
 }
 
 .dot {
@@ -54,26 +62,29 @@
 
 .rules-section h3 {
   margin: 0 0 20px 0;
-  color: #1e293b;
-  font-size: 18px;
+  color: var(--text-main);
+  font-size: 19px;
+  font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .instruction-list {
-  background: #f8fafc;
-  padding: 25px 25px 25px 45px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-dark);
+  padding: 30px 30px 30px 50px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
   margin: 0;
-  color: #334155;
-  line-height: 1.7;
+  color: var(--text-muted);
+  line-height: 1.8;
 }
 
 .instruction-list li {
   margin-bottom: 12px;
 }
+
+.instruction-list li b { color: var(--text-main); }
 
 .instruction-list li:last-child {
   margin-bottom: 0;
@@ -83,57 +94,56 @@
   display: flex;
   flex-direction: column;
   gap: 25px;
-  background: white;
+  background: var(--bg-card);
   padding: 30px;
-  border-radius: 16px;
-  border: 1px dashed #cbd5e1;
+  border-radius: 20px;
+  border: 1px dashed var(--glass-border);
 }
 
 .code-input-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .code-input-group label {
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: 700;
+  color: var(--text-main);
   font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .code-input-group input {
-  padding: 14px 18px;
-  font-size: 18px;
-  border: 2px solid #cbd5e1;
-  border-radius: 10px;
-  transition: all 0.2s;
-  letter-spacing: 2px;
+  padding: 16px 20px;
+  font-size: 20px;
+  background: var(--bg-dark);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  border-radius: 12px;
+  transition: var(--transition-smooth);
+  letter-spacing: 3px;
   font-family: inherit;
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
+  font-weight: 800;
 }
 
 .code-input-group input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
 .code-input-group input.input-error {
-  border-color: #ef4444;
+  border-color: var(--accent-color);
 }
 
-.inline-error-msg {
-  color: #ef4444;
-  margin: 4px 0 0 0;
+.code-error-text {
+  color: var(--accent-color);
+  margin: 6px 0 0 0;
   font-size: 14px;
-  font-weight: 600;
-  animation: slideDown 0.2s ease;
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  font-weight: 700;
 }
 
 /* Checkbox Styling */
@@ -144,7 +154,7 @@
 .checkbox-container {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 14px;
   cursor: pointer;
   user-select: none;
 }
@@ -158,11 +168,11 @@
 }
 
 .checkmark {
-  width: 22px;
-  height: 22px;
-  background-color: white;
-  border: 2px solid #cbd5e1;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--bg-dark);
+  border: 2px solid var(--glass-border);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,17 +182,17 @@
 }
 
 .checkbox-container input:checked ~ .checkmark {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--success-color);
+  border-color: var(--success-color);
 }
 
 .checkmark:after {
   content: "";
   display: none;
-  width: 5px;
-  height: 10px;
+  width: 6px;
+  height: 11px;
   border: solid white;
-  border-width: 0 2px 2px 0;
+  border-width: 0 2.5px 2.5px 0;
   transform: rotate(45deg);
   margin-bottom: 2px;
 }
@@ -192,52 +202,88 @@
 }
 
 .agree-text {
-  color: #475569;
+  color: var(--text-muted);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 /* Button Styling */
 .start-btn {
-  background-color: #10b981;
+  background-color: var(--success-color);
   color: white;
   border: none;
-  padding: 16px;
+  padding: 18px;
   font-size: 18px;
-  font-weight: 600;
-  border-radius: 10px;
+  font-weight: 800;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-smooth);
   width: 100%;
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.25);
 }
 
-.start-btn:hover {
+.start-btn:hover:not(.disabled) {
   background-color: #059669;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
 }
 
 .start-btn.disabled {
-  background-color: #94a3b8;
+  background-color: var(--glass-border);
+  color: var(--text-muted);
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  opacity: 0.6;
 }
 
-.loading-state {
-  flex-direction: column;
-  gap: 20px;
+/* ── Light Theme Neobrutalist Overrides ── */
+[data-theme='light'] .instruction-card {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 12px 12px 0px #000000;
+    border-radius: 28px;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #e2e8f0;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+[data-theme='light'] .header-gradient {
+    background: #000000;
+    border-bottom: 3px solid #000000;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+[data-theme='light'] .instruction-list {
+    background: #ffffff;
+    border: 3px solid #000000;
+    color: #1f2937;
 }
+[data-theme='light'] .instruction-list li b { color: #000000; }
+
+[data-theme='light'] .action-section {
+    background: #ffffff;
+    border: 3px solid #000000;
+}
+
+[data-theme='light'] .code-input-group input {
+    background: #ffffff;
+    border: 3px solid #000000;
+    color: #000000;
+}
+[data-theme='light'] .code-input-group input:focus {
+    box-shadow: 4px 4px 0px #000000;
+}
+
+[data-theme='light'] .checkmark {
+    background: #ffffff;
+    border: 3px solid #000000;
+}
+
+[data-theme='light'] .start-btn {
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+    color: #ffffff;
+}
+[data-theme='light'] .start-btn:active:not(.disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0px #000000;
+}
+
+[data-theme='light'] .rules-section h3 { color: #000000; font-weight: 900; }
+[data-theme='light'] .agree-text { color: #334155; font-weight: 700; }

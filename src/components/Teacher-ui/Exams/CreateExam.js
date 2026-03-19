@@ -65,6 +65,17 @@ function CreateExam() {
                             setOrgSubjects(data.organization.subjects);
                         }
                     });
+            } else if (user?.mode === 'solo') {
+                // Fetch solo teacher subjects
+                fetch(`${BASE_URL}/teacher/subjects`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            setOrgSubjects(data.subjects);
+                        }
+                    });
             }
         }
     }, [token, user]);
@@ -79,9 +90,23 @@ function CreateExam() {
         setYear(selectedClass.year || "");
         setSemester(selectedClass.semester);
 
-        // Auto-reset subject when class changes
-        setSubject("");
-        setSubCode("");
+        // Auto-populate subject for solo mode
+        if (user?.mode === 'solo') {
+            // Find subject that matches the class branch (legacy solo logic used branch as subject name)
+            // Or find from recently fetched orgSubjects
+            const matchedSubject = orgSubjects.find(s => s.name === selectedClass.branch);
+            if (matchedSubject) {
+                setSubject(matchedSubject.name);
+                setSubCode(matchedSubject.code);
+            } else {
+                setSubject(selectedClass.branch); // Fallback to branch name
+                setSubCode("");
+            }
+        } else {
+            // Auto-reset subject when class changes in org mode
+            setSubject("");
+            setSubCode("");
+        }
     };
 
     /* SUBJECT SELECT */
@@ -93,6 +118,11 @@ function CreateExam() {
     /* SUBMIT */
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (Number(totalQuestions) <= 0 || Number(duration) <= 0 || Number(marksPerQuestion) <= 0) {
+            showToast("Questions, duration, and marks must be greater than zero.", "error");
+            return;
+        }
 
         const examData = {
             examName,
@@ -143,217 +173,278 @@ function CreateExam() {
                 <p>Configure academic evaluation, parameters and proctoring protocols.</p>
             </div>
 
-            <form className="ce-form-v2" onSubmit={handleSubmit}>
+            <form className={`ce-form-v2 ${user?.mode === 'solo' ? 'solo-layout' : ''}`} onSubmit={handleSubmit}>
                 <div className="ce-form-grid">
-                    {/* Left Column: Basic Info */}
-                    <div className="ce-section glass-v2">
-                        <div className="section-head">
-                            <FaBook />
-                            <h3>Academic Context</h3>
-                        </div>
+                    {user?.mode === 'organization' ? (
+                        <>
+                            {/* Organization Mode: Original 3-Column Layout */}
+                            {/* Left Column: Academic Context */}
+                            <div className="ce-section glass-v2">
+                                <div className="section-head">
+                                    <FaBook />
+                                    <h3>Academic Context</h3>
+                                </div>
 
-                        <div className="ce-input-row">
-                            <div className="ce-group full">
-                                <label>Target  Class</label>
-                                <div className="ce-select-wrapper">
-                                    <select
-                                        value={classId}
-                                        onChange={(e) => handleClassChange(e.target.value)}
+                                <div className="ce-input-row">
+                                    <div className="ce-group full">
+                                        <label>Target Class</label>
+                                        <div className="ce-select-wrapper">
+                                            <select
+                                                value={classId}
+                                                onChange={(e) => handleClassChange(e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Select Class...</option>
+                                                {classes.map((c) => (
+                                                    <option key={c._id} value={c._id}>
+                                                        {c.className} ({c.branch} - {c.semester})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="ce-input-row three-col">
+                                    <div className="ce-group">
+                                        <label>Department</label>
+                                        <input value={branch || "---"} readOnly className="readonly-input" />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Year</label>
+                                        <input value={year || "---"} readOnly className="readonly-input" />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Semester</label>
+                                        <input value={semester || "---"} readOnly className="readonly-input" />
+                                    </div>
+                                </div>
+
+                                {(semester) && (
+                                    <div className="ce-group">
+                                        <label>Assigned Subject</label>
+                                        <div className="ce-select-wrapper">
+                                            <select
+                                                value={subject}
+                                                onChange={(e) => {
+                                                    const sel = orgSubjects.find(s => s.name === e.target.value && 
+                                                        (!s.branch || s.branch === branch) && 
+                                                        (!s.semester || String(s.semester) === String(semester)));
+                                                    handleSubjectSelect(sel ? { name: sel.name, code: sel.code } : { name: e.target.value, code: "" });
+                                                }}
+                                                required
+                                            >
+                                                <option value="">Select Subject...</option>
+                                                {orgSubjects
+                                                    .filter(s => (!s.branch || s.branch === branch) && (!s.semester || String(s.semester) === String(semester)))
+                                                    .map(s => (
+                                                        <option key={s._id || s.name} value={s.name}>{s.name} ({s.code})</option>
+                                                    ))
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="ce-group">
+                                    <label>Subject Code</label>
+                                    <input
+                                        placeholder="e.g. 316313"
+                                        value={subCode}
+                                        onChange={(e) => setSubCode(e.target.value)}
+                                        className={`highlight ${!subCode ? 'manual-entry' : ''}`}
+                                        readOnly
                                         required
-                                    >
-                                        <option value="">Select Class...</option>
-                                        {classes.map((c) => (
-                                            <option key={c._id} value={c._id}>
-                                                {c.className} ({c.branch} - {c.semester})
-                                            </option>
-                                        ))}
-                                    </select>
+                                    />
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="ce-input-row three-col">
-                            <div className="ce-group">
-                                <label>Department</label>
-                                <input value={branch || "---"} readOnly className="readonly-input" />
-                            </div>
-                            <div className="ce-group">
-                                <label>Year</label>
-                                <input value={year || "---"} readOnly className="readonly-input" />
-                            </div>
-                            <div className="ce-group">
-                                <label>Semester</label>
-                                <input value={semester || "---"} readOnly className="readonly-input" />
-                            </div>
-                        </div>
+                            {/* Middle Column: Evaluation Specs */}
+                            <div className="ce-section glass-v2">
+                                <div className="section-head">
+                                    <FaCalendarAlt />
+                                    <h3>Evaluation Specs</h3>
+                                </div>
 
-                        {(semester || user?.mode === 'solo') && (
-                            <div className="ce-group">
-                                <label>Assigned Subject</label>
-                                {user?.mode === 'organization' ? (
-                                    <div className="ce-select-wrapper">
-                                        <select
-                                            value={subject}
-                                            onChange={(e) => {
-                                                const sel = orgSubjects.find(s => s.name === e.target.value && 
-                                                    (!s.branch || s.branch === branch) && 
-                                                    (!s.semester || String(s.semester) === String(semester)));
-                                                handleSubjectSelect(sel ? { name: sel.name, code: sel.code } : { name: e.target.value, code: "" });
-                                            }}
-                                            required
-                                        >
-                                            <option value="">Select Subject...</option>
-                                            {orgSubjects
-                                                .filter(s => (!s.branch || s.branch === branch) && (!s.semester || String(s.semester) === String(semester)))
-                                                .map(s => (
-                                                    <option key={s._id || s.name} value={s.name}>{s.name} ({s.code})</option>
-                                                ))
-                                            }
+                                <div className="ce-group">
+                                    <label>Exam Identity</label>
+                                    <input
+                                        placeholder="e.g. Unit Test I"
+                                        value={examName}
+                                        onChange={(e) => setExamName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="ce-input-row">
+                                    <div className="ce-group">
+                                        <label>Date</label>
+                                        <input type="date" value={examDate} min={today} onChange={(e) => setExamDate(e.target.value)} required />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Visibility</label>
+                                        <select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                                            <option value="private">Private</option>
+                                            <option value="organization">Institutional</option>
                                         </select>
                                     </div>
-                                ) : (
-                                    <SearchableDropdown
-                                        options={[]}
-                                        placeholder="Type subject name..."
-                                        value={subject}
-                                        onSelect={handleSubjectSelect}
-                                        required
-                                    />
-                                )}
+                                </div>
+
+                                <div className="ce-input-row three-col">
+                                    <div className="ce-group">
+                                        <label>Questions</label>
+                                        <input type="number" value={totalQuestions} onChange={(e) => setTotalQuestions(e.target.value)} min="1" required />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Mins</label>
+                                        <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} min="1" required />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Mark/Que</label>
+                                        <input type="number" value={marksPerQuestion} onChange={(e) => setMarksPerQuestion(e.target.value)} min="1" required />
+                                    </div>
+                                </div>
+
+                                <div className="marks-summary-card">
+                                    <div className="summary-label">Total Marks</div>
+                                    <div className="summary-value">{(Number(totalQuestions) * Number(marksPerQuestion)) || 0}</div>
+                                </div>
                             </div>
-                        )}
 
-                        <div className="ce-group">
-                            <label>Subject Code</label>
-                            <input
-                                placeholder="e.g. 316313"
-                                value={subCode}
-                                onChange={(e) => setSubCode(e.target.value)}
-                                className={`highlight ${!subCode ? 'manual-entry' : ''}`}
-                                readOnly={user?.mode === 'organization'}
-                                required
-                            />
-                        </div>
-                    </div>
+                            {/* Right Column: Proctoring */}
+                            <div className="ce-section glass-v2 proctoring-highlights">
+                                <div className="section-head">
+                                    <FaShieldAlt />
+                                    <h3>Safe-Exam Environment</h3>
+                                </div>
+                                <div className="proctoring-toggle-belt">
+                                    <span>Enable AI Proctoring</span>
+                                    <label className="ce-switch">
+                                        <input type="checkbox" checked={proctoringConfig.enabled} onChange={(e) => setProctoringConfig({ ...proctoringConfig, enabled: e.target.checked })} />
+                                        <span className="ce-slider"></span>
+                                    </label>
+                                </div>
+                                <div className="proctoring-info-footer">
+                                    <FaShieldAlt />
+                                    <p>{proctoringConfig.enabled ? "AI supervision active." : "Standard mode active."}</p>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Solo Mode: Consolidated 2-Column Layout */}
+                            {/* Card 1: Assessment Identification */}
+                            <div className="ce-section glass-v2 solo-redesign card-identity">
+                                <div className="section-head">
+                                    <FaBook />
+                                    <h3>Assessment Identity</h3>
+                                </div>
 
-                    {/* Middle Column: Exam Details */}
-                    <div className="ce-section glass-v2">
-                        <div className="section-head">
-                            <FaCalendarAlt />
-                            <h3>Evaluation Specs</h3>
-                        </div>
-
-                        <div className="ce-group">
-                            <label>Exam Identity (<small>Exam Name</small> )</label>
-                            <input
-                                placeholder="e.g. Unit Test I - Advanced Algorithms"
-                                value={examName}
-                                onChange={(e) => setExamName(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="ce-input-row">
-                            <div className="ce-group">
-                                <label>Date of Exam Published</label>
-                                <div className="input-with-icon-v2">
-                                    <FaClock />
+                                <div className="ce-group identity-group">
+                                    <label>Exam Identity (Exam Name)</label>
                                     <input
-                                        type="date"
-                                        value={examDate}
-                                        min={today}
-                                        onChange={(e) => setExamDate(e.target.value)}
+                                        placeholder="e.g. Unit Test I - Advanced Algorithms"
+                                        value={examName}
+                                        onChange={(e) => setExamName(e.target.value)}
+                                        className="premium-input"
                                         required
                                     />
                                 </div>
-                            </div>
-                            <div className="ce-group">
-                                <label>Visibility Protocol</label>
-                                <div className="ce-select-wrapper">
-                                    <select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
-                                        <option value="private">Private Access</option>
-                                        <option value="organization">Institutional Shared</option>
-                                    </select>
+
+                                <div className="ce-input-row spacing-v2">
+                                    <div className="ce-group">
+                                        <label>Target Class</label>
+                                        <div className="ce-select-wrapper">
+                                            <select
+                                                value={classId}
+                                                onChange={(e) => handleClassChange(e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Select Class...</option>
+                                                {classes.map((c) => (
+                                                    <option key={c._id} value={c._id}>
+                                                        {c.className}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Assigned Subject</label>
+                                        <input 
+                                            value={subject || "Select Class first..."} 
+                                            readOnly 
+                                            className="readonly-input highlight-v2"
+                                            placeholder="Auto-populated from class..."
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="ce-input-row three-col">
-                            <div className="ce-group">
-                                <label>Total Que.</label>
-                                <input
-                                    type="number"
-                                    placeholder="0"
-                                    value={totalQuestions}
-                                    onChange={(e) => setTotalQuestions(e.target.value)}
-                                    required
-                                />
+                            {/* Card 2: Technical Configuration & Security */}
+                            <div className="ce-section glass-v2 solo-redesign card-config">
+                                <div className="section-head">
+                                    <FaCalendarAlt />
+                                    <h3>Technical Configuration</h3>
+                                </div>
+
+                                <div className="ce-input-row spacing-v2">
+                                    <div className="ce-group full">
+                                        <label>Date of Exam Published</label>
+                                        <div className="input-with-icon-v2">
+                                            <FaClock />
+                                            <input
+                                                type="date"
+                                                value={examDate}
+                                                min={today}
+                                                onChange={(e) => setExamDate(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="ce-input-row three-col spacing-v2">
+                                    <div className="ce-group">
+                                        <label>Total Que.</label>
+                                        <input type="number" placeholder="0" value={totalQuestions} onChange={(e) => setTotalQuestions(e.target.value)} min="1" required />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Duration (Mins)</label>
+                                        <input type="number" placeholder="Min" value={duration} onChange={(e) => setDuration(e.target.value)} min="1" required />
+                                    </div>
+                                    <div className="ce-group">
+                                        <label>Mark/Que.</label>
+                                        <input type="number" placeholder="Val" value={marksPerQuestion} onChange={(e) => setMarksPerQuestion(e.target.value)} min="1" required />
+                                    </div>
+                                </div>
+
+                                <div className="proctoring-toggle-belt">
+                                    <span>Enable AI Proctoring</span>
+                                    <label className="ce-switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={proctoringConfig.enabled}
+                                            onChange={(e) => setProctoringConfig({ 
+                                                ...proctoringConfig,
+                                                enabled: e.target.checked,
+                                                requireFullScreen: e.target.checked,
+                                                disableTabSwitching: e.target.checked
+                                            })}
+                                        />
+                                        <span className="ce-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="marks-summary-card premium-summary">
+                                    <div className="summary-label">Total Marks</div>
+                                    <div className="summary-value">
+                                        {(Number(totalQuestions) * Number(marksPerQuestion)) || 0}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="ce-group">
-                                <label>Duration (<small>Minutes</small>)</label>
-                                <input
-                                    type="number"
-                                    placeholder="Min"
-                                    value={duration}
-                                    onChange={(e) => setDuration(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="ce-group">
-                                <label>Mark[<small>Per Question</small>]</label>
-                                <input
-                                    type="number"
-                                    placeholder="Val"
-                                    value={marksPerQuestion}
-                                    onChange={(e) => setMarksPerQuestion(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="marks-summary-card">
-                            <div className="summary-label">Total Marks</div>
-                            <div className="summary-value">
-                                {(Number(totalQuestions) && Number(marksPerQuestion)) ? Number(totalQuestions) * Number(marksPerQuestion) : 0}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Proctoring */}
-                    <div className="ce-section glass-v2 proctoring-highlights">
-                        <div className="section-head">
-                            <FaShieldAlt />
-                            <h3>Safe-Exam Environment</h3>
-                        </div>
-
-                        <div className="proctoring-toggle-belt">
-                            <span>Enable AI Proctoring</span>
-                            <label className="ce-switch">
-                                <input
-                                    type="checkbox"
-                                    checked={proctoringConfig.enabled}
-                                    onChange={(e) => setProctoringConfig({ 
-                                        enabled: e.target.checked,
-                                        autoSubmitLimit: 0,
-                                        requireFullScreen: e.target.checked, // Enable full security by default if proctoring is on
-                                        disableTabSwitching: e.target.checked,
-                                        warningLimit: 3
-                                    })}
-                                />
-                                <span className="ce-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="proctoring-info-footer">
-                            <FaShieldAlt />
-                            <p>
-                                {proctoringConfig.enabled 
-                                    ? "Dynamic supervision active: Full-screen enforcement, tab-switching detection, and multi-face monitoring enabled."
-                                    : "Standard mode: No AI supervision or browser restrictions will be applied to this assessment."
-                                }
-                            </p>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
 
                 <div className="ce-actions">

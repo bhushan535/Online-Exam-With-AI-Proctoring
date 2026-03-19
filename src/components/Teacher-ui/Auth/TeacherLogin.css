@@ -4,23 +4,14 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    background: #0a0a0c;
+    background: transparent;
     font-family: 'Inter', sans-serif;
     overflow: hidden;
+    color: var(--text-main);
 }
 
-.login-bg-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 70% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
-}
+/* Redundant overlays removed - handled globally in index.css */
 
-.login-bg-overlay.student-theme {
-    background: radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
-}
 
 .back-to-home {
     position: absolute;
@@ -46,8 +37,8 @@
     z-index: 10;
     width: 100%;
     max-width: 440px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
     backdrop-filter: blur(20px);
     border-radius: 28px;
     padding: 3rem 2.5rem;
@@ -184,4 +175,91 @@
 
 .animate-slide-up {
     animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   LIGHT MODE AESTHETIC OVERRIDES (Auth Forms)
+   ============================================================ */
+[data-theme='light'] .login-wrapper {
+    background: var(--bg-dark);
+}
+
+/* Redundant light mode overlays removed */
+
+
+[data-theme='light'] .back-to-home {
+    color: #475569;
+}
+
+[data-theme='light'] .back-to-home:hover {
+    color: #000000;
+}
+
+[data-theme='light'] .login-glass-card {
+    background: var(--bg-card);
+    border: 3px solid #000000;
+    box-shadow: 10px 10px 0px #000000;
+    border-radius: 24px;
+}
+
+[data-theme='light'] .login-header h2 {
+    color: #000000;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .login-header p {
+    color: #475569;
+}
+
+[data-theme='light'] .login-icon-box,
+[data-theme='light'] .login-icon-box.student {
+    background: #f1f5f9;
+    color: #000000;
+    border: 1px solid #e2e8f0;
+}
+
+[data-theme='light'] .field-icon {
+    color: #64748b;
+    z-index: 2; /* Ensures icon is above input background */
+}
+
+[data-theme='light'] .input-field-v2 input {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    box-shadow: none;
+    font-weight: 600;
+}
+
+[data-theme='light'] .input-field-v2 input:focus {
+    background: #ffffff;
+    border-color: #000000;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.06);
+}
+
+[data-theme='light'] .login-submit-v2,
+[data-theme='light'] .login-submit-v2.student {
+    background: linear-gradient(180deg, #3f3f46 0%, #000000 100%);
+    color: #ffffff;
+    border: 1px solid #000000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    -webkit-text-fill-color: #ffffff;
+}
+
+[data-theme='light'] .login-submit-v2:hover,
+[data-theme='light'] .login-submit-v2.student:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+[data-theme='light'] .login-footer-links {
+    color: #475569;
+}
+
+[data-theme='light'] .login-footer-links a {
+    color: #000000;
+}
+
+[data-theme='light'] .login-footer-links a:hover {
+    text-decoration: underline;
 }
