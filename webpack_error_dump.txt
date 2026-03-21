@@ -1,0 +1,15 @@
+Creating an optimized production build...
+Failed to compile.
+
+[eslint] 
+src\components\Teacher-ui\Management\StudentManagement.js
+  Line 108:26:  'axios' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+(node:26012) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`

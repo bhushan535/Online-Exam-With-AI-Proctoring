@@ -1,0 +1,251 @@
+.sr-page {
+  min-height: 100vh;
+  background: transparent;
+  padding: 28px 24px;
+  font-family: var(--font-primary);
+  box-sizing: border-box;
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto;
+  color: var(--text-main);
+  transition: background 0.3s ease;
+}
+
+/* ── Loading / Error ── */
+.sr-center {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px; color: var(--text-muted); font-size: 15px;
+}
+.sr-spinner {
+  width: 36px; height: 36px;
+  border: 4px solid var(--glass-border); border-top-color: var(--primary-color);
+  border-radius: 50%; animation: srSpin 0.7s linear infinite;
+}
+@keyframes srSpin { to { transform: rotate(360deg); } }
+.sr-error-msg { color: var(--accent-color); font-size: 15px; text-align: center; }
+
+/* ── Header ── */
+.sr-header { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+.sr-back {
+  padding: 10px 22px; 
+  background: var(--bg-card); 
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  border-radius: 12px; 
+  font-size: 14px; 
+  font-weight: 700; 
+  cursor: pointer;
+  white-space: nowrap; 
+  transition: var(--transition-smooth); 
+  flex-shrink: 0;
+}
+.sr-back:hover { 
+    background: var(--primary-gradient); 
+    color: white;
+    border-color: transparent;
+    transform: translateX(-4px);
+}
+
+.sr-header-text { flex: 1; }
+.sr-title { 
+    font-size: 26px; 
+    font-weight: 900; 
+    color: var(--text-main); 
+    margin: 0 0 3px; 
+}
+.sr-student-name { font-size: 15px; color: var(--text-muted); font-weight: 500; margin: 0; }
+
+/* ── Filter Bar ── */
+.sr-filter-bar {
+  display: flex; gap: 16px; margin-bottom: 24px;
+  background: var(--bg-card); 
+  padding: 14px 20px; 
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm); 
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sr-filter-group { display: flex; align-items: center; gap: 10px; }
+.sr-filter-group label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.sr-filter-group select {
+  padding: 8px 14px; 
+  background: var(--bg-dark);
+  border: 1px solid var(--glass-border); 
+  border-radius: 10px;
+  font-size: 13px; 
+  color: var(--text-main); 
+  outline: none; 
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.sr-filter-group select:focus { border-color: var(--primary-color); }
+
+.sr-reset-btn {
+  padding: 8px 16px; background: rgba(239, 68, 68, 0.1); color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: 0.2s;
+}
+.sr-reset-btn:hover { background: #ef4444; color: white; }
+
+/* ── Summary ── */
+.sr-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 30px;
+}
+@media (max-width: 620px) { .sr-summary { grid-template-columns: repeat(2, 1fr); } }
+
+.sr-stat {
+  background: var(--bg-card); 
+  border-radius: 20px; 
+  padding: 22px 14px;
+  text-align: center; 
+  border: 1px solid var(--glass-border);
+  transition: transform 0.3s ease;
+}
+.sr-stat:hover { transform: translateY(-5px); }
+.sr-stat-val { display: block; font-size: 32px; font-weight: 900; color: var(--text-main); line-height: 1.2; }
+.sr-stat-lbl {
+  display: block; font-size: 11px; color: var(--text-muted); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;
+}
+
+/* ── Result Cards ── */
+.sr-list { display: flex; flex-direction: column; gap: 20px; }
+
+.sr-card {
+  background: var(--bg-card); 
+  border-radius: 24px; 
+  padding: 24px 28px;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.sr-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--primary-color);
+}
+
+.sr-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.sr-card-left { display: flex; flex-direction: column; gap: 4px; flex: 1; padding-right: 12px; }
+
+.sr-exam-name { font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0; }
+.sr-subject { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+.sr-date { font-size: 12px; color: var(--text-muted); opacity: 0.7; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+.sr-grade-circle {
+  color: white; font-size: 22px; font-weight: 900;
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Score row */
+.sr-score-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.sr-score { font-size: 22px; font-weight: 800; color: var(--text-main); }
+.sr-pct { font-size: 16px; font-weight: 800; color: var(--text-main); }
+
+/* Progress bar */
+.sr-bar-bg {
+  background: var(--bg-dark); 
+  border-radius: 999px;
+  height: 12px; 
+  margin-bottom: 20px; 
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+.sr-bar-fill { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+/* Counts */
+.sr-counts { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+.sr-cnt { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.sr-cnt-correct { color: #10b981; }
+.sr-cnt-wrong   { color: var(--accent-color); }
+.sr-cnt-skip    { color: var(--text-muted); }
+
+/* Pass/Fail tag */
+.sr-result-tag-wrap { text-align: right; }
+.sr-result-tag {
+  display: inline-block; padding: 6px 16px;
+  border-radius: 12px; font-size: 13px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* Empty */
+.sr-empty {
+  background: var(--bg-card); border-radius: 24px;
+  padding: 80px 20px; text-align: center;
+  border: 1px solid var(--glass-border);
+}
+.sr-empty-icon { font-size: 52px; margin-bottom: 16px; opacity: 0.5; }
+.sr-empty h3 { font-size: 22px; color: var(--text-main); margin: 0 0 10px; font-weight: 800; }
+.sr-empty p  { color: var(--text-muted); margin: 0 0 24px; }
+.sr-go-btn {
+  padding: 14px 32px; background: var(--primary-gradient); color: white;
+  border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+  transition: var(--transition-smooth);
+}
+.sr-go-btn:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* ── Light Theme Neobrutalist Overrides ── */
+[data-theme='light'] .sr-back {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
+}
+[data-theme='light'] .sr-back:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000000; }
+
+[data-theme='light'] .sr-filter-bar {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+    border-radius: 20px;
+}
+
+[data-theme='light'] .sr-stat {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 8px 8px 0px #000000;
+    border-radius: 24px;
+}
+[data-theme='light'] .sr-stat-val { color: #000000; }
+
+[data-theme='light'] .sr-card {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 10px 10px 0px #000000;
+    border-radius: 28px;
+}
+
+[data-theme='light'] .sr-bar-bg {
+    background: #f1f5f9;
+    border: 2px solid #000000;
+}
+
+[data-theme='light'] .sr-go-btn {
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+}
+
+[data-theme='light'] .sr-filter-group select {
+    background: #ffffff;
+    border: 2px solid #000000;
+    font-weight: 700;
+}
+
+[data-theme='light'] .sr-grade-circle {
+    border: 3px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
+}

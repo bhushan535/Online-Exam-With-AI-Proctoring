@@ -13,9 +13,21 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
   const mirrorVideoRef = useRef(null);
 
   useEffect(() => {
-    if (mirrorVideoRef.current && videoRef.current && videoRef.current.srcObject) {
-      mirrorVideoRef.current.srcObject = videoRef.current.srcObject;
-    }
+    const syncVideo = () => {
+      if (mirrorVideoRef.current && videoRef.current && videoRef.current.srcObject) {
+         if (mirrorVideoRef.current.srcObject !== videoRef.current.srcObject) {
+           mirrorVideoRef.current.srcObject = videoRef.current.srcObject;
+         }
+      }
+    };
+
+    // Check every 500ms until synced
+    const syncInterval = setInterval(syncVideo, 500);
+    
+    // Also try immediately
+    syncVideo();
+
+    return () => clearInterval(syncInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -64,87 +76,140 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
         {`
           @keyframes pulse {
             0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            50% { opacity: 0.5; transform: scale(1.1); }
             100% { opacity: 1; transform: scale(1); }
+          }
+          @keyframes scanLine {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
           }
           .pulse-dot {
             animation: pulse 1.5s infinite;
           }
+          .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            animation: scanLine 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 10;
+          }
         `}
       </style>
 
-      {/* 1. Warning Banner (top) */}
+      {/* 1. Header Banner */}
       <div style={{
         position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        color: "white",
+        top: "12px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        backgroundColor: "#FFFFFF",
+        color: "#000000",
         zIndex: 9999,
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "center",
         alignItems: "center",
-        padding: "8px 24px",
-        fontFamily: "sans-serif",
+        gap: "20px",
+        padding: "10px 24px",
+        borderRadius: "40px",
+        border: "3px solid #000000",
+        boxShadow: "6px 6px 0px #000000",
+        fontFamily: "'Outfit', sans-serif",
         fontSize: "14px",
-        fontWeight: "bold",
-        pointerEvents: "none"
+        fontWeight: "800",
+        pointerEvents: "none",
+        minWidth: "320px"
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div className="pulse-dot" style={{ width: "10px", height: "10px", backgroundColor: "#ef4444", borderRadius: "50%" }} />
-          <span>AI Proctoring Active</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div className="pulse-dot" style={{ 
+            width: "12px", 
+            height: "12px", 
+            backgroundColor: "#FF3B3B", 
+            borderRadius: "50%",
+            border: "2px solid black" 
+          }} />
+          <span style={{ letterSpacing: "0.5px", textTransform: "uppercase" }}>AI Proctoring Active</span>
         </div>
-        <div style={{ color: warningCount >= maxStrikes - 1 ? "#ef4444" : "#facc15" }}>
-          ⚠️ Warnings: {warningCount}/{maxStrikes}
+        <div style={{ 
+          height: "20px", 
+          width: "2px", 
+          backgroundColor: "#000000",
+          opacity: 0.2
+        }} />
+        <div style={{ 
+          color: warningCount >= maxStrikes - 1 ? "#FF3B3B" : "#000000",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px"
+        }}>
+          <span style={{ fontSize: "16px" }}>⚠️</span>
+          <span>Warnings: {warningCount}/{maxStrikes}</span>
         </div>
       </div>
 
-      {/* 2. Live Self-View (bottom-right) */}
+      {/* 2. Self-View Circle (lower right) */}
       <div style={{
         position: "fixed",
-        bottom: "20px",
-        right: "20px",
+        bottom: "34px",
+        right: "34px",
         zIndex: 9999,
-        backgroundColor: "white",
-        borderRadius: "8px",
-        border: "2px solid #ef4444",
-        padding: "4px",
+        backgroundColor: "#FFFFFF",
+        borderRadius: "50%",
+        border: "4px solid #171717",
+        width: "110px",
+        height: "110px",
         display: "flex",
-        flexDirection: "column",
+        justifyContent: "center",
         alignItems: "center",
         pointerEvents: "none",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+        boxShadow: "8px 8px 0px #171717",
+        overflow: "hidden",
+        transform: "rotate(-2deg)" 
       }}>
+        <div className="scan-line" />
         <video 
           ref={mirrorVideoRef}
           autoPlay 
           playsInline 
           muted 
           style={{ 
-            width: "80px", 
-            height: "60px", 
-            borderRadius: "4px", 
-            backgroundColor: "black",
+            width: "100%", 
+            height: "100%", 
+            backgroundColor: "#000000",
             objectFit: "cover",
-            transform: "scaleX(-1)" // Mirror effect
+            transform: "scaleX(-1)" 
           }} 
         />
-        <span style={{ 
-          fontSize: "9px", 
-          fontWeight: "900", 
-          color: "#ef4444", 
-          marginTop: "4px",
-          letterSpacing: "0.5px"
+        <div style={{
+          position: "absolute",
+          bottom: "4px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "#171717",
+          padding: "2px 10px",
+          borderRadius: "8px",
+          border: "1px solid white",
+          whiteSpace: "nowrap"
         }}>
-          YOU ARE BEING WATCHED
-        </span>
+           <span style={{ 
+            fontSize: "7px", 
+            fontWeight: "900", 
+            color: "#FFFFFF", 
+            textTransform: "uppercase",
+            letterSpacing: "1px"
+          }}>
+            AI: ACTIVE
+          </span>
+        </div>
       </div>
 
       {/* 3. Violation Flash */}
       <ViolationFlash severity={flashSeverity} />
 
-      {/* 4. Warning Popup (center) */}
+      {/* 4. Notification Card (center) */}
       {showPopup && (
         <div style={{
           position: "fixed",
@@ -152,25 +217,33 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
           left: "50%",
           transform: "translate(-50%, -50%)",
           zIndex: 10000,
-          backgroundColor: popupSeverity === "high" ? "#fee2e2" : "#fef9c3",
-          color: popupSeverity === "high" ? "#991b1b" : "#854d0e",
-          border: `2px solid ${popupSeverity === "high" ? "#ef4444" : "#eab308"}`,
-          borderRadius: "8px",
-          padding: "24px 32px",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+          backgroundColor: popupSeverity === "high" ? "#FFACAC" : "#FFE66D",
+          color: "#000000",
+          border: "4px solid #000000",
+          borderRadius: "24px",
+          padding: "32px 40px",
+          boxShadow: "10px 10px 0px #000000",
           textAlign: "center",
-          fontFamily: "sans-serif",
+          fontFamily: "'Outfit', sans-serif",
           pointerEvents: "none",
-          minWidth: "300px"
+          minWidth: "350px"
         }}>
-          <h2 style={{ margin: "0 0 8px 0", fontSize: "18px" }}>
-            {popupSeverity === "high" ? "🚫 Serious Violation" : "⚠️ Warning"}
+          <div style={{ fontSize: "40px", marginBottom: "16px" }}>
+            {popupSeverity === "high" ? "🚫" : "⚠️"}
+          </div>
+          <h2 style={{ 
+            margin: "0 0 12px 0", 
+            fontSize: "24px", 
+            fontWeight: "900",
+            textTransform: "uppercase" 
+          }}>
+            {popupSeverity === "high" ? "Critical Violation" : "Suspicious Activity"}
           </h2>
           {popupSeverity === "medium" ? (
-             <p style={{ margin: 0, fontWeight: "500" }}>{popupMessage}</p>
+             <p style={{ margin: 0, fontWeight: "700", fontSize: "16px" }}>{popupMessage}</p>
           ) : (
-             <p style={{ margin: 0, fontWeight: "500" }}>
-               🚫 Serious violation recorded. Exam submitting in {countdown}s...
+             <p style={{ margin: 0, fontWeight: "700", fontSize: "16px" }}>
+               Serious violation recorded. Exam will auto-submit in {countdown}s...
              </p>
           )}
         </div>

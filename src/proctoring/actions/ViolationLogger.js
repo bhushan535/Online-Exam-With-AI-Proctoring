@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../config';
 export async function logViolation({ event, examId, studentId, snapshot, config }) {
 
   // Only include snapshot if: high severity, OR (medium AND config.snapshotOnMedium)
@@ -22,7 +23,7 @@ export async function logViolation({ event, examId, studentId, snapshot, config 
   }
 
   try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/violations`, {
+    const res = await fetch(`${BASE_URL}/violations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -32,7 +33,7 @@ export async function logViolation({ event, examId, studentId, snapshot, config 
     // Retry once after 2 seconds
     setTimeout(async () => {
       try {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/violations`, {
+        await fetch(`${BASE_URL}/violations`, {
 
           method: "POST",
           headers: { "Content-Type": "application/json" },

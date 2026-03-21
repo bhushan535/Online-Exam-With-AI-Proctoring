@@ -1,0 +1,127 @@
+/* ── Page ── */
+.er-page {
+  min-height: 100vh;
+  background: #f0f4f8;
+  padding: 30px 28px;
+  font-family: "Segoe UI", sans-serif;
+  box-sizing: border-box;
+}
+
+.er-loading {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; color: #6b7280; font-size: 15px;
+}
+.er-spinner {
+  width: 36px; height: 36px;
+  border: 4px solid #e5e7eb; border-top-color: #3b82f6;
+  border-radius: 50%; animation: erSpin 0.7s linear infinite;
+}
+@keyframes erSpin { to { transform: rotate(360deg); } }
+
+/* ── Header ── */
+.er-header {
+  display: flex; align-items: flex-start; gap: 16px; margin-bottom: 26px;
+}
+.er-back-btn {
+  padding: 9px 18px; background: white; border: 1.5px solid #d1d5db;
+  border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer;
+  white-space: nowrap; margin-top: 3px; transition: background 0.15s;
+}
+.er-back-btn:hover { background: #f3f4f6; }
+
+.er-header-info { flex: 1; }
+.er-title { font-size: 22px; font-weight: 800; color: #1e3a5f; margin: 0 0 5px; }
+.er-subtitle { font-size: 13px; color: #6b7280; margin: 0; }
+
+/* ── Summary cards ── */
+.er-summary {
+  display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px;
+}
+.er-stat-card {
+  background: white; border-radius: 12px; padding: 16px 22px;
+  text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  flex: 1; min-width: 100px; border-top: 4px solid #3b82f6;
+}
+.er-stat-card.er-stat-green { border-top-color: #16a34a; }
+.er-stat-card.er-stat-red   { border-top-color: #dc2626; }
+
+.er-stat-num {
+  display: block; font-size: 24px; font-weight: 800; color: #1e3a5f; line-height: 1.2;
+}
+.er-stat-denom { font-size: 14px; font-weight: 500; color: #9ca3af; }
+.er-stat-lbl {
+  display: block; font-size: 11px; color: #6b7280; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;
+}
+
+/* ── Controls ── */
+.er-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 18px;
+}
+.er-sort-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.er-sort-label { font-size: 13px; font-weight: 600; color: #374151; }
+.er-sort-btn {
+  padding: 8px 16px; border-radius: 8px; border: 1.5px solid #d1d5db;
+  background: white; font-size: 13px; font-weight: 600; color: #374151;
+  cursor: pointer; transition: all 0.15s;
+}
+.er-sort-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+.er-sort-active {
+  background: #1e3a5f !important; color: white !important;
+  border-color: #1e3a5f !important;
+}
+.er-export-btn {
+  padding: 9px 20px; background: #16a34a; color: white; border: none;
+  border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+}
+.er-export-btn:hover { background: #15803d; }
+
+/* ── Table ── */
+.er-table-wrap {
+  background: white; border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden; overflow-x: auto;
+}
+.er-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.er-table thead tr { background: #1e3a5f; color: white; }
+.er-table th {
+  padding: 13px 14px; text-align: left; font-weight: 600;
+  font-size: 13px; white-space: nowrap;
+}
+.er-table td {
+  padding: 13px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;
+}
+.er-table tbody tr:last-child td { border-bottom: none; }
+.er-table tbody tr:hover { filter: brightness(0.97); }
+
+/* Row colors */
+.er-row-pass { background: #f0fdf4; }
+.er-row-fail { background: #fff5f5; }
+
+/* Cell styles */
+.er-rollno     { font-weight: 700; color: #374151; }
+.er-name       { font-weight: 600; color: #1f2937; min-width: 160px; }
+.er-enrollment { font-size: 13px; color: #6b7280; }
+.er-score      { font-size: 15px; }
+.er-correct    { color: #16a34a; font-weight: 700; }
+.er-wrong      { color: #dc2626; font-weight: 700; }
+.er-skip       { color: #6b7280; font-weight: 600; }
+
+.er-grade-badge {
+  color: white; font-weight: 800; font-size: 12px;
+  padding: 3px 11px; border-radius: 20px; display: inline-block;
+}
+.er-pass-tag { color: #16a34a; font-weight: 700; font-size: 13px; }
+.er-fail-tag { color: #dc2626; font-weight: 700; font-size: 13px; }
+
+/* ── Empty ── */
+.er-empty {
+  background: white; border-radius: 16px; padding: 70px 20px; text-align: center;
+}
+.er-empty-icon { font-size: 52px; margin-bottom: 14px; }
+.er-empty h3   { font-size: 20px; color: #374151; margin: 0 0 8px; }
+.er-empty p    { color: #9ca3af; margin: 0; }

@@ -1,32 +1,32 @@
 const express = require("express");
 const router = express.Router();
+const { authenticate } = require('../middleware/auth');
+const Class = require('../models/Class');
+const Exam = require('../models/Exam');
 
-// TEACHER LOGIN
-router.post("/teacher/login", (req, res) => {
-  const { UserName, password } = req.body;
-
-  if (!UserName || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "UserName and password required",
+// GET Teacher Stats (Solo Mode friendly)
+router.get('/teacher/stats', authenticate, async (req, res) => {
+  try {
+    const classes = await Class.find({ createdBy: req.userId });
+    
+    let totalStudents = 0;
+    classes.forEach(c => {
+      totalStudents += c.students.length;
     });
-  }
 
-  // TEMP static login (college project)
-  if (UserName === "teacher@123" && password === "123456") {
-    return res.status(200).json({
+    const totalExams = await Exam.countDocuments({ teacherId: req.userId });
+
+    res.json({
       success: true,
-      teacher: {
-        UserName,
-        role: "teacher",
-      },
+      stats: {
+        totalClasses: classes.length,
+        totalStudents: totalStudents,
+        totalExams: totalExams
+      }
     });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error fetching stats" });
   }
-
-  return res.status(401).json({
-    success: false,
-    message: "Invalid credentials",
-  });
 });
 
 module.exports = router;

@@ -8,6 +8,12 @@ const classSchema = new mongoose.Schema(
       trim: true,
     },
 
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     branch: {
       type: String,
       required: true,
@@ -51,6 +57,47 @@ const classSchema = new mongoose.Schema(
         },
       },
     ],
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization',
+      default: null,
+    },
+
+    teacherId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+
+    mode: {
+      type: String,
+      enum: ['solo', 'organization'],
+      default: 'solo',
+    },
+
+    registrationOpen: {
+      type: Boolean,
+      default: true,
+    },
+
+    registrationDeadline: Date,
+
+    maxStudents: {
+      type: Number,
+      default: 100,
+    },
+
+    status: {
+      type: String,
+      enum: ['active', 'completed', 'archived'],
+      default: 'active',
+    },
   },
   { timestamps: true }
 );

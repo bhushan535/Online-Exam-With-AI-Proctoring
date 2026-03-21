@@ -4,6 +4,8 @@ const resultSchema = new mongoose.Schema({
   examId:      { type: mongoose.Schema.Types.ObjectId, ref: "Exam", required: true },
   studentId:   { type: String, required: true },
   studentName: { type: String, default: "" },
+  semester:    { type: String, default: "" },
+  year:        { type: String, default: "" },
   answers:     { type: Map, of: String },
   score:       { type: Number, required: true },
   totalMarks:  { type: Number, required: true },

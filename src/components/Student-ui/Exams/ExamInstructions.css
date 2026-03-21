@@ -1,0 +1,297 @@
+.instruction-page {
+  min-height: 100vh;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: var(--font-primary);
+  transition: background 0.3s ease;
+}
+
+.instruction-card {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.header-gradient {
+  background: var(--primary-gradient);
+  color: white;
+  padding: 24px 32px;
+  text-align: center;
+}
+
+.header-gradient h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.exam-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.dot {
+  opacity: 0.5;
+}
+
+.instruction-body {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rules-section h3 {
+  margin: 0 0 20px 0;
+  color: var(--text-main);
+  font-size: 19px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.instruction-list {
+  background: var(--bg-dark);
+  padding: 18px 20px 18px 40px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.instruction-list li {
+  margin-bottom: 12px;
+}
+
+.instruction-list li b { color: var(--text-main); }
+
+.instruction-list li:last-child {
+  margin-bottom: 0;
+}
+
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--bg-card);
+  padding: 20px 24px;
+  border-radius: 16px;
+  border: 1px dashed var(--glass-border);
+}
+
+.code-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.code-input-group label {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.code-input-group input {
+  padding: 12px 16px;
+  font-size: 18px;
+  background: var(--bg-dark);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  border-radius: 10px;
+  transition: var(--transition-smooth);
+  letter-spacing: 3px;
+  font-family: inherit;
+  width: 100%;
+  max-width: 320px;
+  font-weight: 800;
+}
+
+.code-input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.code-input-group input.input-error {
+  border-color: var(--accent-color);
+}
+
+.code-error-text {
+  color: var(--accent-color);
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Checkbox Styling */
+.agree-box {
+  margin: 5px 0;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  width: 24px;
+  height: 24px;
+  background-color: var(--bg-dark);
+  border: 2px solid var(--glass-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  margin-top: 2px;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.checkmark:after {
+  content: "";
+  display: none;
+  width: 6px;
+  height: 11px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.agree-text {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Button Styling */
+.start-btn {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: 100%;
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.25);
+}
+
+.start-btn:hover:not(.disabled) {
+  background-color: #059669;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+}
+
+.start-btn.disabled {
+  background-color: var(--glass-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ── Light Theme Neobrutalist Overrides ── */
+[data-theme='light'] .instruction-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+}
+
+[data-theme='light'] .header-gradient {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+}
+
+[data-theme='light'] .header-gradient h2,
+[data-theme='light'] .header-gradient .exam-meta {
+    color: #ffffff;
+}
+
+[data-theme='light'] .instruction-list {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #334155;
+}
+[data-theme='light'] .instruction-list li b { color: #1e1b4b; }
+
+[data-theme='light'] .action-section {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+}
+
+[data-theme='light'] .code-input-group input {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #1e1b4b;
+}
+[data-theme='light'] .code-input-group input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+[data-theme='light'] .checkmark {
+    background: #ffffff;
+    border: 1.5px solid #4f46e5;
+}
+
+[data-theme='light'] .start-btn {
+    border: none;
+    background: #10b981;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+}
+[data-theme='light'] .start-btn:active:not(.disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: 1.5px 1.5px 0px #000000;
+}
+
+[data-theme='light'] .rules-section h3 { color: #000000; font-weight: 900; }
+[data-theme='light'] .agree-text { color: #334155; font-weight: 700; }

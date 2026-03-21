@@ -1,0 +1,36 @@
+.theme-toggle-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  color: var(--text-main);
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition-smooth);
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1) rotate(15deg) !important;
+  background: var(--primary-gradient);
+  color: white;
+  border-color: transparent;
+}
+
+.theme-toggle-btn svg {
+  font-size: 1.5rem;
+}
+
+/* Light mode adjustments for the toggle itself if needed */
+[data-theme='light'] .theme-toggle-btn {
+  background: rgb(247, 242, 214);
+  border-color: rgba(0, 0, 0, 0.1);
+}

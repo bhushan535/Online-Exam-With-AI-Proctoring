@@ -1,0 +1,199 @@
+.curriculum-gallery-container {
+    padding: 2rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+}
+
+.gallery-header {
+    margin-top: 1rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1.5rem;
+}
+
+.header-content h1 {
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, #60a5fa, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header-icon {
+    color: #60a5fa;
+}
+
+.header-content p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.gallery-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-box, .filter-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    backdrop-filter: blur(10px);
+}
+
+.search-box input, .filter-box select {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    font-size: 1rem;
+}
+
+.search-box input {
+    width: 250px;
+}
+
+.search-icon, .filter-icon {
+    color: #60a5fa;
+}
+
+.curriculum-main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 2rem;
+}
+
+.branch-section-card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.branch-section-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+.branch-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.branch-icon {
+    font-size: 1.5rem;
+    color: #a855f7;
+}
+
+.branch-section-header h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.semesters-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.semester-label {
+    font-weight: 500;
+    color: #60a5fa;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.subjects-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.subject-premium-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.subject-premium-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(96, 165, 250, 0.4);
+}
+
+.sub-icon {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.sub-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.sub-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.sub-code {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-family: monospace;
+}
+
+.empty-subjects {
+    color: #475569;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.no-data-gallery {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+}
+
+.large-icon {
+    font-size: 4rem;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .curriculum-main-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .gallery-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

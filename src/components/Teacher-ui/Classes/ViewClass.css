@@ -1,0 +1,662 @@
+.vc-premium-overlay {
+    min-height: 100vh;
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent),
+                radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.08), transparent),
+                var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+    padding: 2.5rem;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+}
+
+.vc-nav-top {
+    margin-bottom: 2.5rem;
+    max-width: 1300px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.vc-back-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.vc-back-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    transform: translateX(-5px);
+}
+
+.vc-premium-container {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 2.5rem;
+    max-width: 1300px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+}
+
+/* Metadata Card */
+.vc-metadata-section {
+    position: sticky;
+    top: 2.5rem;
+    height: fit-content;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.vc-brand-badge {
+    background: rgba(99, 102, 241, 0.1);
+    color: #818cf8;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.vc-header-visual h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme='light'] .vc-header-visual h1 {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #000000;
+}
+
+.vc-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.vc-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+.vc-info-item label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.vc-info-item span {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.vc-link-card {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px dashed rgba(99, 102, 241, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
+}
+
+.link-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #818cf8;
+    margin-bottom: 1rem;
+}
+
+.link-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.link-input-group input {
+    flex: 1;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--glass-border);
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.link-input-group button {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    width: 44px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.link-input-group button:hover { transform: scale(1.05); }
+
+.vc-actions-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.vc-panel-btn {
+    padding: 1rem;
+    border-radius: 15px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    transition: all 0.3s;
+}
+
+.vc-panel-btn.org {
+    background: rgba(234, 88, 12, 0.1);
+    color: #fb923c;
+    border: 1px solid rgba(234, 88, 12, 0.2);
+}
+
+.vc-panel-btn.org:hover { background: rgba(234, 88, 12, 0.2); transform: translateY(-2px); }
+
+.vc-action-row-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.vc-panel-btn.export { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+.vc-panel-btn.template { background: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
+.vc-panel-btn.import { background: rgba(6, 182, 212, 0.1); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.2); }
+
+.vc-panel-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+
+/* Roster Section */
+.vc-roster-section {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.vc-roster-header {
+    margin-bottom: 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vc-roster-header h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+.vc-roster-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.vc-table-container {
+    flex: 1;
+    overflow-y: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+}
+
+.vc-roster-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.vc-roster-table th {
+    text-align: left;
+    padding: 0 1.5rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.vc-roster-table tbody tr {
+    background: var(--bg-card);
+    transition: all 0.3s;
+}
+
+.vc-roster-table tbody tr:hover {
+    background: rgba(255,255,255,0.05);
+    transform: scale(1.01);
+}
+
+.vc-roster-table td {
+    padding: 1.2rem 1.5rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--glass-border);
+    border-style: solid none;
+}
+
+.vc-roster-table td:first-child {
+    border-radius: 15px 0 0 15px;
+    border-left: 1px solid var(--glass-border);
+}
+
+.vc-roster-table td:last-child {
+    border-radius: 0 15px 15px 0;
+    border-right: 1px solid var(--glass-border);
+}
+
+.roll-pill {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.enroll-txt { color: var(--text-muted); font-family: monospace; }
+.name-txt { font-weight: 600; color: var(--text-main); }
+
+.action-td {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mini-action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.mini-action-btn.edit:hover { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.2); }
+.mini-action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
+
+/* Modal Premium Styling */
+.vc-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.vc-modal-content {
+    width: 100%;
+    max-width: 550px;
+    padding: 3rem;
+}
+
+.vc-modal-search {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.5rem;
+    border-radius: 18px;
+    margin: 2rem 0;
+}
+
+.vc-modal-search input {
+    background: none; border: none; color: white; flex: 1; outline: none;
+}
+
+.vc-modal-list {
+    max-height: 40vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+}
+
+.vc-student-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 1.2rem;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.vc-student-item:hover { background: rgba(255,255,255,0.06); }
+.vc-student-item.selected { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); }
+
+.vc-check-box { font-size: 1.2rem; color: rgba(255,255,255,0.2); }
+.vc-student-item.selected .vc-check-box { color: #6366f1; }
+
+.vc-student-info .name { display: block; font-weight: 700; margin-bottom: 0.2rem; }
+.vc-student-info .sub { font-size: 0.8rem; color: var(--text-muted); }
+
+.vc-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vc-btn-primary {
+    background: var(--primary-gradient);
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    border: none; color: white; font-weight: 700; cursor: pointer;
+}
+
+.vc-btn-ghost {
+    background: none; border: none; color: var(--text-muted);
+    font-weight: 600; cursor: pointer;
+}
+
+/* Empty roster state */
+.vc-empty-roster {
+    text-align: center;
+    padding: 4rem 2rem;
+    opacity: 0.7;
+}
+
+.empty-icon { font-size: 3rem; color: #818cf8; margin-bottom: 1.5rem; opacity: 0.3; }
+.vc-empty-roster p { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; }
+.vc-empty-roster .hint { font-size: 0.9rem; color: var(--text-muted); }
+
+/* Loading State */
+.view-class-loading {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-dark);
+}
+/* Solo Mode Specific Refinements */
+.solo-mode-view .vc-link-card.prominent {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    padding: 2rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.solo-mode-view .link-header span {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.solo-mode-view .link-input-group input {
+    font-size: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.solo-mode-view .link-hint {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.solo-mode-view .vc-info-grid.simplified {
+    grid-template-columns: 1fr 1fr;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.solo-table .pass-txt code {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    color: #a5b4fc;
+    font-size: 0.9rem;
+}
+
+/* Base styles refinement for templates */
+.org-mode-view .vc-panel-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.solo-mode-view .vc-fast-enroll {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+}
+
+.vc-fast-enroll h4 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: var(--text-main);
+}
+
+.fast-enroll-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 120px;
+    gap: 1.2rem;
+}
+
+.fast-enroll-grid input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.fast-enroll-grid input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #6366f1;
+}
+
+.fast-enroll-grid button {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    font-weight: 800;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+}
+
+.fast-enroll-grid button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Light Mode Overrides for Quick Enroll */
+[data-theme='light'] .solo-mode-view .vc-fast-enroll {
+    background: #ffffff;
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+}
+
+[data-theme='light'] .fast-enroll-grid input {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    font-weight: 600;
+}
+
+[data-theme='light'] .fast-enroll-grid input:focus {
+    background: #fafafa;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px #000000;
+}
+
+[data-theme='light'] .fast-enroll-grid button {
+    background: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+[data-theme='light'] .fast-enroll-grid button:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #000000;
+}
+
+.vc-selected-tag {
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.vc-modal-btns {
+    display: flex;
+    gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .vc-premium-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .vc-metadata-section {
+        position: static;
+    }
+}
+
+[data-theme='light'] .vc-premium-overlay {
+    background: transparent;
+}
+
+/* Light Mode Enhancements */
+[data-theme='light'] .vc-brand-badge {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+[data-theme='light'] .vc-subtitle {
+    color: #4b5563;
+    font-weight: 600;
+}
+
+[data-theme='light'] .vc-info-item label {
+    color: #000000;
+}
+
+[data-theme='light'] .vc-info-item span {
+    color: #000000;
+}
+
+[data-theme='light'] .link-header {
+    color: #000000;
+}
+
+[data-theme='light'] .link-input-group input {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+}
+
+[data-theme='light'] .vc-roster-header h3 {
+    color: #000000;
+}
+
+[data-theme='light'] .vc-roster-header p {
+    color: #000000;
+    font-weight: 700;
+}
+
+[data-theme='light'] .vc-roster-table th {
+    color: #000000;
+    font-weight: 900;
+    border-bottom: 2px solid #000000;
+}
+
+[data-theme='light'] .roll-pill {
+    background: #000000;
+    color: #ffffff;
+}
+
+[data-theme='light'] .enroll-txt {
+    color: #000000;
+    font-weight: 600;
+}
+
+[data-theme='light'] .mini-action-btn {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .mini-action-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #000000;
+}
+
+[data-theme='light'] .link-card {
+    border: 3px solid #000000 !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    background: #ffffff !important;
+    border-radius: 20px;
+}
+
+[data-theme='light'] .vc-roster-table tbody tr:hover {
+    background: #f1f5f9;
+    transform: none;
+}

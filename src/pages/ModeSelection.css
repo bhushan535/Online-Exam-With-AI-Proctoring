@@ -1,0 +1,329 @@
+.mode-selection-overlay {
+  min-height: 100vh;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 2rem;
+  box-sizing: border-box;
+}
+
+.mode-selection-container {
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mode-hero {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.mode-badge {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 100px;
+  color: #818cf8;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 2rem;
+}
+
+.mode-hero h1 {
+  font-size: 3.5rem;
+  font-weight: 900;
+  margin-bottom: 1.2rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+
+.mode-hero p {
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.mode-cards-premium {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 4rem;
+}
+
+.mode-glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 36px;
+  padding: 3.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+.mode-glass-card:hover {
+  transform: translateY(-12px);
+  border-color: var(--dropdown-accent);
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6);
+}
+
+.card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: var(--transition-smooth);
+}
+
+.mode-glass-card:hover .card-accent {
+  opacity: 1;
+}
+
+.mode-icon-box {
+  width: 80px;
+  height: 80px;
+  background: var(--glass-bg);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  color: var(--text-main);
+  margin: 0 auto 2.5rem;
+  transition: var(--transition-smooth);
+}
+
+.mode-glass-card:hover .mode-icon-box {
+  background: var(--primary-gradient);
+  color: white;
+  transform: rotate(10deg);
+}
+
+.mode-glass-card h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+
+.mode-glass-card p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.mode-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 3rem 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.mode-features li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-main);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.mode-features li .check {
+  color: var(--success-color);
+  font-size: 1rem;
+}
+
+.mode-primary-btn {
+  width: 100%;
+  padding: 1.2rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  color: var(--text-main);
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  transition: var(--transition-smooth);
+}
+
+.mode-glass-card:hover .mode-primary-btn {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.mode-bottom-cta {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 30px;
+  border: 1px dashed var(--glass-border);
+}
+
+.mode-bottom-cta p {
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  font-size: 1.1rem;
+}
+
+.mode-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--dropdown-accent);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.2rem;
+  transition: var(--transition-smooth);
+}
+
+.mode-login-btn:hover {
+  filter: brightness(1.3);
+  transform: translateX(5px);
+}
+
+@media (max-width: 900px) {
+  .mode-cards-premium {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-hero h1 {
+    font-size: 2.5rem;
+  }
+}
+
+/* ============================================================
+   LIGHT MODE AESTHETIC OVERRIDES (Mode Selection)
+   ============================================================ */
+[data-theme='light'] .mode-selection-overlay {
+  background: transparent;
+}
+
+[data-theme='light'] .mode-badge {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .mode-hero h1 {
+  background: none;
+  -webkit-text-fill-color: #000000;
+  color: #000000;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .mode-hero p {
+  color: #475569;
+}
+
+[data-theme='light'] .mode-glass-card {
+  background: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+  border-radius: 20px;
+}
+
+[data-theme='light'] .mode-glass-card:hover {
+  border-color: #000000;
+  box-shadow: 8px 8px 0px #000000;
+  transform: translateY(-6px);
+  background: #fafafa;
+}
+
+/* Remove colored accent bar at top of card */
+[data-theme='light'] .card-accent {
+  background: #000000;
+}
+
+[data-theme='light'] .mode-icon-box {
+  background: #f1f5f9;
+  color: #000000;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme='light'] .mode-glass-card:hover .mode-icon-box {
+  background: #ffffff;
+  color: #000000;
+  border-color: #000000;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='light'] .mode-glass-card h2 {
+  color: #000000;
+}
+
+[data-theme='light'] .mode-glass-card p {
+  color: #475569;
+}
+
+[data-theme='light'] .mode-features li {
+  color: #171717;
+}
+
+[data-theme='light'] .mode-features li .check {
+  color: #000000;
+}
+
+/* Buttons in cards - Now inheriting from global neobrutalist style */
+
+/* Bottom CTA */
+[data-theme='light'] .mode-bottom-cta {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='light'] .mode-bottom-cta p {
+  color: #475569;
+}
+
+[data-theme='light'] .mode-login-btn {
+  color: #000000;
+}
+
+[data-theme='light'] .mode-login-btn:hover {
+  filter: none;
+  color: #333333;
+}
+
+[data-theme='light'] .mode-primary-btn:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2) !important;
+}

@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { defaultConfig } from "./config/defaultConfig";
-import FaceDetector from "./face/FaceDetector";
-import HeadPoseDetector from "./head/HeadPoseDetector";
-import GazeDetector from "./gaze/GazeDetector";
+import AIProctoringDetector from "./AIProctoringDetector";
 import ProctoringOverlay from "./ui/ProctoringOverlay";
 import { captureFrame } from "./utils/captureFrame";
 import { evaluateFaceRules } from "./rules/faceRules";
@@ -28,9 +26,8 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
   const [warningCount, setWarningCount] = useState(0);
   const [lastViolation, setLastViolation] = useState(null);
 
-  // Deep merge config (simplified for this example, a real robust merge might be needed if config is complex)
   const mergedConfig = useMemo(() => {
-    return {
+    const base = {
       ...defaultConfig,
       ...config,
       face: { ...defaultConfig.face, ...config.face },
@@ -43,6 +40,24 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
       objects: { ...defaultConfig.objects, ...config.objects },
       persons: { ...defaultConfig.persons, ...config.persons },
     };
+
+    // Override with granular proctoring configuration if present
+    if (config) {
+      if (config.autoSubmitLimit > 0) {
+        base.strikes.autoSubmitAt = config.autoSubmitLimit;
+      } else if (config.autoSubmitLimit === 0) {
+        base.strikes.autoSubmitAt = 999; // Effectively disabled
+      }
+      
+      if (config.requireFullScreen !== undefined) {
+        base.fullscreen.enforced = config.requireFullScreen;
+      }
+      
+      // We'll use warningLimit to control some internal logic if needed
+      // For now mapping autoSubmitLimit to autoSubmitAt is the primary 
+    }
+
+    return base;
   }, [config]);
 
   const submitExam = () => onAutoSubmit?.();
@@ -117,10 +132,18 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
 
   // Mount/Unmount effect for security detectors
   useEffect(() => {
+    if (config?.enabled === false) return;
+
     let active = true;
 
-    initTabDetector(handleSecurityViolation);
-    initFullscreen(handleSecurityViolation, mergedConfig);
+    if (config?.disableTabSwitching !== false) {
+      initTabDetector(handleSecurityViolation);
+    }
+    
+    if (mergedConfig.fullscreen.enforced) {
+       initFullscreen(handleSecurityViolation, mergedConfig);
+    }
+
     initKeyboardBlocker(handleSecurityViolation);
     initClipboardBlocker(handleSecurityViolation);
     initMultiMonitorDetector(handleSecurityViolation);
@@ -163,22 +186,19 @@ export default function ProctoringEngine({ examId, studentId, config = {}, onAut
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (config && config.enabled === false) {
+    return null;
+  }
+
   return (
     <>
-      <FaceDetector onFaceStatus={handleFaceStatus} videoRef={videoRef} />
-
-
-      {/* <HeadPoseDetector videoRef={videoRef} onPose={handleHeadPose} config={mergedConfig} />
-      {false && (
-        <GazeDetector videoRef={videoRef} onGaze={handleGaze} config={mergedConfig} />
-      )} */}
-
-      {false && (
-        <HeadPoseDetector videoRef={videoRef} onPose={handleHeadPose} config={mergedConfig} />
-      )}
-      {false && (
-        <GazeDetector videoRef={videoRef} onGaze={handleGaze} config={mergedConfig} />
-      )}
+      <AIProctoringDetector 
+        videoRef={videoRef} 
+        onFaceStatus={handleFaceStatus}
+        onPose={handleHeadPose} 
+        onGaze={handleGaze} 
+        config={mergedConfig} 
+      />
 
       <ProctoringOverlay
         videoRef={videoRef}

@@ -36,6 +36,26 @@
 .sr-title { font-size: 22px; font-weight: 800; color: #1e3a5f; margin: 0 0 3px; }
 .sr-student-name { font-size: 14px; color: #6b7280; font-weight: 500; margin: 0; }
 
+/* ── Filter Bar ── */
+.sr-filter-bar {
+  display: flex; gap: 16px; margin-bottom: 24px;
+  background: white; padding: 12px 18px; border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); align-items: center;
+  flex-wrap: wrap;
+}
+.sr-filter-group { display: flex; align-items: center; gap: 8px; }
+.sr-filter-group label { font-size: 13px; font-weight: 600; color: #4b5563; }
+.sr-filter-group select {
+  padding: 6px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 13px; color: #1e3a5f; outline: none; cursor: pointer;
+}
+.sr-reset-btn {
+  padding: 6px 14px; background: #f3f4f6; color: #4b5563;
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+}
+.sr-reset-btn:hover { background: #e5e7eb; }
+
 /* ── Summary ── */
 .sr-summary {
   display: grid; grid-template-columns: repeat(4, 1fr);

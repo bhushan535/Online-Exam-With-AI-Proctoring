@@ -1,0 +1,423 @@
+/* ===============================
+   PAGE WRAPPER
+=============================== */
+.camera-check-page {
+    min-height: 100vh;
+    background-color: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 20px;
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===============================
+   CARD
+=============================== */
+.camera-check-card {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+/* ===============================
+   HEADER
+=============================== */
+.camera-check-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    color: white;
+    padding: 24px 28px;
+    text-align: center;
+}
+
+.camera-check-icon-ring {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+.camera-check-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.camera-check-subtitle {
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.88;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* ===============================
+   BODY
+=============================== */
+.camera-check-body {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ===============================
+   LOADING STATE
+=============================== */
+.camera-check-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 0;
+}
+
+.cc-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: cc-spin 1s linear infinite;
+}
+
+@keyframes cc-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.cc-loading-text {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.cc-loading-sub {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+    text-align: center;
+}
+
+/* ===============================
+   DENIED STATE
+=============================== */
+.cc-denied-box {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 14px;
+    padding: 28px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+.cc-denied-icon {
+    font-size: 40px;
+}
+
+.cc-denied-box h3 {
+    margin: 0;
+    color: #991b1b;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.cc-denied-box>p {
+    margin: 0;
+    color: #7f1d1d;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Step-by-step instructions */
+.cc-steps {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}
+
+.cc-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: white;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.cc-step-num {
+    background: #ef4444;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.cc-retry-btn {
+    margin-top: 4px;
+    padding: 12px 28px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cc-retry-btn:hover {
+    background-color: #dc2626;
+}
+
+/* ===============================
+   CAMERA PREVIEW
+=============================== */
+.cc-preview-section {
+    display: flex;
+    justify-content: center;
+}
+
+.cc-video-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    border: 3px solid #e2e8f0;
+}
+
+.cc-video {
+    display: block;
+    width: 320px;
+    height: 240px;
+    object-fit: cover;
+    transform: scaleX(-1);
+    background: #0f172a;
+}
+
+.cc-video-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.55);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+/* ===============================
+   STATUS SECTION
+=============================== */
+.cc-status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: #f8fafc;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+}
+
+.cc-status-title {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.cc-status-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cc-status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+}
+
+.cc-status-label {
+    font-size: 15px;
+    color: #334155;
+    font-weight: 500;
+    flex: 1;
+}
+
+.cc-status-badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+}
+
+.cc-status-badge.checking {
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+
+.cc-status-badge.ready {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.cc-status-badge.blocked {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* ===============================
+   MIC LEVEL BAR
+=============================== */
+.cc-mic-level-row {
+    align-items: center;
+}
+
+.cc-mic-bar-wrapper {
+    flex: 1;
+    position: relative;
+    background: #e2e8f0;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.cc-mic-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.2s ease, background-color 0.3s ease;
+    min-width: 2px;
+}
+
+.cc-mic-bar-text {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+    pointer-events: none;
+}
+
+.cc-tip {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    font-style: italic;
+}
+
+/* ===============================
+   READY BANNER
+=============================== */
+.cc-ready-banner {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    animation: cc-fadeIn 0.4s ease;
+}
+
+@keyframes cc-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===============================
+   PROCEED BUTTON
+=============================== */
+.cc-proceed-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #10b981;
+    color: white;
+}
+
+.cc-proceed-btn:hover:not(.disabled) {
+    background-color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.cc-proceed-btn:active:not(.disabled) {
+    transform: scale(0.98);
+}
+
+.cc-proceed-btn.disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+@media (max-width: 480px) {
+    .camera-check-body {
+        padding: 25px 20px;
+    }
+
+    .camera-check-header {
+        padding: 28px 24px;
+    }
+
+    .cc-video {
+        width: 100%;
+        height: 200px;
+    }
+
+    .cc-video-wrapper {
+        width: 100%;
+    }
+
+    .cc-status-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
