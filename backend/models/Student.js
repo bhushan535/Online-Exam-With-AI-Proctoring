@@ -8,7 +8,6 @@ const studentSchema = new mongoose.Schema({
   },
   enrollmentNo: {
     type: String,
-    unique: true,
     required: true,
   },
   rollNo: {
@@ -57,5 +56,7 @@ const studentSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+studentSchema.index({ enrollmentNo: 1, organizationId: 1, addedBy: 1 }, { unique: true });
 
 module.exports = mongoose.model("Student", studentSchema);

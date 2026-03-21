@@ -17,6 +17,7 @@ const OrgSettings = () => {
     const { toasts, showToast, removeToast } = useToast();
     
     const [settings, setSettings] = useState({
+        principalName: '',
         organizationName: '',
         institutionType: 'School',
         address: '',
@@ -93,15 +94,8 @@ const OrgSettings = () => {
         setSaving(true);
         try {
             const res = await saveOrgSettings(settings);
-            const data = res.data;
-            setSettings({
-                ...data,
-                permissions: data.permissions || {
-                    allowTeacherStudentImport: false,
-                    principalApprovalLoop: false,
-                    internalExamSharing: false
-                }
-            });
+            // After successful save, we don't necessarily get the full object back in the same shape
+            // but the backend returns success: true. We'll just keep the current settings.
             showToast('Profile updated successfully!', 'success');
             await refreshOrg(); // Refresh global header context
             setTimeout(() => navigate('/TeacherHome'), 1500);
@@ -184,6 +178,15 @@ const OrgSettings = () => {
                     {/* SECTION 2: Basic Information */}
                     <div className="form-section info-section">
                         <h3><FaInfoCircle /> Basic Information</h3>
+                        <div className="input-group">
+                            <label>Principal Name</label>
+                            <input 
+                                type="text" placeholder="e.g. Dr. John Carter" 
+                                value={settings.principalName} 
+                                onChange={e => setSettings({...settings, principalName: e.target.value})}
+                                required
+                            />
+                        </div>
                         <div className="input-group">
                             <label>Organization Name</label>
                             <input 

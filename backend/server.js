@@ -33,6 +33,7 @@ app.use("/api/violations", require("./routes/proctorRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/org", require("./routes/orgRoutes"));
 app.use("/api/org", require("./routes/orgSettings"));
+app.use("/api/organization", require("./routes/organizationRoutes"));
 app.use("/api/principal", require("./routes/principalRoutes"));
 app.use("/api", require("./routes/noticeRoutes"));
 app.use("/api", require("./routes/soloExamRoutes"));

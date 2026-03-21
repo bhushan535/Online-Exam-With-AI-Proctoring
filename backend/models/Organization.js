@@ -14,8 +14,9 @@ const organizationSchema = new mongoose.Schema({
   organizationName: { type: String },
   institutionType: { 
     type: String, 
-    enum: ['School','College','University','Institute'], 
-    default: 'School' 
+    enum: ['School','College','University','Institute', 'Other'], 
+    default: 'School',
+    set: v => v ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase() : v 
   },
   branches: [String],
   academicYears: [String],

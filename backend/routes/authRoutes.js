@@ -93,36 +93,51 @@ router.post('/signup/principal', async (req, res) => {
     } = req.body;
 
     // Check if user exists (Hardened for Multi-mode support)
-    const existingUser = await User.findOne({ email, role: 'principal' });
-    if (existingUser) {
+    let user = await User.findOne({ email, role: 'principal' });
+    
+    if (user && user.organizationId) {
       return res.status(400).json({
         success: false,
         message: 'This email is already registered as a Principal',
       });
     }
 
-    // Create user
-    const user = new User({
-      name,
-      email,
-      password,
-      role: 'principal',
-      mode: 'organization',
-    });
-    await user.save();
+    // If user doesn't exist, create a new one
+    if (!user) {
+      user = new User({
+        name,
+        email,
+        password,
+        role: 'principal',
+        mode: 'organization',
+      });
+    } else {
+      // If user exists but organizationId is null, update password and name just in case
+      user.name = name;
+      user.password = password;
+      user.mode = 'organization';
+    }
 
-    // Create organization
+    // Create organization instance
     const organization = new Organization({
       organizationName: orgName,
       institutionType: orgType,
       address,
       principalId: user._id,
     });
-    await organization.save();
 
-    // Link user to organization
+    // Link user to organization BEFORE validation/save
     user.organizationId = organization._id;
+
+    // Validate both before saving anything
+    await Promise.all([
+      user.validate(),
+      organization.validate()
+    ]);
+
+    // Save both
     await user.save();
+    await organization.save();
 
     // Generate token
     const token = generateToken(user._id);
@@ -140,8 +155,8 @@ router.post('/signup/principal', async (req, res) => {
       },
       organization: {
         id: organization._id,
-        name: organization.organizationName || organization.name,
-        type: organization.institutionType || organization.type,
+        name: organization.organizationName,
+        type: organization.institutionType,
       },
     });
 

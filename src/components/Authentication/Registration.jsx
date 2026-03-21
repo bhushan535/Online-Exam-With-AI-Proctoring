@@ -30,8 +30,34 @@ const Registration = ({ role, mode }) => {
     setError('');
   };
 
+  const validateForm = () => {
+    const { name, email, password, phone, orgName, orgType, address } = formData;
+    
+    // Required fields non-empty
+    const basicFields = name && email && password && phone;
+    const principalFields = role === 'principal' ? (orgName && orgType && address) : true;
+    
+    if (!basicFields || !principalFields) return false;
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return false;
+
+    // Contact number must be exactly 10 digits
+    if (!/^\d{10}$/.test(phone)) return false;
+
+    // Password complexity: 6+ chars, 1 upper, 1 lower, 1 number, 1 special char
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(password)) return false;
+
+    return true;
+  };
+
+  const isFormValid = validateForm();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isFormValid) return;
     setLoading(true);
     setError('');
 
@@ -94,6 +120,8 @@ const Registration = ({ role, mode }) => {
                 onChange={handleChange}
                 required
                 minLength="6"
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$"
+                title="Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
               />
             </div>
 
@@ -102,7 +130,7 @@ const Registration = ({ role, mode }) => {
               <input
                 type="tel"
                 name="phone"
-                placeholder="+1 (555) 000-0000"
+                placeholder="10-digit number"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -130,11 +158,11 @@ const Registration = ({ role, mode }) => {
                     value={formData.orgType}
                     onChange={handleChange}
                   >
-                    <option value="school">School</option>
-                    <option value="college">College</option>
-                    <option value="university">University</option>
-                    <option value="institute">Coaching Institute</option>
-                    <option value="other">Other Entity</option>
+                    <option value="School">School</option>
+                    <option value="College">College</option>
+                    <option value="University">University</option>
+                    <option value="Institute">Coaching Institute</option>
+                    <option value="Other">Other Entity</option>
                   </select>
                 </div>
 
@@ -155,7 +183,11 @@ const Registration = ({ role, mode }) => {
           {error && <div className="reg-error-toast">{error}</div>}
 
           <div className="reg-footer">
-            <button className="reg-submit-btn" type="submit" disabled={loading}>
+            <button 
+              className="reg-submit-btn" 
+              type="submit" 
+              disabled={loading || !isFormValid}
+            >
               {loading ? (
                 <span className="loader-small"></span>
               ) : (

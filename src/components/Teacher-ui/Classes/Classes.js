@@ -105,7 +105,7 @@ function Classes() {
       <div className="page-header">
         <div className="header-text">
           <h2><FaChalkboardTeacher /> {user?.role === 'principal' ? 'Organization Classes' : 'My Academic Classes'}</h2>
-          <p>Management portal for institutional class structures and rosters</p>
+          <p>Management portal for institutional class structures and List</p>
         </div>
         {user?.role === 'teacher' && (
           <button className="create-class-header-btn" onClick={() => navigate("/CreateClass")}>

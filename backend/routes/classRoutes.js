@@ -250,8 +250,19 @@ router.post("/class/join/:classId", async (req, res) => {
         return res.status(400).json({ success: false, message: "Incomplete data. Please fill all fields." });
     }
 
-    // 1. Ensure User linkage exists
-    const syntheticEmail = `${normalizedEnrollment.toLowerCase()}@institution.com`;
+    // 0. Capacity Check
+    if (classDoc.students.length >= classDoc.maxStudents) {
+        return res.status(400).json({ 
+            success: false, 
+            message: `Class capacity reached (${classDoc.maxStudents}). Contact teacher for limit increase.` 
+        });
+    }
+
+    // 1. Ensure User linkage exists (Scoped for Solo)
+    const syntheticEmail = classDoc.mode === 'solo'
+        ? `${normalizedEnrollment.toLowerCase()}.t${classDoc.teacherId}@solo.exam.com`
+        : `${normalizedEnrollment.toLowerCase()}@institution.com`;
+
     let user = await User.findOne({ email: syntheticEmail });
     
     if (!user) {
@@ -266,8 +277,15 @@ router.post("/class/join/:classId", async (req, res) => {
         await user.save();
     }
 
-    // 2. Ensure Student Profile exists and is synced with Class parameters
-    let studentProfile = await Student.findOne({ enrollmentNo: normalizedEnrollment });
+    // 2. Ensure Student Profile exists and is synced (Scoped for Solo)
+    const studentFilter = { enrollmentNo: normalizedEnrollment };
+    if (classDoc.mode === 'solo') {
+        studentFilter.addedBy = classDoc.teacherId;
+    } else {
+        studentFilter.organizationId = classDoc.organizationId;
+    }
+
+    let studentProfile = await Student.findOne(studentFilter);
     if (!studentProfile) {
         studentProfile = new Student({
             userId: user._id,
@@ -275,11 +293,12 @@ router.post("/class/join/:classId", async (req, res) => {
             organizationId: classDoc.organizationId,
             currentSemester: classDoc.semester,
             branch: classDoc.branch,
-            rollNo: Number(rollNo)
+            rollNo: Number(rollNo),
+            addedBy: classDoc.teacherId
         });
         await studentProfile.save();
     } else {
-        // Keep global profile in sync with current class context if needed
+        // Keep profile in sync
         studentProfile.currentSemester = classDoc.semester;
         studentProfile.branch = classDoc.branch;
         studentProfile.rollNo = Number(rollNo);
@@ -324,8 +343,17 @@ router.post("/class/import-students/:classId", authenticate, async (req, res) =>
                 continue;
             }
 
-            // 1. Ensure User linkage exists
-            const syntheticEmail = `${enrollment.toLowerCase()}@institution.com`;
+            // 0. Capacity Check
+            if (classDoc.students.length >= classDoc.maxStudents) {
+                results.errors.push(`Capacity exceeded (${classDoc.maxStudents}). Could not add ${enrollment}.`);
+                continue;
+            }
+
+            // 1. Ensure User linkage exists (Scoped for Solo)
+            const syntheticEmail = classDoc.mode === 'solo'
+                ? `${enrollment.toLowerCase()}.t${classDoc.teacherId}@solo.exam.com`
+                : `${enrollment.toLowerCase()}@institution.com`;
+
             let user = await User.findOne({ email: syntheticEmail });
             
             if (!user) {
@@ -340,8 +368,15 @@ router.post("/class/import-students/:classId", authenticate, async (req, res) =>
                 await user.save();
             }
 
-            // 2. Ensure Student Profile exists and is synced with Class parameters
-            let studentProfile = await Student.findOne({ enrollmentNo: enrollment });
+            // 2. Ensure Student Profile exists and is synced (Scoped for Solo)
+            const studentFilter = { enrollmentNo: enrollment };
+            if (classDoc.mode === 'solo') {
+                studentFilter.addedBy = classDoc.teacherId;
+            } else {
+                studentFilter.organizationId = classDoc.organizationId;
+            }
+
+            let studentProfile = await Student.findOne(studentFilter);
             if (!studentProfile) {
                 studentProfile = new Student({
                     userId: user._id,
@@ -352,17 +387,16 @@ router.post("/class/import-students/:classId", authenticate, async (req, res) =>
                     rollNo: Number(s.rollNo),
                     addedBy: req.userId
                 });
-            await studentProfile.save();
-            results.added++;
-        } else {
-            // Keep global profile in sync with current class context if needed
-            studentProfile.currentSemester = classDoc.semester;
-            studentProfile.branch = classDoc.branch;
-            studentProfile.rollNo = Number(s.rollNo);
-            if (!studentProfile.userId) studentProfile.userId = user._id;
-            await studentProfile.save();
-            results.updated++;
-        }
+                await studentProfile.save();
+                results.added++;
+            } else {
+                studentProfile.currentSemester = classDoc.semester;
+                studentProfile.branch = classDoc.branch;
+                studentProfile.rollNo = Number(s.rollNo);
+                if (!studentProfile.userId) studentProfile.userId = user._id;
+                await studentProfile.save();
+                results.updated++;
+            }
 
             // 3. Update Class Roster
             const exists = classDoc.students.find(st => st.enrollment === enrollment);
