@@ -22,11 +22,6 @@ const OrgSettings = () => {
         institutionType: 'School',
         address: '',
         logo: '',
-        // Keep these in state for API compatibility even if not edited here
-        branches: [],
-        academicYears: [],
-        semesters: [],
-        subjects: [],
         permissions: {
             allowTeacherStudentImport: false,
             principalApprovalLoop: false,
@@ -93,9 +88,17 @@ const OrgSettings = () => {
         
         setSaving(true);
         try {
-            const res = await saveOrgSettings(settings);
-            // After successful save, we don't necessarily get the full object back in the same shape
-            // but the backend returns success: true. We'll just keep the current settings.
+            // Send only fields managed by this component to avoid overwriting curriculum data
+            const payload = {
+                principalName: settings.principalName,
+                organizationName: settings.organizationName,
+                institutionType: settings.institutionType,
+                address: settings.address,
+                logo: settings.logo,
+                permissions: settings.permissions
+            };
+
+            const res = await saveOrgSettings(payload);
             showToast('Profile updated successfully!', 'success');
             await refreshOrg(); // Refresh global header context
             setTimeout(() => navigate('/TeacherHome'), 1500);
