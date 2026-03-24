@@ -245,7 +245,6 @@ function CreateExam() {
                                         </div>
                                     </div>
                                 )}
-
                                 <div className="ce-group">
                                     <label>Subject Code</label>
                                     <input
@@ -253,7 +252,6 @@ function CreateExam() {
                                         value={subCode}
                                         onChange={(e) => setSubCode(e.target.value)}
                                         className={`highlight ${!subCode ? 'manual-entry' : ''}`}
-                                        readOnly
                                         required
                                     />
                                 </div>
@@ -320,7 +318,16 @@ function CreateExam() {
                                 <div className="proctoring-toggle-belt">
                                     <span>Enable AI Proctoring</span>
                                     <label className="ce-switch">
-                                        <input type="checkbox" checked={proctoringConfig.enabled} onChange={(e) => setProctoringConfig({ ...proctoringConfig, enabled: e.target.checked })} />
+                                    <input 
+                                        type="checkbox" 
+                                        checked={proctoringConfig.enabled} 
+                                        onChange={(e) => setProctoringConfig({ 
+                                            ...proctoringConfig, 
+                                            enabled: e.target.checked,
+                                            requireFullScreen: e.target.checked,
+                                            disableTabSwitching: e.target.checked 
+                                        })} 
+                                    />
                                         <span className="ce-slider"></span>
                                     </label>
                                 </div>

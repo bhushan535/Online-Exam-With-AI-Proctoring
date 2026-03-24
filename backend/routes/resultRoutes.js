@@ -10,18 +10,23 @@ router.get("/results/student/:studentId", async (req, res) => {
     const results = await Result.find({ studentId: req.params.studentId })
       .sort({ submittedAt: -1 });
 
-    const enriched = await Promise.all(
-      results.map(async (r) => {
-        const exam = await Exam.findById(r.examId).catch(() => null);
-        return {
-          ...r.toObject(),
-          examName: exam?.examName || "Unknown Exam",
-          subject:  exam?.subject  || "",
-          subCode:  exam?.subCode  || "",
-          examDate: exam?.examDate || null,
-        };
-      })
-    );
+    const examIds = [...new Set(results.map(r => r.examId))];
+    const exams = await Exam.find({ _id: { $in: examIds } });
+    const examMap = exams.reduce((acc, exam) => {
+      acc[exam._id.toString()] = exam;
+      return acc;
+    }, {});
+
+    const enriched = results.map(r => {
+      const exam = examMap[r.examId.toString()];
+      return {
+        ...r.toObject(),
+        examName: exam?.examName || "Unknown Exam",
+        subject:  exam?.subject  || "",
+        subCode:  exam?.subCode  || "",
+        examDate: exam?.examDate || null,
+      };
+    });
 
     res.json({ success: true, results: enriched });
   } catch (err) {

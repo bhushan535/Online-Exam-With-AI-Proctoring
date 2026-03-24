@@ -8,7 +8,7 @@ function TeacherLogin() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  
+
   const queryParams = new URLSearchParams(location.search);
   const roleParam = queryParams.get('role');
 
@@ -41,20 +41,20 @@ function TeacherLogin() {
     <div className="login-wrapper">
       {/* Global background handled in index.css */}
       <Link to="/" className="back-to-home"><FaArrowLeft /> Home</Link>
-      
+
       <div className="login-glass-card animate-slide-up">
         <div className="login-header">
-           <div className="login-icon-box">
-             <FaShieldAlt />
-           </div>
-           <h2>{roleParam === 'principal' ? 'Organization Login' : 'Faculty Access'}</h2>
-           <p>Enter your credentials to access the console</p>
+          <div className="login-icon-box">
+            <FaShieldAlt />
+          </div>
+          <h2>{roleParam === 'principal' ? 'Organization Login' : 'Faculty Access'}</h2>
+          <p>Enter your credentials to access the console</p>
         </div>
 
         <div className="login-form">
           {roleParam !== 'principal' && (
             <div className="mode-toggle-login">
-              <div 
+              <div
                 className={`mode-btn ${mode === 'organization' ? 'active' : ''}`}
                 onClick={() => setMode('organization')}
                 role="button"
@@ -62,13 +62,13 @@ function TeacherLogin() {
               >
                 <FaUserTie style={{ marginRight: '8px' }} /> Organization
               </div>
-              <div 
+              <div
                 className={`mode-btn ${mode === 'solo' ? 'active' : ''}`}
                 onClick={() => setMode('solo')}
                 role="button"
                 tabIndex={0}
               >
-                <FaUser style={{ marginRight: '8px' }} /> Solo Teacher
+                <FaUser style={{ marginRight: '8px' }} /> Private
               </div>
             </div>
           )}

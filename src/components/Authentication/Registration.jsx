@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import BackButton from "../Common/BackButton";
-import { 
-  FaUser, FaEnvelope, FaLock, FaPhone, 
-  FaBuilding, FaMapMarkerAlt, FaGraduationCap 
+import {
+  FaUser, FaEnvelope, FaLock, FaPhone,
+  FaBuilding, FaMapMarkerAlt, FaGraduationCap
 } from 'react-icons/fa';
 import './Registration.css';
 
@@ -13,7 +13,7 @@ const Registration = ({ role, mode }) => {
   const { signup } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,11 +32,11 @@ const Registration = ({ role, mode }) => {
 
   const validateForm = () => {
     const { name, email, password, phone, orgName, orgType, address } = formData;
-    
+
     // Required fields non-empty
     const basicFields = name && email && password && phone;
     const principalFields = role === 'principal' ? (orgName && orgType && address) : true;
-    
+
     if (!basicFields || !principalFields) return false;
 
     // Email format validation
@@ -81,9 +81,9 @@ const Registration = ({ role, mode }) => {
             <FaGraduationCap />
           </div>
           <h2>{role === 'principal' ? 'Institution Roster' : 'Faculty Onboarding'}</h2>
-          <p>Create your administrative profile to begin</p>
+          <p>Create your Organization profile to begin</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="reg-form-premium">
           <div className="reg-grid">
             <div className="reg-input-group">
@@ -111,7 +111,7 @@ const Registration = ({ role, mode }) => {
             </div>
 
             <div className="reg-input-group">
-              <label><FaLock /> Access Security</label>
+              <label><FaLock /> Password</label>
               <input
                 type="password"
                 name="password"
@@ -140,7 +140,7 @@ const Registration = ({ role, mode }) => {
             {role === 'principal' && (
               <>
                 <div className="reg-input-group full-width">
-                  <label><FaBuilding /> Organization Identity</label>
+                  <label><FaBuilding /> Organization Name</label>
                   <input
                     type="text"
                     name="orgName"
@@ -152,7 +152,7 @@ const Registration = ({ role, mode }) => {
                 </div>
 
                 <div className="reg-input-group">
-                  <label><FaBuilding /> Registry Type</label>
+                  <label><FaBuilding /> Organization Type</label>
                   <select
                     name="orgType"
                     value={formData.orgType}
@@ -167,7 +167,7 @@ const Registration = ({ role, mode }) => {
                 </div>
 
                 <div className="reg-input-group full-width">
-                  <label><FaMapMarkerAlt /> Physical Address</label>
+                  <label><FaMapMarkerAlt /> Address </label>
                   <textarea
                     name="address"
                     placeholder="Complete headquarters or campus address"
@@ -183,15 +183,15 @@ const Registration = ({ role, mode }) => {
           {error && <div className="reg-error-toast">{error}</div>}
 
           <div className="reg-footer">
-            <button 
-              className="reg-submit-btn" 
-              type="submit" 
+            <button
+              className="reg-submit-btn"
+              type="submit"
               disabled={loading || !isFormValid}
             >
               {loading ? (
                 <span className="loader-small"></span>
               ) : (
-                <>Establish Account</>
+                <>Register Account</>
               )}
             </button>
 
