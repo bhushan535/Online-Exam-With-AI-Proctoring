@@ -1,4 +1,4 @@
-.countdown-page {
+.esc-countdown-page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -8,7 +8,7 @@
   padding: 20px;
 }
 
-.countdown-card {
+.esc-countdown-card {
   background: white;
   padding: 50px;
   border-radius: 24px;
@@ -16,55 +16,56 @@
   text-align: center;
   max-width: 500px;
   width: 100%;
-  animation: pulseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: escPulseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes pulseIn {
+@keyframes escPulseIn {
   0% { transform: scale(0.95); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-.countdown-card h2 {
+.esc-countdown-card h2 {
   margin: 0;
   color: #1e293b;
   font-size: 32px;
   font-weight: 800;
 }
 
-.countdown-sub {
+.esc-countdown-sub {
   color: #64748b;
   font-size: 16px;
   margin: 10px 0 40px 0;
 }
 
-.countdown-circle-container {
+.esc-countdown-circle-container {
   position: relative;
   width: 180px;
   height: 180px;
   margin: 0 auto 40px auto;
 }
 
-.countdown-svg {
+.esc-countdown-svg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
 }
 
-.bg-circle {
+.esc-bg-circle {
   fill: none;
   stroke: #f1f5f9;
   stroke-width: 8;
 }
 
-.progress-circle {
+.esc-progress-circle {
   fill: none;
   stroke: #3b82f6;
   stroke-width: 8;
   stroke-linecap: round;
   stroke-dasharray: 283; /* 2 * PI * 45 */
+  transition: stroke-dashoffset 1s linear;
 }
 
-.countdown-number {
+.esc-countdown-number {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -75,7 +76,7 @@
   line-height: 1;
 }
 
-.warning-box {
+.esc-warning-box {
   background-color: #fffbfa;
   border: 1px solid #fed7aa;
   color: #c2410c;

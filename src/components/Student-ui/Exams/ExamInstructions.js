@@ -76,35 +76,35 @@ function ExamInstructions() {
 
   if (loading) {
     return (
-      <div className="instruction-page loading-state">
-        <div className="spinner"></div>
+      <div className="ei-instruction-page ei-loading-state">
+        <div className="ei-spinner"></div>
         <p>Loading instructions...</p>
       </div>
     );
   }
 
   return (
-    <div className="instruction-page">
+    <div className="ei-instruction-page">
       <Toast toasts={toasts} removeToast={removeToast} />
 
-      <div className="instruction-card">
-        <div className="header-gradient">
+      <div className="ei-instruction-card">
+        <div className="ei-header-gradient">
           <h2>Examination Instructions</h2>
           {exam && (
-            <div className="exam-meta">
+            <div className="ei-exam-meta">
               <span>{exam.examName}</span>
-              <span className="dot">•</span>
+              <span className="ei-dot">•</span>
               <span>{exam.subject}</span>
-              <span className="dot">•</span>
+              <span className="ei-dot">•</span>
               <span>{exam.duration} mins</span>
             </div>
           )}
         </div>
 
-        <div className="instruction-body">
-          <div className="rules-section">
+        <div className="ei-instruction-body">
+          <div className="ei-rules-section">
             <h3>📝 Please read carefully before starting</h3>
-            <ul className="instruction-list">
+            <ul className="ei-instruction-list">
               <li>The total duration of the examination is fixed and will not be extended.</li>
               <li>Once the examination starts, it cannot be paused or restarted.</li>
               <li>Do not refresh or close the browser during the exam.</li>
@@ -113,7 +113,7 @@ function ExamInstructions() {
               <li>The exam will automatically submit when time expires.</li>
               <li>Any malpractice may result in disqualification.</li>
               {exam?.proctoringConfig?.enabled ? (
-                <li className="proctoring-rule"><b>AI Proctoring Active:</b> Ensure you are in a well-lit room and facing the camera at all times. Avoid tab-switching.</li>
+                <li className="ei-proctoring-rule"><b>AI Proctoring Active:</b> Ensure you are in a well-lit room and facing the camera at all times. Avoid tab-switching.</li>
               ) : (
                 <li><b>Open Browser Mode:</b> AI Proctoring is disabled for this assessment.</li>
               )}
@@ -121,8 +121,8 @@ function ExamInstructions() {
             </ul>
           </div>
 
-          <div className="action-section">
-            <div className="code-input-group">
+          <div className="ei-action-section">
+            <div className="ei-code-input-group">
               <label>Exam Access Code</label>
               <input
                 type="text"
@@ -132,28 +132,28 @@ function ExamInstructions() {
                   setEnteredCode(e.target.value);
                   setCodeError("");
                 }}
-                className={codeError ? "input-error" : ""}
+                className={codeError ? "ei-input-error" : ""}
                 maxLength={10}
               />
-              {codeError && <p className="code-error-text">⚠️ {codeError}</p>}
+              {codeError && <p className="ei-code-error-text">⚠️ {codeError}</p>}
             </div>
 
-            <div className="agree-box">
-              <label className="checkbox-container">
+            <div className="ei-agree-box">
+              <label className="ei-checkbox-container">
                 <input
                   type="checkbox"
                   checked={agree}
                   onChange={(e) => setAgree(e.target.checked)}
                 />
-                <span className="checkmark"></span>
-                <span className="agree-text">
+                <span className="ei-checkmark"></span>
+                <span className="ei-agree-text">
                   I have read and understood all instructions and agree to follow them.
                 </span>
               </label>
             </div>
 
             <button
-              className={`start-btn ${(!agree || !enteredCode.trim() || isVerifying) ? "disabled" : ""}`}
+              className={`ei-start-btn ${(!agree || !enteredCode.trim() || isVerifying) ? "ei-disabled" : ""}`}
               disabled={!agree || !enteredCode.trim() || isVerifying}
               onClick={startExam}
             >

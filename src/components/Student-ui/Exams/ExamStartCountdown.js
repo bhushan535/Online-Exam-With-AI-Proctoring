@@ -22,16 +22,16 @@ function ExamStartCountdown() {
   }, [seconds, navigate, examId]);
 
   return (
-    <div className="countdown-page">
-      <div className="countdown-card">
+    <div className="esc-countdown-page">
+      <div className="esc-countdown-card">
         <h2>Get Ready...</h2>
-        <p className="countdown-sub">Your exam is about to begin</p>
+        <p className="esc-countdown-sub">Your exam is about to begin</p>
         
-        <div className="countdown-circle-container">
-          <svg className="countdown-svg" viewBox="0 0 100 100">
-            <circle className="bg-circle" cx="50" cy="50" r="45"></circle>
+        <div className="esc-countdown-circle-container">
+          <svg className="esc-countdown-svg" viewBox="0 0 100 100">
+            <circle className="esc-bg-circle" cx="50" cy="50" r="45"></circle>
             <circle 
-              className="progress-circle" 
+              className="esc-progress-circle" 
               cx="50" cy="50" r="45"
               style={{ 
                 strokeDashoffset: (283 - (283 * (seconds / 5))),
@@ -39,10 +39,10 @@ function ExamStartCountdown() {
               }}
             ></circle>
           </svg>
-          <div className="countdown-number">{seconds}</div>
+          <div className="esc-countdown-number">{seconds}</div>
         </div>
         
-        <div className="warning-box">
+        <div className="esc-warning-box">
           ⚠️ Please do not refresh, close, or navigate away from this page. 
           The exam will start automatically.
         </div>

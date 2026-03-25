@@ -23,12 +23,16 @@ router.get("/student/profile", authenticate, async (req, res) => {
       return res.json({ success: true, student: { academicHistory: [] } });
     }
 
-    // 3. Optional: Populate class names in history if needed
-    // For now, returning as is.
+    // 3. Find current active class for this student
+    const activeClass = await Class.findOne({ 
+        'students.enrollment': student.enrollmentNo,
+        status: 'active'
+    });
 
     res.json({
       success: true,
-      student
+      student,
+      currentClassId: activeClass ? activeClass._id : null
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -71,9 +75,13 @@ router.post("/student/login", async (req, res) => {
          return res.status(401).json({ success: false, message: "Invalid enrollment or password" });
       }
 
-      // Look up classId
+      // Look up classId (Prioritize ACTIVE classes)
       let classId = null;
-      const classDoc = await Class.findOne({ 'students.enrollment': enrollmentInput });
+      const classDoc = await Class.findOne({ 
+          'students.enrollment': enrollmentInput,
+          status: 'active'
+      }) || await Class.findOne({ 'students.enrollment': enrollmentInput }); // Fallback to any if no active
+      
       if (classDoc) classId = classDoc._id;
 
       const token = generateToken(user._id);
@@ -103,9 +111,13 @@ router.post("/student/login", async (req, res) => {
     const token = generateToken(user._id);
     let organizationData = null;
 
-    // Look up classId from Class collection
+    // Look up classId from Class collection (Prioritize ACTIVE classes)
     let classId = null;
-    const classDoc = await Class.findOne({ 'students.enrollment': studentProfile.enrollmentNo });
+    const classDoc = await Class.findOne({ 
+        'students.enrollment': studentProfile.enrollmentNo,
+        status: 'active'
+    }) || await Class.findOne({ 'students.enrollment': studentProfile.enrollmentNo }); // Fallback
+    
     if (classDoc) classId = classDoc._id;
 
     if (user.organizationId) {

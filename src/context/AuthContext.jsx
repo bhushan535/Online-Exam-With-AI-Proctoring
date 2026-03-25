@@ -130,6 +130,13 @@ export const AuthProvider = ({ children }) => {
     isStudent: user?.role === 'student',
     isSoloMode: user?.mode === 'solo',
     isOrgMode: user?.mode === 'organization',
+    updateUser: (newData) => {
+      const updated = { ...user, ...newData };
+      setUser(updated);
+      if (user?.role === 'student' || updated.role === 'student') {
+        localStorage.setItem('student', JSON.stringify(updated));
+      }
+    }
   };
 
   return (

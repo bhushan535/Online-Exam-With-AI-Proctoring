@@ -8,7 +8,7 @@ import axios from "axios";
 
 function StudentHome() {
   const navigate = useNavigate();
-  const { user, org, token, logout } = useAuth();
+  const { user, org, token, logout, updateUser } = useAuth();
   const [history, setHistory] = useState([]);
   const [profile, setProfile] = useState(null);
   const [notices, setNotices] = useState([]);
@@ -23,19 +23,24 @@ function StudentHome() {
 
   useEffect(() => {
     if (token) {
-      fetch(`${BASE_URL}/student/profile`, {
+      axios.get(`${BASE_URL}/student/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
+      .then(res => {
+        const data = res.data;
         if (data.success) {
           setProfile(data.student);
           setHistory(data.student.academicHistory || []);
+          
+          // Sync classId in localStorage/Context if it changed via promotion
+          if (data.currentClassId && data.currentClassId !== user?.classId) {
+            updateUser({ classId: data.currentClassId });
+          }
         }
       })
       .catch(err => console.error("History fetch error:", err));
     }
-  }, [token]);
+  }, [token, user?.classId, updateUser]);
 
   const handleLogout = () => {
     logout();
@@ -46,13 +51,13 @@ function StudentHome() {
     <div className="student-home-container">
       {/* Institutional Branding Header */}
       <div className="student-topbar">
-        <div className="brand-box">
+        <div className="sh-brand-box">
           {org?.logo ? (
             <img src={org.logo} alt="College Logo" className="org-nav-logo" />
           ) : (
             <div className="org-nav-placeholder">{(org?.organizationName || org?.name || 'O').charAt(0)}</div>
           )}
-          <div className="brand-text">
+          <div className="sh-brand-text">
             <span className="org-name-nav">{org?.organizationName || org?.name || "Institution Dashboard"}</span>
             <div className="student-greeting-info">
               <span className="student-hello">👋 Welcome,</span>
@@ -72,12 +77,12 @@ function StudentHome() {
           {/* Latest Notices Feed */}
           {notices.length > 0 && (
             <div className="notices-feed-horizontal">
-              <div className="feed-header">
+              <div className="sh-feed-header">
                 <h3><FaBell className="notif-icon" /> Announcements</h3>
               </div>
               <div className="notices-scroll">
                 {notices.map((n) => (
-                  <div key={n._id} className={`feed-item priority-${n.priority}`}>
+                  <div key={n._id} className={`sh-feed-item sh-priority-${n.priority}`}>
                     <div className="item-dot" />
                     <div className="item-content">
                       <h4>{n.title}</h4>
@@ -90,14 +95,14 @@ function StudentHome() {
           )}
 
           <div className="card-section">
-            <div className="home-card" onClick={() => navigate("/attempt-exams")}>
-              <FaPenNib className="card-icon" />
+            <div className="sh-home-card" onClick={() => navigate("/attempt-exams")}>
+              <FaPenNib className="sh-card-icon" />
               <h3>Attempt Exam</h3>
               <p>Start your online examinations.</p>
             </div>
 
-            <div className="home-card" onClick={() => navigate("/StudentResults")}>
-              <FaFileAlt className="card-icon" />
+            <div className="sh-home-card" onClick={() => navigate("/StudentResults")}>
+              <FaFileAlt className="sh-card-icon" />
               <h3>My Results</h3>
               <p>View your marks and performance.</p>
             </div>
@@ -105,7 +110,7 @@ function StudentHome() {
         </div>
 
         <div className="history-sidebar">
-          <div className="sidebar-header">
+          <div className="sh-sidebar-header">
             <h3><FaHistory /> Academic History</h3>
             <span className="history-badge">Complete</span>
           </div>
@@ -120,11 +125,25 @@ function StudentHome() {
               history.slice().reverse().map((h, i) => (
                 <div key={i} className="history-item" onClick={() => navigate(`/StudentResults?semester=${h.semester}&year=${h.year}`)}>
                   <div className="h-main">
-                    <span className="h-sem">{h.semester}</span>
-                    <span className="h-year">{h.year}</span>
+                    <span className="h-sem">Semester {h.semester}</span>
+                    <span className="h-year">{h.year && h.year !== 'Unknown' ? h.year : 'Academic Session'}</span>
                   </div>
+                  
+                  {/* Performance Snapshot */}
+                  {h.examResults && h.examResults.length > 0 && (
+                    <div className="h-results-mini">
+                      {h.examResults.slice(0, 2).map((res, idx) => (
+                        <div key={idx} className="h-res-line">
+                          <span className="h-res-name">{res.subject || res.examName}</span>
+                          <span className="h-res-score">{res.score}/{res.totalMarks}</span>
+                        </div>
+                      ))}
+                      {h.examResults.length > 2 && <div className="h-more">+{h.examResults.length - 2} more subjects...</div>}
+                    </div>
+                  )}
+
                   <div className="h-meta">
-                    <span className="h-date">{new Date(h.completedAt).toLocaleDateString()}</span>
+                    <span className="h-date">Completed: {new Date(h.completedAt).toLocaleDateString()}</span>
                     <span className="h-view">View Marks →</span>
                   </div>
                 </div>
@@ -133,8 +152,8 @@ function StudentHome() {
             
             <div className="history-item current active">
               <div className="h-main">
-                <span className="h-sem">Current: {profile?.currentSemester || "N/A"}</span>
-                <span className="h-year">{profile?.currentYear || "N/A"}</span>
+                <span className="h-sem" style={{ background: '#10b981' }}>Current Semester</span>
+                <span className="h-year">{profile?.currentYear && profile.currentYear !== 'Unknown' ? profile.currentYear : '2024-25'} (Semester {profile?.currentSemester || "N/A"})</span>
               </div>
               <div className="h-status">In Progress</div>
             </div>
