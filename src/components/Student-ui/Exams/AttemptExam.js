@@ -62,12 +62,12 @@ const getStatus = (exam) => {
 };
 
 if(!student){
-return <div className="attempt-exam-page"><h2>Please login again</h2></div>;
+return <div className="ae-attempt-exam-page"><h2>Please login again</h2></div>;
 }
 
 return(
 
-<div className="attempt-exam-page">
+<div className="ae-attempt-exam-page">
 
 <h2>Available Exams</h2>
 
@@ -83,7 +83,7 @@ const status = getStatus(exam);
 
 return(
 
-<div className="exam-card" key={exam._id}>
+<div className="ae-exam-card" key={exam._id}>
 
 <h3>{exam.examName}</h3>
 
@@ -108,7 +108,7 @@ return(
 {status === "AVAILABLE" ?
 
 <button
-className="start-btn"
+className="ae-start-btn"
 onClick={()=>navigate(`/exam-instructions/${exam._id}`)}
 
 >
@@ -117,7 +117,7 @@ Start Exam </button>
 
 :
 
-<button className="start-btn" disabled>
+<button className="ae-start-btn" disabled>
 
 {status === "UPCOMING"
 ? "Not Started Yet"

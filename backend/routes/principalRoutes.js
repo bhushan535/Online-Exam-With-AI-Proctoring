@@ -4,6 +4,10 @@ const { authenticate, isPrincipal } = require('../middleware/auth');
 const User = require('../models/User');
 const TeacherProfile = require('../models/TeacherProfile');
 const Organization = require('../models/Organization');
+const Student = require('../models/Student');
+const Class = require('../models/Class');
+const Result = require('../models/Result');
+const Exam = require('../models/Exam');
 
 // 1. Organization Management (Read-only for Teachers, Full for Principals)
 router.get('/organization', authenticate, async (req, res) => {
@@ -240,14 +244,89 @@ router.post('/promote-students', async (req, res) => {
 
     for (let student of students) {
       const currentClasses = await Class.find({ organizationId: req.organizationId, semester: currentSemester, branch, status: 'active', 'students.enrollment': student.enrollmentNo });
-      student.academicHistory.push({ year: student.currentYear, semester: student.currentSemester, classes: currentClasses.map(c => c._id), completedAt: new Date() });
+      
+      // 1. Identify specific exams for history snapshot (Isolation Fix)
+      const classIds = currentClasses.map(c => c._id);
+      const classExamIds = await Exam.find({ classId: { $in: classIds } }).distinct('_id');
+
+      // 2. FETCH RESULTS ONLY FOR EXAMS BELONGING TO THESE CLASSES
+      const studentResults = await Result.find({ 
+          studentId: student.enrollmentNo,
+          examId: { $in: classExamIds }
+      });
+
+      const examResultsList = [];
+      for (let r of studentResults) {
+          const exam = await Exam.findById(r.examId);
+          examResultsList.push({
+              examId: r.examId,
+              examName: exam?.examName || "Unknown",
+              subject: exam?.subject || "Unknown",
+              score: r.score,
+              totalMarks: r.totalMarks,
+              percentage: r.percentage,
+              grade: r.grade
+          });
+      }
+
+      const defaultYear = currentClasses.length > 0 ? currentClasses[0].year : new Date().getFullYear().toString();
+
+      // Ensure academic history is saved correctly with existing data (Avoid duplicates)
+      const alreadyExists = student.academicHistory.find(h => 
+          h.semester === (student.currentSemester || currentSemester) && 
+          h.year === (student.currentYear || defaultYear)
+      );
+
+      if (!alreadyExists) {
+          const historyEntry = { 
+              year: student.currentYear || defaultYear, 
+              semester: student.currentSemester || currentSemester, 
+              classes: currentClasses.map(c => c._id), 
+              examResults: examResultsList,
+              completedAt: new Date() 
+          };
+          student.academicHistory.push(historyEntry);
+      }
+      
       student.currentSemester = newSemester;
       if (newYear) student.currentYear = newYear;
+
       await student.save();
     }
 
-    await Class.updateMany({ organizationId: req.organizationId, semester: currentSemester, branch, status: 'active' }, { $set: { status: 'completed' } });
-    res.json({ success: true, message: `Successfully promoted ${students.length} students` });
+    // AUTOMATED CLASS RE-CREATION FOR NEXT SEMESTER
+    const activeClasses = await Class.find({ 
+        organizationId: req.organizationId, 
+        semester: currentSemester, 
+        branch, 
+        status: 'active' 
+    });
+
+    for (const oldClass of activeClasses) {
+        // 1. Create a new instance for the next semester
+        const newClass = new Class({
+            className: oldClass.className, // Keep name for continuity
+            semester: newSemester,
+            branch: oldClass.branch,
+            year: newYear || oldClass.year,
+            description: oldClass.description,
+            maxStudents: oldClass.maxStudents,
+            students: oldClass.students, // Copy current students to the next semester instance
+            createdBy: oldClass.createdBy,
+            teacherId: oldClass.teacherId,
+            mode: oldClass.mode,
+            organizationId: oldClass.organizationId,
+            registrationOpen: false, // Default to closed for promoted classes
+            status: 'active'
+        });
+        await newClass.save();
+
+        // 2. Mark the old instance as completed
+        oldClass.status = 'completed';
+        await oldClass.save();
+    }
+
+    res.json({ success: true, message: `Successfully promoted ${students.length} students and re-created ${activeClasses.length} class instances.` });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -5,11 +5,13 @@ import useToast from "../../Common/useToast";
 import PopupModal from "../../Common/PopupModal";
 import "./AttemptExamPage.css";
 import ProctoringEngine from "../../../proctoring/ProctoringEngine";
+import { useAuth } from "../../../context/AuthContext";
 import axios from "axios";
 
 function AttemptExamPage() {
   const { examId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const checked = useRef(false);
   const submittedRef = useRef(false); // prevents double-submit race condition
 
@@ -52,7 +54,7 @@ function AttemptExamPage() {
     }
 
     try {
-      const student = JSON.parse(localStorage.getItem("student")) || {};
+      const student = user || JSON.parse(localStorage.getItem("student") || "{}");
       const res = await axios.post("/api/exams/submit", {
         examId,
         answers,
@@ -215,7 +217,7 @@ function AttemptExamPage() {
   }, [showToast]);
 
   if (questions.length === 0) {
-    return <div className="loading-screen"><div className="spinner"></div></div>;
+    return <div className="aep-loading-screen"><div className="aep-spinner"></div></div>;
   }
 
   const minutes = Math.floor(timeLeft / 60);
@@ -226,13 +228,13 @@ function AttemptExamPage() {
   const unattemptedCount = questions.length - attemptedCount;
 
   return (
-    <div className="attempt-exam-layout">
+    <div className="aep-attempt-exam-layout">
       <Toast toasts={toasts} removeToast={removeToast} />
 
       {!submitted && proctoringConfig && proctoringConfig.enabled && (
         <ProctoringEngine
           examId={examId}
-          studentId={JSON.parse(localStorage.getItem("student"))?.enrollment || "Unknown"}
+          studentId={user?.enrollment || JSON.parse(localStorage.getItem("student") || "{}")?.enrollment || "Unknown"}
           config={proctoringConfig}
           onAutoSubmit={handleAutoSubmit}
           onWarning={handleProctorWarning}
@@ -241,62 +243,62 @@ function AttemptExamPage() {
       )}
 
       {proctoringConfig?.enabled && !isFullscreen && !submitted && (
-        <div className="fullscreen-gate">
-          <div className="gate-content">
-            <div className="gate-icon">🛡️</div>
+        <div className="aep-fullscreen-gate">
+          <div className="aep-gate-content">
+            <div className="aep-gate-icon">🛡️</div>
             <h1>Fullscreen Required</h1>
             <p>To maintain exam integrity, you must be in fullscreen mode to view and attempt the exam.</p>
-            <div className="gate-warning-box">
+            <div className="aep-gate-warning-box">
               Exiting fullscreen or switching tabs will be logged as a violation.
             </div>
-            <button className="enter-fullscreen-btn" onClick={enterFullscreen}>
+            <button className="aep-enter-fullscreen-btn" onClick={enterFullscreen}>
               Enter Fullscreen to Begin
             </button>
           </div>
         </div>
       )}
 
-      <div className="exam-header">
-        <div className="header-left">
-          <h2 className="exam-title">Online Examination</h2>
+      <div className="aep-exam-header">
+        <div className="aep-header-left">
+          <h2 className="aep-exam-title">Online Examination</h2>
         </div>
 
         {proctoringConfig?.enabled ? (
           <>
-            <div className="proctoring-badge-center">
-              <div className="pulse-dot"></div>
-              <span className="badge-text">AI Proctoring Active</span>
-              <div className="badge-divider"></div>
-              <span className={`warning-count ${warningCount >= (proctoringConfig?.strikes?.autoSubmitAt || 5) - 1 ? 'critical' : ''}`}>
+            <div className="aep-proctoring-badge-center">
+              <div className="aep-pulse-dot"></div>
+              <span className="aep-badge-text">AI Proctoring Active</span>
+              <div className="aep-badge-divider"></div>
+              <span className={`aep-warning-count ${warningCount >= (proctoringConfig?.strikes?.autoSubmitAt || 5) - 1 ? 'aep-critical' : ''}`}>
                 Warnings: {warningCount}/{proctoringConfig?.strikes?.autoSubmitAt || 5}
               </span>
             </div>
-            <div className="header-right">
-              <div className={`timer-badge ${timeLeft <= 120 ? 'danger-pulse' : ''}`}>
+            <div className="aep-header-right">
+              <div className={`aep-timer-badge ${timeLeft <= 120 ? 'aep-danger-pulse' : ''}`}>
                 ⏱️ {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
               </div>
             </div>
           </>
         ) : (
           <>
-            <div className="header-center">
-              <div className={`timer-badge ${timeLeft <= 120 ? 'danger-pulse' : ''}`}>
+            <div className="aep-header-center">
+              <div className={`aep-timer-badge ${timeLeft <= 120 ? 'aep-danger-pulse' : ''}`}>
                 ⏱️ {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
               </div>
             </div>
-            <div className="header-right"></div>
+            <div className="aep-header-right"></div>
           </>
         )}
       </div>
 
-      <div className="exam-body">
-        <div className="main-exam-area">
-          <div className="question-container">
-            <div className="q-header">
-              <span className="q-number">Question {currentIndex + 1} of {questions.length}</span>
-              <div className="q-actions">
+      <div className="aep-exam-body">
+        <div className="aep-main-exam-area">
+          <div className="aep-question-container">
+            <div className="aep-q-header">
+              <span className="aep-q-number">Question {currentIndex + 1} of {questions.length}</span>
+              <div className="aep-q-actions">
                 <span
-                  className={`review-toggle ${reviewStatus[currentQuestion._id] ? 'active' : ''}`}
+                  className={`aep-review-toggle ${reviewStatus[currentQuestion._id] ? 'aep-active' : ''}`}
                   onClick={() => toggleReview(currentQuestion._id)}
                 >
                   {reviewStatus[currentQuestion._id] ? '🚩 Marked' : '🏁 Mark for Review'}
@@ -304,9 +306,9 @@ function AttemptExamPage() {
               </div>
             </div>
 
-            <h3 className="q-text">{currentQuestion.questionText}</h3>
+            <h3 className="aep-q-text">{currentQuestion.questionText}</h3>
 
-            <div className="options-grid">
+            <div className="aep-options-grid">
               {["A", "B", "C", "D"].map((letter, i) => {
                 const rawOption = currentQuestion.options[i];
                 if (!rawOption) return null;
@@ -315,13 +317,13 @@ function AttemptExamPage() {
                 return (
                   <div
                     key={i}
-                    className={`option-card ${isSelected ? 'selected' : ''}`}
+                    className={`aep-option-card ${isSelected ? 'aep-selected' : ''}`}
                     onClick={() => handleSelect(currentQuestion._id, rawOption)}
                   >
-                    <div className="opt-letter">{letter}</div>
-                    <div className="opt-text">{cleanOption}</div>
-                    <div className="opt-radio">
-                      <div className={`radio-inner ${isSelected ? 'active' : ''}`}></div>
+                    <div className="aep-opt-letter">{letter}</div>
+                    <div className="aep-opt-text">{cleanOption}</div>
+                    <div className="aep-opt-radio">
+                      <div className={`aep-radio-inner ${isSelected ? 'aep-active' : ''}`}></div>
                     </div>
                   </div>
                 );
@@ -330,23 +332,23 @@ function AttemptExamPage() {
           </div>
         </div>
 
-        <div className="side-panel">
-          <div className="status-summary">
+        <div className="aep-side-panel">
+          <div className="aep-status-summary">
             <h3>Exam Status</h3>
-            <div className="summary-grid">
-              <div className="s-box alt-attempted"><b>{attemptedCount}</b> Answered</div>
-              <div className="s-box alt-unattempted"><b>{unattemptedCount}</b> Unanswered</div>
-              <div className="s-box alt-review"><b>{reviewCount}</b> Marked</div>
+            <div className="aep-summary-grid">
+              <div className="aep-s-box aep-alt-attempted"><b>{attemptedCount}</b> Answered</div>
+              <div className="aep-s-box aep-alt-unattempted"><b>{unattemptedCount}</b> Unanswered</div>
+              <div className="aep-s-box aep-alt-review"><b>{reviewCount}</b> Marked</div>
             </div>
           </div>
-          <div className="palette-container">
+          <div className="aep-palette-container">
             <h3>Question Palette</h3>
-            <div className="palette-grid">
+            <div className="aep-palette-grid">
               {questions.map((q, index) => {
                 const isAttempted = !!answers[q._id];
                 const isReview = !!reviewStatus[q._id];
                 const isActive = currentIndex === index;
-                const classNames = ["palette-btn", isAttempted ? "answered" : "unanswered", isReview ? "review" : "", isActive ? "current" : ""].filter(Boolean).join(" ");
+                const classNames = ["aep-palette-btn", isAttempted ? "aep-answered" : "aep-unanswered", isReview ? "aep-review" : "", isActive ? "aep-current" : ""].filter(Boolean).join(" ");
                 return (
                   <button key={q._id} onClick={() => setCurrentIndex(index)} className={classNames}>
                     {index + 1}
@@ -358,13 +360,13 @@ function AttemptExamPage() {
         </div>
       </div>
 
-      <div className="bottom-nav-bar">
-        <div className="nav-group">
-          <button className="nav-btn prev" disabled={currentIndex === 0} onClick={prevQuestion}>← Previous</button>
-          <button className="nav-btn clear" onClick={() => clearResponse(currentQuestion._id)} disabled={!answers[currentQuestion._id]}>Clear Response</button>
-          <button className="nav-btn next" disabled={currentIndex === questions.length - 1} onClick={nextQuestion}>Next →</button>
+      <div className="aep-bottom-nav-bar">
+        <div className="aep-nav-group">
+          <button className="aep-nav-btn aep-prev" disabled={currentIndex === 0} onClick={prevQuestion}>← Previous</button>
+          <button className="aep-nav-btn aep-clear" onClick={() => clearResponse(currentQuestion._id)} disabled={!answers[currentQuestion._id]}>Clear Response</button>
+          <button className="aep-nav-btn aep-next" disabled={currentIndex === questions.length - 1} onClick={nextQuestion}>Next →</button>
         </div>
-        <button className="submit-exam-btn" onClick={() => setShowSubmitModal(true)}>Submit Exam</button>
+        <button className="aep-submit-exam-btn" onClick={() => setShowSubmitModal(true)}>Submit Exam</button>
       </div>
 
       <PopupModal

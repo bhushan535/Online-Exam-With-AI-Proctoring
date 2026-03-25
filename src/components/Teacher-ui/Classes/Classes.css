@@ -122,10 +122,23 @@
     box-shadow: var(--shadow-lg);
 }
 
-.card-badge {
+.class-card-modern h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+    font-weight: 700;
+}
+
+.card-badge-container {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.card-badge {
     padding: 0.4rem 0.8rem;
     background: var(--glass-border);
     border-radius: 10px;
@@ -134,10 +147,25 @@
     color: var(--text-muted);
 }
 
-.class-card-modern h3 {
-    font-size: 1.4rem;
-    margin-bottom: 1.2rem;
-    font-weight: 700;
+.status-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.completed {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .card-details {

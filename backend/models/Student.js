@@ -36,6 +36,17 @@ const studentSchema = new mongoose.Schema({
           ref: "Class",
         },
       ],
+      examResults: [
+        {
+          examId: { type: mongoose.Schema.Types.ObjectId, ref: "Exam" },
+          examName: String,
+          subject: String,
+          score: Number,
+          totalMarks: Number,
+          percentage: Number,
+          grade: String
+        }
+      ],
       completedAt: {
         type: Date,
         default: Date.now,
@@ -57,6 +68,15 @@ const studentSchema = new mongoose.Schema({
   },
 });
 
-studentSchema.index({ enrollmentNo: 1, organizationId: 1, addedBy: 1 }, { unique: true });
+// Handle uniqueness differently for Organization vs Solo
+studentSchema.index({ enrollmentNo: 1, organizationId: 1 }, { 
+  unique: true, 
+  partialFilterExpression: { organizationId: { $ne: null } } 
+});
+
+studentSchema.index({ enrollmentNo: 1, addedBy: 1 }, { 
+  unique: true, 
+  partialFilterExpression: { organizationId: null } 
+});
 
 module.exports = mongoose.model("Student", studentSchema);

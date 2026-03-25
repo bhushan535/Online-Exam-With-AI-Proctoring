@@ -19,9 +19,17 @@ function JoinClass() {
   // Fetch class metadata to show at top of form
   useEffect(() => {
     fetch(`${BASE_URL}/join-class-info/${classId}`)
-      .then(r => r.json())
-      .then(d => { if (d.success) setClassInfo(d); })
-      .catch(() => {});
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok || !data.success) {
+          setErrorMsg(data.message || "Unable to join this class right now.");
+          return;
+        }
+        setClassInfo(data);
+      })
+      .catch(() => {
+        setErrorMsg("Failed to connect to the server.");
+      });
   }, [classId]);
 
   const handleJoin = async (e) => {
@@ -67,18 +75,27 @@ function JoinClass() {
           <h2 className="jc-title">Join Class</h2>
         </div>
 
-        {classInfo && (
-          <div className="jc-class-banner">
-            <strong>{classInfo.className}</strong>
-            &nbsp;·&nbsp; {classInfo.semester}
-            &nbsp;·&nbsp; {classInfo.branch}
+        {errorMsg && !classInfo && (
+          <div className="jc-error-box">
+             <p>{errorMsg}</p>
+             <button onClick={() => navigate("/StudentLogin")} className="jc-btn-outline">Go to Login</button>
           </div>
         )}
 
         {successMsg ? (
           <div className="jc-success">{successMsg}</div>
-        ) : (
+        ) : classInfo && (
           <>
+            <div className="jc-class-banner">
+              <strong>{classInfo.className}</strong>
+              &nbsp;·&nbsp; {classInfo.semester}
+              &nbsp;·&nbsp; {classInfo.branch}
+              {classInfo.mode === 'solo' && (
+                <div className="jc-capacity">
+                  {classInfo.currentStudents} / {classInfo.maxStudents} Students Joined
+                </div>
+              )}
+            </div>
             <form onSubmit={handleJoin} className="jc-form">
 
               <input

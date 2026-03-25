@@ -149,7 +149,10 @@ function Classes() {
         <div className="classes-grid">
           {currentClasses.map((cls) => (
             <div className="class-card-modern" key={cls._id}>
-              <div className="card-badge">{cls.branch}</div>
+              <div className="card-badge-container">
+                <span className="card-badge">{cls.branch}</span>
+                <span className={`status-badge ${cls.status || 'active'}`}>{cls.status || 'active'}</span>
+              </div>
               <h3>{cls.className}</h3>
               <div className="card-details">
                 <p><span>Semester:</span> {cls.semester}</p>

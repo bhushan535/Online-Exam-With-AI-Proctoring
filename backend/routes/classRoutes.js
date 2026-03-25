@@ -80,12 +80,19 @@ router.get("/classes", authenticate, async (req, res) => {
   try {
     const userId = req.userId || (req.user && req.user._id);
     const orgId = req.organizationId || null;
+    const { status } = req.query;
+
     let filter = {};
     if (req.userRole === 'principal' || (req.userRole === 'teacher' && req.userMode === 'organization')) {
       filter = { organizationId: orgId };
     } else {
       filter = { teacherId: userId, mode: 'solo' };
     }
+
+    if (status) {
+      filter.status = status;
+    }
+
     const classes = await Class.find(filter).sort({ createdAt: -1 });
     res.json(classes);
   } catch (err) { res.status(500).json({ message: err.message }); }
@@ -218,6 +225,17 @@ router.get("/join-class-info/:classId", async (req, res) => {
     const cls = await Class.findById(req.params.classId);
     if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
 
+    // Validation checks for registration
+    if (cls.status !== 'active') {
+        return res.status(400).json({ success: false, message: `Registration closed. This class is ${cls.status}.` });
+    }
+    if (!cls.registrationOpen) {
+        return res.status(400).json({ success: false, message: "Registration for this class has been closed by the teacher." });
+    }
+    if (cls.registrationDeadline && new Date() > new Date(cls.registrationDeadline)) {
+        return res.status(400).json({ success: false, message: "Registration deadline has passed." });
+    }
+
     let orgName = "Institution";
     if (cls.organizationId) {
       const org = await Organization.findById(cls.organizationId);
@@ -230,7 +248,10 @@ router.get("/join-class-info/:classId", async (req, res) => {
       branch: cls.branch,
       semester: cls.semester,
       year: cls.year,
-      organizationName: orgName
+      mode: cls.mode,
+      organizationName: orgName,
+      maxStudents: cls.maxStudents,
+      currentStudents: cls.students.length
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -245,6 +266,17 @@ router.post("/class/join/:classId", async (req, res) => {
     const classDoc = await Class.findById(classId);
     if (!classDoc) return res.status(404).json({ success: false, message: "Class not found" });
 
+    // Validation checks for registration
+    if (classDoc.status !== 'active') {
+        return res.status(400).json({ success: false, message: `Registration closed. This class is ${classDoc.status}.` });
+    }
+    if (!classDoc.registrationOpen) {
+        return res.status(400).json({ success: false, message: "Registration for this class has been closed by the teacher." });
+    }
+    if (classDoc.registrationDeadline && new Date() > new Date(classDoc.registrationDeadline)) {
+        return res.status(400).json({ success: false, message: "Registration deadline has passed." });
+    }
+
     const normalizedEnrollment = enrollment?.toString().trim().toUpperCase();
     if (!normalizedEnrollment || !name || !password) {
         return res.status(400).json({ success: false, message: "Incomplete data. Please fill all fields." });
@@ -258,23 +290,35 @@ router.post("/class/join/:classId", async (req, res) => {
         });
     }
 
-    // 1. Ensure User linkage exists (Scoped for Solo)
+    // 1. Ensure User linkage exists (Scoped for Solo or Org)
+    // Hardened uniqueness: enrollment@org-ID.online-exam.com ensures no cross-institution collisions
     const syntheticEmail = classDoc.mode === 'solo'
-        ? `${normalizedEnrollment.toLowerCase()}.t${classDoc.teacherId}@solo.exam.com`
-        : `${normalizedEnrollment.toLowerCase()}@institution.com`;
+        ? `${normalizedEnrollment.toLowerCase()}@solo.exam.com`
+        : `${normalizedEnrollment.toLowerCase()}@org-${classDoc.organizationId}.exam.com`;
 
     let user = await User.findOne({ email: syntheticEmail });
     
     if (!user) {
-        user = new User({
-            name,
-            email: syntheticEmail,
-            password,
-            role: 'student',
-            mode: classDoc.mode,
-            organizationId: classDoc.organizationId
+        // Fallback: In case they migrated from legacy @institution.com, try to bridge them
+        // (Optional: for newly created users, always use the new pattern)
+        user = await User.findOne({ 
+            role: 'student', 
+            mode: classDoc.mode, 
+            organizationId: classDoc.organizationId,
+            email: new RegExp(`^${normalizedEnrollment.toLowerCase()}@`, 'i')
         });
-        await user.save();
+
+        if (!user) {
+            user = new User({
+                name,
+                email: syntheticEmail,
+                password,
+                role: 'student',
+                mode: classDoc.mode,
+                organizationId: classDoc.organizationId
+            });
+            await user.save();
+        }
     }
 
     // 2. Ensure Student Profile exists and is synced (Scoped for Solo)
@@ -306,21 +350,23 @@ router.post("/class/join/:classId", async (req, res) => {
         await studentProfile.save();
     }
 
-    // 3. Update Class Roster
+    // 3. Check for existing registration in this specific class
     const exists = classDoc.students.find(st => st.enrollment === normalizedEnrollment);
-    if (!exists) {
-        classDoc.students.push({
-            rollNo: Number(rollNo),
-            enrollment: normalizedEnrollment,
-            name,
-            password,
-            joinedAt: new Date()
+    if (exists) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "This enrollment number is already registered for this particular class, semester, and year." 
         });
-    } else {
-        exists.rollNo = Number(rollNo);
-        exists.name = name;
-        exists.password = password;
     }
+
+    // 4. Update Class Roster
+    classDoc.students.push({
+        rollNo: Number(rollNo),
+        enrollment: normalizedEnrollment,
+        name,
+        password,
+        joinedAt: new Date()
+    });
 
     await classDoc.save();
     res.json({ success: true, message: "Joined class successfully" });
@@ -351,21 +397,31 @@ router.post("/class/import-students/:classId", authenticate, async (req, res) =>
 
             // 1. Ensure User linkage exists (Scoped for Solo)
             const syntheticEmail = classDoc.mode === 'solo'
-                ? `${enrollment.toLowerCase()}.t${classDoc.teacherId}@solo.exam.com`
-                : `${enrollment.toLowerCase()}@institution.com`;
+                ? `${enrollment.toLowerCase()}@solo.exam.com`
+                : `${enrollment.toLowerCase()}@org-${classDoc.organizationId}.exam.com`;
 
             let user = await User.findOne({ email: syntheticEmail });
             
             if (!user) {
-                user = new User({
-                    name: s.name,
-                    email: syntheticEmail,
-                    password: s.password,
-                    role: 'student',
-                    mode: classDoc.mode,
-                    organizationId: classDoc.organizationId
+                // Bridge fallback for legacy @institution.com users
+                user = await User.findOne({ 
+                    role: 'student', 
+                    mode: classDoc.mode, 
+                    organizationId: classDoc.organizationId,
+                    email: new RegExp(`^${enrollment.toLowerCase()}@`, 'i')
                 });
-                await user.save();
+
+                if (!user) {
+                    user = new User({
+                        name: s.name,
+                        email: syntheticEmail,
+                        password: s.password,
+                        role: 'student',
+                        mode: classDoc.mode,
+                        organizationId: classDoc.organizationId
+                    });
+                    await user.save();
+                }
             }
 
             // 2. Ensure Student Profile exists and is synced (Scoped for Solo)
@@ -446,6 +502,44 @@ router.delete("/class/:id/student/:enrollment", authenticate, async (req, res) =
     } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
+router.get("/class/:id/org-students", authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { query } = req.query;
+        const cls = await Class.findById(id);
+        if (!cls) return res.status(404).json({ success: false, message: "Class not found" });
+
+        const orgId = req.organizationId;
+        if (!orgId) return res.status(403).json({ success: false, message: "Organization context missing" });
+
+        // Get enrollments already in class
+        const existingEnrollments = cls.students.map(s => s.enrollment);
+
+        // Build filter for students in organization not in this class
+        let filter = { 
+            organizationId: orgId,
+            enrollmentNo: { $nin: existingEnrollments },
+            status: 'active'
+        };
+
+        const students = await Student.find(filter).populate('userId');
+        
+        // Filter by search query if provided
+        let filteredStudents = students;
+        if (query) {
+            const q = query.toLowerCase();
+            filteredStudents = students.filter(s => 
+                s.enrollmentNo.toLowerCase().includes(q) || 
+                (s.userId?.name && s.userId.name.toLowerCase().includes(q))
+            );
+        }
+
+        res.json({ success: true, students: filteredStudents });
+    } catch (err) { 
+        res.status(500).json({ success: false, message: err.message }); 
+    }
+});
+
 router.post("/class/:classId/add-org-students", authenticate, async (req, res) => {
     try {
         const { classId } = req.params;
@@ -463,6 +557,119 @@ router.post("/class/:classId/add-org-students", authenticate, async (req, res) =
         await cls.save();
         res.json({ success: true, message: `Successfully added ${addedCount} students to class.` });
     } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// ==============================
+// BULK CLASS PROMOTION
+// ==============================
+router.post("/classes/bulk-promote", authenticate, async (req, res) => {
+    try {
+        const { classIds, newSemester, newYear } = req.body;
+        if (!classIds || !Array.isArray(classIds) || !newSemester) {
+            return res.status(400).json({ success: false, message: "Required fields missing: Class list and Target Semester." });
+        }
+
+        const Student = require('../models/Student');
+        const results = { classesPromoted: 0, studentsPromoted: 0, errors: [] };
+
+        for (const classId of classIds) {
+            try {
+                const cls = await Class.findById(classId);
+                if (!cls) continue;
+
+                // 1. Identify exams specifically for this class to isolate results
+                const classExamIds = await Exam.find({ classId: cls._id }).distinct('_id');
+
+                // 2. Promote each student profile linked to this organization
+                const enrollments = cls.students.map(s => s.enrollment);
+                const students = await Student.find({ 
+                    enrollmentNo: { $in: enrollments },
+                    organizationId: req.organizationId,
+                    status: 'active'
+                });
+
+                for (let student of students) {
+                    // FETCH RESULTS ONLY FOR EXAMS BELONGING TO THIS CLASS (Isolation Fix)
+                    const studentResults = await Result.find({ 
+                        studentId: student.enrollmentNo,
+                        examId: { $in: classExamIds }
+                    });
+
+                    const examResultsList = [];
+                    for (let r of studentResults) {
+                        const exam = await Exam.findById(r.examId);
+                        examResultsList.push({
+                            examId: r.examId,
+                            examName: exam?.examName || "Unknown",
+                            subject: exam?.subject || "Unknown",
+                            score: r.score,
+                            totalMarks: r.totalMarks,
+                            percentage: r.percentage,
+                            grade: r.grade
+                        });
+                    }
+
+                    // Save history snapshot using OLD class metadata (Integrity Fix)
+                    const historySemester = cls.semester;
+                    const historyYear = cls.year;
+                    
+                    const alreadyExists = student.academicHistory.find(h => 
+                        h.semester === historySemester && 
+                        h.year === historyYear
+                    );
+
+                    if (!alreadyExists) {
+                        student.academicHistory.push({
+                            year: historyYear,
+                            semester: historySemester,
+                            classes: [cls._id],
+                            examResults: examResultsList,
+                            completedAt: new Date()
+                        });
+                    }
+                    
+                    student.currentSemester = newSemester;
+                    if (newYear) student.currentYear = newYear;
+                    await student.save();
+                    results.studentsPromoted++;
+                }
+
+                // 3. Create new class instance for next semester
+                const newClass = new Class({
+                    className: cls.className,
+                    semester: newSemester,
+                    branch: cls.branch,
+                    year: newYear || cls.year,
+                    description: cls.description,
+                    maxStudents: cls.maxStudents,
+                    students: cls.students,
+                    createdBy: cls.createdBy,
+                    teacherId: cls.teacherId,
+                    mode: cls.mode,
+                    organizationId: cls.organizationId,
+                    registrationOpen: false,
+                    status: 'active'
+                });
+                await newClass.save();
+
+                // 4. Mark old instance as completed
+                cls.status = 'completed';
+                await cls.save();
+                results.classesPromoted++;
+
+            } catch (err) {
+                results.errors.push(`Error promoting class ${classId}: ${err.message}`);
+            }
+        }
+
+        res.json({ 
+            success: true, 
+            message: `Bulk promotion finalized.`,
+            stats: results
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 module.exports = router;

@@ -47,8 +47,8 @@ function CreateExam() {
     /* FETCHING DATA */
     useEffect(() => {
         if (token) {
-            // Fetch classes
-            fetch(`${BASE_URL}/classes`, {
+            // Fetch classes (Only Active)
+            fetch(`${BASE_URL}/classes?status=active`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())
