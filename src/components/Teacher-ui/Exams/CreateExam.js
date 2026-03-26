@@ -29,7 +29,7 @@ function CreateExam() {
     /* PROCTORING CONFIG */
     const [proctoringConfig, setProctoringConfig] = useState({
         enabled: true,
-        autoSubmitLimit: 0,
+        autoSubmitLimit: 5,
         requireFullScreen: false,
         disableTabSwitching: false,
         warningLimit: 3

@@ -24,7 +24,7 @@ function EditExam() {
     isPublished: false,
     proctoringConfig: {
       enabled: true,
-      autoSubmitLimit: 0,
+      autoSubmitLimit: 5,
       requireFullScreen: false,
       disableTabSwitching: false,
       warningLimit: 3
@@ -73,7 +73,7 @@ function EditExam() {
           isPublished: exam.isPublished || false,
           proctoringConfig: exam.proctoringConfig || {
             enabled: true,
-            autoSubmitLimit: 0,
+            autoSubmitLimit: 5,
             requireFullScreen: false,
             disableTabSwitching: false,
             warningLimit: 3
@@ -239,7 +239,7 @@ function EditExam() {
                       ...form,
                       proctoringConfig: {
                         enabled: isEn,
-                        autoSubmitLimit: 0,
+                        autoSubmitLimit: 5,
                         requireFullScreen: isEn,
                         disableTabSwitching: isEn,
                         warningLimit: 3

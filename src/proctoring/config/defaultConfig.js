@@ -38,7 +38,7 @@ export const defaultConfig = {
   },
 
   strikes: {
-    autoSubmitAt: 3,
+    autoSubmitAt: 5,
     mediumToHighRatio: 2,     // Every 2 medium = 1 high strike
   },
 

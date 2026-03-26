@@ -266,8 +266,8 @@ function AttemptExamPage() {
               <div className="aep-pulse-dot"></div>
               <span className="aep-badge-text">AI Proctoring Active</span>
               <div className="aep-badge-divider"></div>
-              <span className={`aep-warning-count ${warningCount >= (proctoringConfig?.strikes?.autoSubmitAt || 5) - 1 ? 'aep-critical' : ''}`}>
-                Warnings: {warningCount}/{proctoringConfig?.strikes?.autoSubmitAt || 5}
+              <span className={`aep-warning-count ${warningCount >= (proctoringConfig?.autoSubmitLimit || 5) - 1 ? 'aep-critical' : ''}`}>
+                Warnings: {warningCount}/{proctoringConfig?.autoSubmitLimit || 5}
               </span>
             </div>
             <div className="aep-header-right">
