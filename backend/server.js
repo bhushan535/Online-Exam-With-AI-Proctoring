@@ -5,15 +5,23 @@ const cors = require("cors");
 
 const app = express();
 
-// CORS — allow localhost + Vercel domain
 app.use(cors({
   origin: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    /\.vercel\.app$/       // allow all *.vercel.app subdomains
+    "https://e-exam-edge.vercel.app"
   ],
   credentials: true
 }));
+// CORS — allow localhost + Vercel domain
+// app.use(cors({
+//   origin: [
+//     "http://localhost:3000",
+//     "http://127.0.0.1:3000",
+//     e-exam-edge.vercel.app      // allow all *.vercel.app subdomains
+//   ],
+//   credentials: true
+// }));
 app.get("/", (req, res) => {
   res.send("e-ExamEdge Backend Running");
 });
