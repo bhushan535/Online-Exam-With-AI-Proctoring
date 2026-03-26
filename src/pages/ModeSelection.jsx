@@ -12,8 +12,8 @@ const ModeSelection = () => {
         <BackButton to="/" />
 
         <div className="mode-hero">
-          <div className="mode-badge">Institutional Ecosystem</div>
-          <h1>Choose Your Registry Mode</h1>
+          <div className="mode-badge">| e-ExamEdge</div>
+          <h1>Choose Your Registration Mode</h1>
           <p>Select the registration path that aligns with your institutional role</p>
         </div>
 
