@@ -80,7 +80,7 @@ const Registration = ({ role, mode }) => {
           <div className="reg-icon-wrapper">
             <FaGraduationCap />
           </div>
-          <h2>{role === 'principal' ? 'Institution Roster' : 'Faculty Onboarding'}</h2>
+          <h2>{role === 'principal' ? 'Organization Registration' : 'Private Registration'}</h2>
           <p>Create your Organization profile to begin</p>
         </div>
 
