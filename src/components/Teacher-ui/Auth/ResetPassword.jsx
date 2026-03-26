@@ -35,7 +35,7 @@ function ResetPassword() {
         body: JSON.stringify({ password }),
       });
       const data = await response.json();
-      
+
       if (data.success) {
         setMessage(data.message);
         setTimeout(() => navigate("/login"), 3000);
@@ -52,14 +52,14 @@ function ResetPassword() {
   return (
     <div className="login-wrapper">
       <Link to="/login" className="back-to-home"><FaArrowLeft /> Back to Login</Link>
-      
+
       <div className="login-glass-card animate-slide-up">
         <div className="login-header">
-           <div className="login-icon-box">
-             <FaShieldAlt />
-           </div>
-           <h2>Update Access Key</h2>
-           <p>Set a new secure password for your account</p>
+          <div className="login-icon-box">
+            <FaShieldAlt />
+          </div>
+          <h2>Update Password</h2>
+          <p>Set a new password for your account</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>

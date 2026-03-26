@@ -42,45 +42,45 @@ function StudentLogin() {
           <div className="sl-icon-box">
             <FaUserGraduate />
           </div>
-          <h2>Student Portal</h2>
+          <h2>Student Login</h2>
           <p>Enter your credentials to access your dashboard</p>
         </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
-        <div className="input-container">
-          <FaIdCard className="field-icon" />
-          <input
-            className="sl-input"
-            type="text"
-            placeholder="Enrollment Number"
-            value={enrollment}
-            autoFocus
-            onChange={(e) => { setEnrollment(e.target.value); setErrorMsg(""); }}
-          />
+        <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+          <div className="input-container">
+            <FaIdCard className="field-icon" />
+            <input
+              className="sl-input"
+              type="text"
+              placeholder="Enrollment Number"
+              value={enrollment}
+              autoFocus
+              onChange={(e) => { setEnrollment(e.target.value); setErrorMsg(""); }}
+            />
+          </div>
+
+          <div className="input-container">
+            <FaLock className="field-icon" />
+            <input
+              className="sl-input"
+              type="password"
+              placeholder="Secure Password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setErrorMsg(""); }}
+            />
+          </div>
+
+          {errorMsg && <div className="sl-login-error-msg">{errorMsg}</div>}
+
+          <button type="submit" className="sl-btn" disabled={loading}>
+            {loading ? "Identifying..." : "Portal Access"}
+          </button>
+        </form>
+
+        <div className="sl-hypertext">
+          <span>Need access? </span>
+          <Link to="#">Contact your Teacher</Link>
         </div>
-
-        <div className="input-container">
-          <FaLock className="field-icon" />
-          <input
-            className="sl-input"
-            type="password"
-            placeholder="Secure Password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setErrorMsg(""); }}
-          />
-        </div>
-
-        {errorMsg && <div className="sl-login-error-msg">{errorMsg}</div>}
-
-        <button type="submit" className="sl-btn" disabled={loading}>
-          {loading ? "Identifying..." : "Portal Access"}
-        </button>
-      </form>
-
-      <div className="sl-hypertext">
-        <span>Need access? </span>
-        <Link to="#">Contact your administrator</Link>
-      </div>
       </div>
     </div>
   );

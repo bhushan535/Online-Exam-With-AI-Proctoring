@@ -24,7 +24,7 @@ const ModeSelection = () => {
             <div className="mode-icon-box">
               <FaUserPlus />
             </div>
-            <h2>Private Exam</h2>
+            <h2>Private Account</h2>
             <p>Individual practitioners and personal exam management</p>
             <ul className="mode-features">
               <li><FaCheckCircle className="check" /> Independent Class Control</li>

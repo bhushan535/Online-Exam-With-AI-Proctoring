@@ -40,10 +40,10 @@ function ForgotPassword() {
         body: JSON.stringify({ email, mode, role }),
       });
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setMessage(data.message);
-        setCooldown(60); 
+        setCooldown(60);
       } else {
         if (response.status === 429) {
           setError(data.message || "Too many requests. Please wait.");
@@ -68,38 +68,38 @@ function ForgotPassword() {
   return (
     <div className="login-wrapper">
       <Link to="/login" className="back-to-home"><FaArrowLeft /> Back to Login</Link>
-      
+
       <div className="login-glass-card animate-slide-up">
         <div className="login-header">
-           <div className="login-icon-box">
-             <FaShieldAlt />
-           </div>
-           <h2>{role === 'principal' ? 'Admin Recovery' : 'Reset Access'}</h2>
-           <p>{role === 'principal' ? 'Recover your organization account' : 'Provide your email to receive a secure reset link'}</p>
+          <div className="login-icon-box">
+            <FaShieldAlt />
+          </div>
+          <h2>{role === 'principal' ? 'Admin Recovery' : 'Reset Access'}</h2>
+          <p>{role === 'principal' ? 'Recover your organization account' : 'Provide your email to receive a secure reset link'}</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
           {role !== 'principal' && (
             <div className="mode-selection-mini">
               <label className={`mode-option ${mode === 'organization' ? 'active' : ''}`}>
-                <input 
-                  type="radio" 
-                  name="mode" 
-                  value="organization" 
+                <input
+                  type="radio"
+                  name="mode"
+                  value="organization"
                   checked={mode === 'organization'}
                   onChange={() => setMode('organization')}
                 />
                 <FaUserTie /> Organization
               </label>
               <label className={`mode-option ${mode === 'solo' ? 'active' : ''}`}>
-                <input 
-                  type="radio" 
-                  name="mode" 
-                  value="solo" 
+                <input
+                  type="radio"
+                  name="mode"
+                  value="solo"
                   checked={mode === 'solo'}
                   onChange={() => setMode('solo')}
                 />
-                <FaUser /> Solo Mode
+                <FaUser /> Private
               </label>
             </div>
           )}
@@ -118,9 +118,9 @@ function ForgotPassword() {
           {message && <div className="login-success-v2">{message}</div>}
           {error && <div className="login-error-v2">{error}</div>}
 
-          <button 
-            type="submit" 
-            className="login-submit-v2" 
+          <button
+            type="submit"
+            className="login-submit-v2"
             disabled={loading || cooldown > 0}
             style={{ opacity: (loading || cooldown > 0) ? 0.7 : 1 }}
           >
@@ -130,7 +130,7 @@ function ForgotPassword() {
 
         <div className="login-footer-links">
           <span>Remembered password?</span>
-          <Link to="/login">Secure Login</Link>
+          <Link to="/login">Login</Link>
         </div>
       </div>
 

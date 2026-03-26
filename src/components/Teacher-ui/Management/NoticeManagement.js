@@ -78,115 +78,115 @@ const NoticeManagement = () => {
 
   if (loading) return (
     <div className="nm-loading">
-        <div className="nm-spinner"></div>
-        <p>Accessing bulletin archives...</p>
+      <div className="nm-spinner"></div>
+      <p>Accessing bulletin archives...</p>
     </div>
   );
 
   return (
     <div className="notice-management-container">
       <BackButton to="/TeacherHome" />
-      
+
       <div className="nm-header">
         <div className="nm-header-left">
-          <h2><FaBullhorn /> Institutional Bulletins</h2>
-          <p>Deploy real-time announcements to the entire academic community.</p>
+          <h2><FaBullhorn /> Notice Management</h2>
+          <p>Send notices to the faculty members.</p>
         </div>
         <button className={showAddForm ? "cancel-broadcast-btn" : "add-broadcast-btn"} onClick={() => setShowAddForm(!showAddForm)}>
-          {showAddForm ? <><FaTimes /> Close Console</> : <><FaPlus /> Create Broadcast</>}
+          {showAddForm ? <><FaTimes /> Close </> : <><FaPlus /> Create Broadcast</>}
         </button>
       </div>
 
       {error && (
         <div className="nm-alert-banner">
-            <FaExclamationTriangle />
-            <span>{error}</span>
-            <button onClick={() => setError('')}>&times;</button>
+          <FaExclamationTriangle />
+          <span>{error}</span>
+          <button onClick={() => setError('')}>&times;</button>
         </div>
       )}
 
       {showAddForm && (
         <div className="broadcast-console-card animate-pop-in">
           <div className="console-header">
-            <h3>New Broadcast Transmission</h3>
-            <p>Configure visibility and priority for this notice.</p>
+            <h3>Create Notice</h3>
+            <p>Configure priority for this notice.</p>
           </div>
           <form onSubmit={handleCreateNotice}>
             <div className="form-grid-v2">
-                <div className="form-group-v2 full-width">
-                <label>Bulletin Title</label>
-                <input 
-                    type="text" 
-                    placeholder="Enter a descriptive headline..."
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    required
+              <div className="form-group-v2 full-width">
+                <label>Notice Title</label>
+                <input
+                  type="text"
+                  placeholder="Enter a descriptive headline..."
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  required
                 />
-                </div>
-                <div className="form-group-v2 full-width">
+              </div>
+              <div className="form-group-v2 full-width">
                 <label>Content Description</label>
-                <textarea 
-                    placeholder="Provide full details of the announcement..."
-                    value={formData.content}
-                    onChange={(e) => setFormData({...formData, content: e.target.value})}
-                    required
+                <textarea
+                  placeholder="Provide full details of the announcement..."
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  required
                 />
+              </div>
+              <div className="form-group-v2">
+                <label>Priority Level</label>
+                <div className="select-pill-wrapper">
+                  {['low', 'medium', 'high', 'urgent'].map(p => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={`priority-pill ${p} ${formData.priority === p ? 'active' : ''}`}
+                      onClick={() => setFormData({ ...formData, priority: p })}
+                    >
+                      {p}
+                    </button>
+                  ))}
                 </div>
-                <div className="form-group-v2">
-                    <label>Priority Level</label>
-                    <div className="select-pill-wrapper">
-                        {['low', 'medium', 'high', 'urgent'].map(p => (
-                            <button 
-                                key={p} 
-                                type="button" 
-                                className={`priority-pill ${p} ${formData.priority === p ? 'active' : ''}`}
-                                onClick={() => setFormData({...formData, priority: p})}
-                            >
-                                {p}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div className="form-group-v2">
+              </div>
+              <div className="form-group-v2">
                 <label>Auto-Archive Date</label>
                 <div className="input-with-icon">
-                    <FaCalendarAlt />
-                    <input 
-                        type="date" 
-                        value={formData.expiresAt}
-                        onChange={(e) => setFormData({...formData, expiresAt: e.target.value})}
-                    />
+                  <FaCalendarAlt />
+                  <input
+                    type="date"
+                    value={formData.expiresAt}
+                    onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+                  />
                 </div>
-                </div>
-                <div className="form-group-v2 full-width">
-                <label>Target Audience Permissions</label>
+              </div>
+              <div className="form-group-v2 full-width">
+                <label>Sends to </label>
                 <div className="permission-belt">
-                    <label className={`perm-chip ${formData.targetRoles.includes('teacher') ? 'active' : ''}`}>
-                    <input 
-                        type="checkbox" 
-                        checked={formData.targetRoles.includes('teacher')}
-                        onChange={(e) => {
-                        const roles = e.target.checked 
-                            ? [...formData.targetRoles, 'teacher']
-                            : formData.targetRoles.filter(r => r !== 'teacher');
-                        setFormData({...formData, targetRoles: roles});
-                        }}
+                  <label className={`perm-chip ${formData.targetRoles.includes('teacher') ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={formData.targetRoles.includes('teacher')}
+                      onChange={(e) => {
+                        const roles = e.target.checked
+                          ? [...formData.targetRoles, 'teacher']
+                          : formData.targetRoles.filter(r => r !== 'teacher');
+                        setFormData({ ...formData, targetRoles: roles });
+                      }}
                     /> <FaUsers /> Faculty Members
-                    </label>
-                    <label className={`perm-chip ${formData.targetRoles.includes('student') ? 'active' : ''}`}>
-                    <input 
-                        type="checkbox" 
-                        checked={formData.targetRoles.includes('student')}
-                        onChange={(e) => {
-                        const roles = e.target.checked 
-                            ? [...formData.targetRoles, 'student']
-                            : formData.targetRoles.filter(r => r !== 'student');
-                        setFormData({...formData, targetRoles: roles});
-                        }}
+                  </label>
+                  {/* <label className={`perm-chip ${formData.targetRoles.includes('student') ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={formData.targetRoles.includes('student')}
+                      onChange={(e) => {
+                        const roles = e.target.checked
+                          ? [...formData.targetRoles, 'student']
+                          : formData.targetRoles.filter(r => r !== 'student');
+                        setFormData({ ...formData, targetRoles: roles });
+                      }}
                     /> <FaUserGraduate /> Students
-                    </label>
+                  </label> */}
                 </div>
-                </div>
+              </div>
             </div>
             <button type="submit" className="nm-publish-btn">Deploy Broadcast</button>
           </form>
@@ -197,7 +197,7 @@ const NoticeManagement = () => {
         {notices.length === 0 ? (
           <div className="nm-empty-state">
             <FaBell />
-            <p>No active broadcasts in the institutional pipeline.</p>
+            <p>No active Notices in the institution currently.</p>
           </div>
         ) : (
           notices.map((notice) => (
@@ -217,7 +217,7 @@ const NoticeManagement = () => {
               </div>
               <div className="bulletin-footer">
                 <div className="audience-indicator">
-                    <FaUsers /> {notice.targetRoles.join(', ')}
+                  <FaUsers /> {notice.targetRoles.join(', ')}
                 </div>
               </div>
             </div>

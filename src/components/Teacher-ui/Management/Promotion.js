@@ -25,10 +25,10 @@ const Promotion = () => {
             fetch(`${BASE_URL}/principal/organization`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) setOrg(data.organization);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) setOrg(data.organization);
+                });
         }
     }, [token]);
 
@@ -67,16 +67,16 @@ const Promotion = () => {
         <div className="promotion-container">
             <BackButton to="/TeacherHome" />
             <Toast toasts={toasts} removeToast={removeToast} />
-            
+
             <header className="promotion-header">
                 <div className="promo-badge"><FaLevelUpAlt /> Academic Lifecycle Management</div>
-                <h1>Bulk Student Migration</h1>
-                <p>Advance student cohorts to the next semester and initialize new academic records.</p>
+                <h1>Bulk Student Promotion</h1>
+                <p>Promote students to the next semester and create new academic records.</p>
             </header>
 
             <div className="promo-warning-banner">
                 <FaShieldAlt />
-                <p><strong>Safety Protocol:</strong> Ensure all final grades for the current semester are published before proceeding with migration.</p>
+                <p><strong>Safety Protocol:</strong> Ensure all final grades for the current semester are published before proceeding with promotion.</p>
             </div>
 
             <form onSubmit={handlePromote} className="promotion-form-v2">
@@ -84,28 +84,28 @@ const Promotion = () => {
                     <div className="migration-card source">
                         <div className="m-card-header">
                             <FaHistory />
-                            <h3>Origin Cohort</h3>
+                            <h3>Promote From</h3>
                         </div>
                         <div className="m-card-body">
                             <div className="promo-input-group">
                                 <label>Department / Faculty</label>
-                                <select required value={formData.branch} onChange={e => setFormData({...formData, branch: e.target.value})}>
+                                <select required value={formData.branch} onChange={e => setFormData({ ...formData, branch: e.target.value })}>
                                     <option value="">Select Branch</option>
                                     {branches.map(b => <option key={b} value={b}>{b}</option>)}
                                 </select>
                             </div>
-                            
+
                             <div className="promo-input-group">
                                 <label>Current Semester</label>
-                                <select required value={formData.currentSemester} onChange={e => setFormData({...formData, currentSemester: e.target.value})}>
+                                <select required value={formData.currentSemester} onChange={e => setFormData({ ...formData, currentSemester: e.target.value })}>
                                     <option value="">Select Semester</option>
                                     {semesters.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
-                            
+
                             <div className="promo-input-group">
                                 <label>Academic Year</label>
-                                <select required value={formData.currentYear} onChange={e => setFormData({...formData, currentYear: e.target.value})}>
+                                <select required value={formData.currentYear} onChange={e => setFormData({ ...formData, currentYear: e.target.value })}>
                                     <option value="">Select Year</option>
                                     {years.map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
@@ -122,27 +122,27 @@ const Promotion = () => {
                     <div className="migration-card destination">
                         <div className="m-card-header">
                             <FaCheckDouble />
-                            <h3>Target Cohort</h3>
+                            <h3>Promote To</h3>
                         </div>
                         <div className="m-card-body">
                             <div className="promo-input-group">
-                                <label>Target Semester</label>
-                                <select required value={formData.newSemester} onChange={e => setFormData({...formData, newSemester: e.target.value})}>
+                                <label>Next Semester</label>
+                                <select required value={formData.newSemester} onChange={e => setFormData({ ...formData, newSemester: e.target.value })}>
                                     <option value="">Select Next Semester</option>
                                     {semesters.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
-                            
+
                             <div className="promo-input-group">
                                 <label>Next Academic Year</label>
-                                <select required value={formData.newYear} onChange={e => setFormData({...formData, newYear: e.target.value})}>
+                                <select required value={formData.newYear} onChange={e => setFormData({ ...formData, newYear: e.target.value })}>
                                     <option value="">Select Next Year</option>
                                     {years.map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
                             </div>
-                            <div className="m-info-footer">
-                                <p>Archive data will be generated automatically for the origin cohort.</p>
-                            </div>
+                            {/* <div className="m-info-footer">
+                                <p>Updated .</p>
+                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -150,9 +150,9 @@ const Promotion = () => {
                 <div className="promo-actions">
                     <button type="submit" className="migrate-btn" disabled={loading}>
                         {loading ? (
-                            <><span className="spinner-btn"></span> Processing Migration...</>
+                            <><span className="spinner-btn"></span> Processing updation...</>
                         ) : (
-                            <><FaLevelUpAlt /> Execute Student Migration</>
+                            <><FaLevelUpAlt /> Execute Student Promotion</>
                         )}
                     </button>
                     <p className="promo-disclaimer">By clicking, you acknowledge that this action will modify student records institutional-wide.</p>

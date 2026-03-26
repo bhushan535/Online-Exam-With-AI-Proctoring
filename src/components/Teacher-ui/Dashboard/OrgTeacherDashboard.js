@@ -36,11 +36,11 @@ const OrgTeacherDashboard = ({ user, org, token }) => {
       fetch(`${BASE_URL}${endpoint}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setStats(data.stats);
-      })
-      .catch(err => console.error("Stats error:", err));
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) setStats(data.stats);
+        })
+        .catch(err => console.error("Stats error:", err));
     }
   }, [user, token]);
 
@@ -130,11 +130,11 @@ const OrgTeacherDashboard = ({ user, org, token }) => {
               <h3>Students</h3>
               <p>Institutional student directory</p>
             </div>
-            <div className="card" onClick={() => navigate("/Analytics")}>
+            {/* <div className="card" onClick={() => navigate("/Analytics")}>
               <FaChartLine className="card-icon" />
               <h3>Analytics</h3>
               <p>Visual performance insights</p>
-            </div>
+            </div> */}
             <div className="card" onClick={() => navigate("/Notices")}>
               <FaBell className="card-icon" />
               <h3>Notices</h3>

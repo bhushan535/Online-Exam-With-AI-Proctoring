@@ -169,7 +169,7 @@ function CreateExam() {
 
             <div className="ce-header">
                 <div className="ce-badge"><FaPlus /> Welcome </div>
-                <h1>Initialize New Exam</h1>
+                <h1>Create New Exam</h1>
                 <p>Configure academic evaluation, parameters and proctoring protocols.</p>
             </div>
 
@@ -182,12 +182,12 @@ function CreateExam() {
                             <div className="ce-section glass-v2">
                                 <div className="section-head">
                                     <FaBook />
-                                    <h3>Academic Context</h3>
+                                    <h3>Academic Info</h3>
                                 </div>
 
                                 <div className="ce-input-row">
                                     <div className="ce-group full">
-                                        <label>Target Class</label>
+                                        <label>Class</label>
                                         <div className="ce-select-wrapper">
                                             <select
                                                 value={classId}
@@ -227,8 +227,8 @@ function CreateExam() {
                                             <select
                                                 value={subject}
                                                 onChange={(e) => {
-                                                    const sel = orgSubjects.find(s => s.name === e.target.value && 
-                                                        (!s.branch || s.branch === branch) && 
+                                                    const sel = orgSubjects.find(s => s.name === e.target.value &&
+                                                        (!s.branch || s.branch === branch) &&
                                                         (!s.semester || String(s.semester) === String(semester)));
                                                     handleSubjectSelect(sel ? { name: sel.name, code: sel.code } : { name: e.target.value, code: "" });
                                                 }}
@@ -261,11 +261,11 @@ function CreateExam() {
                             <div className="ce-section glass-v2">
                                 <div className="section-head">
                                     <FaCalendarAlt />
-                                    <h3>Evaluation Specs</h3>
+                                    <h3>Evaluation </h3>
                                 </div>
 
                                 <div className="ce-group">
-                                    <label>Exam Identity</label>
+                                    <label>Exam Name</label>
                                     <input
                                         placeholder="e.g. Unit Test I"
                                         value={examName}
@@ -290,15 +290,15 @@ function CreateExam() {
 
                                 <div className="ce-input-row three-col">
                                     <div className="ce-group">
-                                        <label>Questions</label>
+                                        <label>Total Questions</label>
                                         <input type="number" value={totalQuestions} onChange={(e) => setTotalQuestions(e.target.value)} min="1" required />
                                     </div>
                                     <div className="ce-group">
-                                        <label>Mins</label>
+                                        <label>Duration (Mins)</label>
                                         <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} min="1" required />
                                     </div>
                                     <div className="ce-group">
-                                        <label>Mark/Que</label>
+                                        <label>Marks /Question</label>
                                         <input type="number" value={marksPerQuestion} onChange={(e) => setMarksPerQuestion(e.target.value)} min="1" required />
                                     </div>
                                 </div>
@@ -318,16 +318,16 @@ function CreateExam() {
                                 <div className="proctoring-toggle-belt">
                                     <span>Enable AI Proctoring</span>
                                     <label className="ce-switch">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={proctoringConfig.enabled} 
-                                        onChange={(e) => setProctoringConfig({ 
-                                            ...proctoringConfig, 
-                                            enabled: e.target.checked,
-                                            requireFullScreen: e.target.checked,
-                                            disableTabSwitching: e.target.checked 
-                                        })} 
-                                    />
+                                        <input
+                                            type="checkbox"
+                                            checked={proctoringConfig.enabled}
+                                            onChange={(e) => setProctoringConfig({
+                                                ...proctoringConfig,
+                                                enabled: e.target.checked,
+                                                requireFullScreen: e.target.checked,
+                                                disableTabSwitching: e.target.checked
+                                            })}
+                                        />
                                         <span className="ce-slider"></span>
                                     </label>
                                 </div>
@@ -378,9 +378,9 @@ function CreateExam() {
                                     </div>
                                     <div className="ce-group">
                                         <label>Assigned Subject</label>
-                                        <input 
-                                            value={subject || "Select Class first..."} 
-                                            readOnly 
+                                        <input
+                                            value={subject || "Select Class first..."}
+                                            readOnly
                                             className="readonly-input highlight-v2"
                                             placeholder="Auto-populated from class..."
                                         />
@@ -432,7 +432,7 @@ function CreateExam() {
                                         <input
                                             type="checkbox"
                                             checked={proctoringConfig.enabled}
-                                            onChange={(e) => setProctoringConfig({ 
+                                            onChange={(e) => setProctoringConfig({
                                                 ...proctoringConfig,
                                                 enabled: e.target.checked,
                                                 requireFullScreen: e.target.checked,

@@ -103,9 +103,9 @@ function AddQuestion() {
 
     const res = await fetch(url, {
       method,
-      headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(payload),
     });
@@ -125,18 +125,18 @@ function AddQuestion() {
   /* ================= DELETE ================= */
   const deleteQuestion = async (id) => {
     try {
-        const res = await fetch(`${BASE_URL}/questions/${id}`, { 
-            method: "DELETE",
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            fetchQuestions();
-            showToast("Question removed.", "info");
-        } else {
-            showToast("Failed to delete question.", "error");
-        }
+      const res = await fetch(`${BASE_URL}/questions/${id}`, {
+        method: "DELETE",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchQuestions();
+        showToast("Question removed.", "info");
+      } else {
+        showToast("Failed to delete question.", "error");
+      }
     } catch (err) {
-        showToast("Network error.", "error");
+      showToast("Network error.", "error");
     }
   };
 
@@ -198,9 +198,9 @@ function AddQuestion() {
           </div>
           {isLimitReached && (
             <div className="aq-limit-banner">
-                <FaCheckCircle />
-                <p>Question limit reached. You can now finalize the exam.</p>
-                <button className="aq-done-btn" onClick={() => navigate("/Exams")}>Finalize & Return</button>
+              <FaCheckCircle />
+              <p>Question limit reached. You can now finalize the exam.</p>
+              <button className="aq-done-btn" onClick={() => navigate("/Exams")}>Finalize Questions</button>
             </div>
           )}
         </div>
@@ -214,7 +214,7 @@ function AddQuestion() {
             </div>
             <form onSubmit={handleSubmit} className="aq-form-v2">
               <div className="aq-group">
-                <label>Question Stimulus</label>
+                <label>Question </label>
                 <textarea
                   placeholder="Type the question content here..."
                   value={questionText}
@@ -245,21 +245,21 @@ function AddQuestion() {
               </div>
 
               <div className="aq-group">
-                <label>Correct Answer Key</label>
+                <label>Correct Answer </label>
                 <div className="aq-select-wrapper">
-                    <select
+                  <select
                     value={correctAnswer.trim()}
                     onChange={(e) => setCorrectAnswer(e.target.value)}
                     required
                     disabled={trimmedOptionsForDisplay.filter((o) => o !== "").length === 0}
-                    >
-                    <option value="">-- Select Answer Key --</option>
+                  >
+                    <option value="">-- Select Answer  --</option>
                     {trimmedOptionsForDisplay
-                        .filter((opt) => opt !== "")
-                        .map((opt, i) => (
+                      .filter((opt) => opt !== "")
+                      .map((opt, i) => (
                         <option key={i} value={opt}>{opt}</option>
-                        ))}
-                    </select>
+                      ))}
+                  </select>
                 </div>
               </div>
 
@@ -285,36 +285,36 @@ function AddQuestion() {
           <h3>Question List ({questions.length})</h3>
         </div>
         <div className="aq-cards-grid">
-            {questions.length === 0 ? (
-                <div className="aq-empty-state glass-v2">
-                    <FaInfoCircle />
-                    <p>No benchmarks found in the current assessment matrix.</p>
+          {questions.length === 0 ? (
+            <div className="aq-empty-state glass-v2">
+              <FaInfoCircle />
+              <p>No benchmarks found in the current assessment matrix.</p>
+            </div>
+          ) : (
+            questions.map((q, index) => (
+              <div className="aq-item-card glass-v2 animate-pop-in" key={q._id} style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="aq-card-header">
+                  <span className="q-index">Que {index + 1}</span>
+                  <div className="q-actions">
+                    <button className="aq-icon-btn edit" title="Edit" onClick={() => handleEdit(q)}><FaEdit /></button>
+                    <button className="aq-icon-btn delete" title="Delete" onClick={() => setDeleteModal({ open: true, targetId: q._id })}><FaTrash /></button>
+                  </div>
                 </div>
-            ) : (
-                questions.map((q, index) => (
-                    <div className="aq-item-card glass-v2 animate-pop-in" key={q._id} style={{ animationDelay: `${index * 0.1}s` }}>
-                        <div className="aq-card-header">
-                            <span className="q-index">STIMULUS {index + 1}</span>
-                            <div className="q-actions">
-                                <button className="aq-icon-btn edit" title="Edit" onClick={() => handleEdit(q)}><FaEdit /></button>
-                                <button className="aq-icon-btn delete" title="Delete" onClick={() => setDeleteModal({ open: true, targetId: q._id })}><FaTrash /></button>
-                            </div>
-                        </div>
-                        <div className="aq-card-body">
-                            <h4 className="q-text">{q.questionText}</h4>
-                            <div className="q-options-list">
-                            {q.options.map((op, i) => (
-                                <div key={i} className={`q-opt-item ${stripPrefix(op) === stripPrefix(q.correctAnswer) ? 'correct' : ''}`}>
-                                    <span className="opt-label">{["A", "B", "C", "D"][i]}</span>
-                                    <span className="opt-text">{stripPrefix(op)}</span>
-                                    {stripPrefix(op) === stripPrefix(q.correctAnswer) && <FaCheck className="check-v" />}
-                                </div>
-                            ))}
-                            </div>
-                        </div>
-                    </div>
-                ))
-            )}
+                <div className="aq-card-body">
+                  <h4 className="q-text">{q.questionText}</h4>
+                  <div className="q-options-list">
+                    {q.options.map((op, i) => (
+                      <div key={i} className={`q-opt-item ${stripPrefix(op) === stripPrefix(q.correctAnswer) ? 'correct' : ''}`}>
+                        <span className="opt-label">{["A", "B", "C", "D"][i]}</span>
+                        <span className="opt-text">{stripPrefix(op)}</span>
+                        {stripPrefix(op) === stripPrefix(q.correctAnswer) && <FaCheck className="check-v" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

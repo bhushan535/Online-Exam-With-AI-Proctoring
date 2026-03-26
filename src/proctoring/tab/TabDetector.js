@@ -1,18 +1,22 @@
 let switchCount = 0;
 let initialized = false;
 let violationCallback = null;
-let blurHandler = null;
-let focusHandler = null;
+let lastTabViolationTime = 0;
 
 function handleVisibilityChange() {
-  if (document.hidden || document.visibilityState === "hidden") {
+  if (document.visibilityState === "hidden") {
+    const now = Date.now();
+    // 10s cooldown between tab violations
+    if (now - lastTabViolationTime < 10000) return;
+    lastTabViolationTime = now;
+
     switchCount++;
     if (violationCallback) {
       violationCallback({
         type: "tab_switch",
         severity: switchCount >= 3 ? "high" : "medium",
         meta: {
-          timestamp: Date.now(),
+          timestamp: now,
           tabTitle: document.title
         }
       });
@@ -24,29 +28,9 @@ export function initTabDetector(onViolation) {
   if (initialized) return;
   violationCallback = onViolation;
 
-  // Detect tab switch
+  // Only detect actual tab/window switches via visibilitychange
+  // Window blur is NOT used — it fires on same-page clicks and causes false positives
   document.addEventListener("visibilitychange", handleVisibilityChange);
-
-  // Detect window minimize / alt+tab / click on another app
-  blurHandler = () => {
-    if (violationCallback) {
-      violationCallback({
-        type: "tab_switch",
-        severity: "medium",
-        meta: {
-          timestamp: Date.now(),
-          tabTitle: "Window minimized or focus lost"
-        }
-      });
-    }
-  };
-
-  focusHandler = () => {
-    // No violation on focus regain — just tracking state
-  };
-
-  window.addEventListener("blur", blurHandler);
-  window.addEventListener("focus", focusHandler);
 
   initialized = true;
 }
@@ -54,11 +38,8 @@ export function initTabDetector(onViolation) {
 export function destroyTabDetector() {
   if (!initialized) return;
   document.removeEventListener("visibilitychange", handleVisibilityChange);
-  if (blurHandler) window.removeEventListener("blur", blurHandler);
-  if (focusHandler) window.removeEventListener("focus", focusHandler);
   violationCallback = null;
   initialized = false;
   switchCount = 0;
-  blurHandler = null;
-  focusHandler = null;
+  lastTabViolationTime = 0;
 }

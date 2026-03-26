@@ -12,7 +12,7 @@
 .aep-exam-header {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1001;   /* Above violation banner (999) so AI badge + timer always visible */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -20,7 +20,7 @@
   background: var(--bg-card, #ffffff);
   border-bottom: 2px solid #000000;
   font-weight: 600;
-  height: 70px; /* Consistent height */
+  height: 70px;
 }
 
 .aep-header-left, .aep-header-right {
@@ -300,9 +300,9 @@
   justify-content: space-between;
   align-items: center;
   background: var(--bg-card, #1e293b);
-  padding: 12px 24px;
+  padding: 12px 24px 12px 130px; /* Left padding to clear camera circle */
   border-top: 1px solid var(--glass-border, #e5e7eb);
-  z-index: 100;
+  z-index: 10000; /* Above camera circle */
 }
 
 .aep-nav-group {

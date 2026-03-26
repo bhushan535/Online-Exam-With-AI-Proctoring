@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Toast    from "../../Common/Toast";
+import Toast from "../../Common/Toast";
 import useToast from "../../Common/useToast";
 import BackButton from "../../Common/BackButton";
 import { useAuth } from "../../../context/AuthContext";
@@ -26,15 +26,15 @@ function EditClass() {
       try {
         setLoading(true);
         const classRes = await fetch(`${BASE_URL}/class/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         const classData = await classRes.json();
-        
+
         if (classData) {
-            setClassName(classData.className);
-            setBranch(classData.branch);
-            setYear(classData.year);
-            setSemester(classData.semester);
+          setClassName(classData.className);
+          setBranch(classData.branch);
+          setYear(classData.year);
+          setSemester(classData.semester);
         }
       } catch (err) {
         showToast("Synchronization failed", "error");
@@ -52,9 +52,9 @@ function EditClass() {
     try {
       const res = await fetch(`${BASE_URL}/class/${id}`, {
         method: "PUT",
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ className, branch, semester, year }),
       });
@@ -84,17 +84,17 @@ function EditClass() {
       </div>
 
       <div className="ec-container glass-premium">
-        <h2>Edit Class Blueprint</h2>
+        <h2>Edit Class </h2>
         <p className="ec-subtitle">Update parameters for this academic session</p>
 
         <form className="edit-class-form" onSubmit={handleUpdate}>
           <div className="ec-input-group">
-            <label>Class Identifier</label>
-            <input 
-                value={className} 
-                onChange={(e) => setClassName(e.target.value)} 
-                required 
-                placeholder="e.g. CS-4A ML"
+            <label>Class Name</label>
+            <input
+              value={className}
+              onChange={(e) => setClassName(e.target.value)}
+              required
+              placeholder="e.g. CS-4A ML"
             />
           </div>
 

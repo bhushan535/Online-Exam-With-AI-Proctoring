@@ -1,8 +1,8 @@
 import React from "react";
-import { 
-    FaSchool, FaUsers, FaArrowLeft, FaLink, FaCopy, 
-    FaFileExport, FaFileAlt, FaFileUpload, FaEdit, FaTrash, 
-    FaSearch, FaCheckSquare, FaSquare, FaGraduationCap, FaLayerGroup 
+import {
+    FaSchool, FaUsers, FaArrowLeft, FaLink, FaCopy,
+    FaFileExport, FaFileAlt, FaFileUpload, FaEdit, FaTrash,
+    FaSearch, FaCheckSquare, FaSquare, FaGraduationCap, FaLayerGroup
 } from "react-icons/fa";
 
 const OrgClassView = ({
@@ -32,7 +32,7 @@ const OrgClassView = ({
                 <div className="vc-header-visual">
                     <div className="vc-brand-badge">Class Profile</div>
                     <h1>{cls.className}</h1>
-                    <p className="vc-subtitle">Active Academic Cohort</p>
+                    <p className="vc-subtitle">Active Academic Classes</p>
                 </div>
 
                 <div className="vc-info-grid">
@@ -82,7 +82,7 @@ const OrgClassView = ({
             <div className="vc-roster-section glass-premium">
                 <div className="vc-roster-header">
                     <div>
-                        <h3><FaUsers /> Student Roster</h3>
+                        <h3><FaUsers /> Student List</h3>
                         <p>{sortedStudents.length} Students Total</p>
                     </div>
                 </div>

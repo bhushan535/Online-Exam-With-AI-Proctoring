@@ -5,27 +5,27 @@ import { BASE_URL } from '../../../config';
 
 function ExamResults() {
   const { examId } = useParams();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
 
-  const [results,  setResults]  = useState([]);
-  const [exam,     setExam]     = useState(null);
-  const [summary,  setSummary]  = useState(null);
-  const [loading,  setLoading]  = useState(true);
+  const [results, setResults] = useState([]);
+  const [exam, setExam] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [sortMode, setSortMode] = useState("highest");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const eRes  = await fetch(`${BASE_URL}/exams`);
+        const eRes = await fetch(`${BASE_URL}/exams`);
         const exams = await eRes.json();
         const found = Array.isArray(exams) ? exams.find(e => e._id === examId) : null;
         setExam(found || null);
 
-        const rRes  = await fetch(`${BASE_URL}/results/exam/${examId}`);
+        const rRes = await fetch(`${BASE_URL}/results/exam/${examId}`);
         const rData = await rRes.json();
         if (rData.success) setResults(rData.results);
 
-        const sRes  = await fetch(`${BASE_URL}/results/exam/${examId}/summary`);
+        const sRes = await fetch(`${BASE_URL}/results/exam/${examId}/summary`);
         const sData = await sRes.json();
         if (sData.success) setSummary(sData.summary);
       } catch (err) {
@@ -40,8 +40,8 @@ function ExamResults() {
   /* Sorting */
   const sorted = [...results].sort((a, b) => {
     if (sortMode === "highest") return b.score - a.score;
-    if (sortMode === "lowest")  return a.score - b.score;
-    if (sortMode === "rollno")  return (Number(a.rollNo) || 999) - (Number(b.rollNo) || 999);
+    if (sortMode === "lowest") return a.score - b.score;
+    if (sortMode === "rollno") return (Number(a.rollNo) || 999) - (Number(b.rollNo) || 999);
     return 0;
   });
 
@@ -52,17 +52,17 @@ function ExamResults() {
 
   /* Export CSV */
   const exportCSV = () => {
-    const header = ["Roll No","Student Name","Enrollment","Score","Total Marks","%","Grade","Correct","Wrong","Skipped"];
-    const rows   = sorted.map(r => [
+    const header = ["Roll No", "Student Name", "Enrollment", "Score", "Total Marks", "%", "Grade", "Correct", "Wrong", "Skipped"];
+    const rows = sorted.map(r => [
       r.rollNo, r.studentName, r.studentId,
       r.score, r.totalMarks, r.percentage, r.grade,
       r.correct, r.wrong, r.unattempted
     ]);
-    const csv  = [header, ...rows].map(row => row.join(",")).join("\n");
+    const csv = [header, ...rows].map(row => row.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
     a.download = `${exam?.examName || "exam"}_results.csv`;
     a.click();
     URL.revokeObjectURL(url);

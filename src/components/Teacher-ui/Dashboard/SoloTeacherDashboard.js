@@ -23,7 +23,7 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
   const [classes, setClasses] = useState([]);
   const [exams, setExams] = useState([]);
 
-  const appLogo = logo; 
+  const appLogo = logo;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,32 +69,33 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
   }, [token]);
 
   // Search filtering logic (by name or subject)
-  const filteredClasses = classes.filter(c => 
-    c.className?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredClasses = classes.filter(c =>
+    c.className?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.branch?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredExams = exams.filter(e => 
-    e.examName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredExams = exams.filter(e =>
+    e.examName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     e.subject?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (loading) return (
     <div className="solo-dashboard-loading">
-        <div className="loader"></div>
-        <p>Crunching your academic data...</p>
+      <div className="loader"></div>
+      <p>Loading your academic data...</p>
     </div>
   );
 
+  const newLocal = <p>Create </p>;
   return (
     <div className="solo-dashboard-wrapper animate-fade-in">
       {/* Sidebar / Navigation Rail */}
       <div className="solo-side-nav">
         <div className="nav-logo-section">
           <img src={appLogo} alt="Logo" className="solo-app-logo" style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
-          <span className="solo-app-name">SecureExam Pro</span>
+          <span className="solo-app-name">e-ExamEdge</span>
         </div>
-        
+
         <nav className="solo-nav-items">
           <div className="nav-item active" onClick={() => navigate("/")}>
             <FaUserCircle /> <span>Dashboard</span>
@@ -122,9 +123,9 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
 
           <div className="search-discovery-bar">
             <FaSearch className="search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search classes or exams by name..." 
+            <input
+              type="text"
+              placeholder="Search classes or exams by name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -141,7 +142,7 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
               <h2 className="hero-stat-value">{stats.totalStudents}</h2>
             </div>
           </div>
-          
+
           <div className="hero-stat-group">
             <div className="mini-stat">
               <span className="mini-label">Active Classes</span>
@@ -158,7 +159,7 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
         {(searchQuery.length > 0) && (
           <section className="search-results-section animate-slide-up">
             <div className="result-group">
-              <h3>Search Hits</h3>
+              <h3>Search..</h3>
               <div className="results-grid">
                 {filteredClasses.map(c => (
                   <div key={`cls-${c._id}`} className="result-item" onClick={() => navigate(`/class/${c._id}`)}>
@@ -179,7 +180,7 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
                   </div>
                 ))}
                 {filteredClasses.length === 0 && filteredExams.length === 0 && (
-                   <p className="no-results">No matches found for "{searchQuery}"</p>
+                  <p className="no-results">No matches found for "{searchQuery}"</p>
                 )}
               </div>
             </div>
@@ -192,22 +193,22 @@ const SoloTeacherDashboard = ({ user, token, logout }) => {
             <FaPlusCircle className="tile-icon" />
             <div className="tile-text">
               <h3>Start a New Class</h3>
-              <p>Setup your teaching space in seconds.</p>
+              <p>Create your teaching space.</p>
             </div>
           </div>
 
           <div className="action-tile create-exam" onClick={() => navigate("/CreateExam")}>
             <FaPenFancy className="tile-icon" />
             <div className="tile-text">
-              <h3>Design an Exam</h3>
-              <p>Create proctored assessments easily.</p>
+              <h3>Create an Exam</h3>
+              {/* {newLocal} */}
             </div>
           </div>
 
           <div className="action-tile join-link-tile" onClick={() => {
-              const link = `${window.location.origin}/join-class`;
-              navigator.clipboard.writeText(link);
-              alert("Portal link copied to clipboard!");
+            const link = `${window.location.origin}/join-class`;
+            navigator.clipboard.writeText(link);
+            alert("Portal link copied to clipboard!");
           }}>
             <FaLink className="tile-icon" />
             <div className="tile-text">

@@ -1,116 +1,118 @@
-.countdown-page {
+.esc-countdown-page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent;
-  font-family: var(--font-primary);
+  background: var(--bg-dark, #0f172a);
+  font-family: var(--font-primary, 'Inter', sans-serif);
   padding: 20px;
   transition: background 0.3s ease;
 }
 
-.countdown-card {
-  background: var(--bg-card);
-  padding: 32px 40px;
-  border-radius: 24px;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-xl);
+.esc-countdown-card {
+  background: var(--bg-card, #1e293b);
+  padding: 48px 56px;
+  border-radius: 28px;
+  border: 3px solid #000000;
+  box-shadow: 8px 8px 0px #000000;
   text-align: center;
-  max-width: 500px;
+  max-width: 480px;
   width: 100%;
-  animation: pulseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: esc-pulseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes pulseIn {
-  0% { transform: scale(0.95); opacity: 0; }
+@keyframes esc-pulseIn {
+  0% { transform: scale(0.9); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-.countdown-card h2 {
+.esc-countdown-card h2 {
   margin: 0;
-  color: var(--text-main);
-  font-size: 28px;
+  color: var(--text-main, #f8fafc);
+  font-size: 32px;
   font-weight: 900;
   letter-spacing: -1px;
+  text-transform: uppercase;
 }
 
-.countdown-sub {
-  color: var(--text-muted);
+.esc-countdown-sub {
+  color: var(--text-muted, #94a3b8);
   font-size: 16px;
-  font-weight: 500;
-  margin: 8px 0 32px 0;
+  font-weight: 600;
+  margin: 10px 0 36px 0;
 }
 
-.countdown-circle-container {
+.esc-countdown-circle-container {
   position: relative;
   width: 180px;
   height: 180px;
-  margin: 0 auto 32px auto;
+  margin: 0 auto 36px auto;
 }
 
-.countdown-svg {
+.esc-countdown-svg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
 }
 
-.bg-circle {
+.esc-bg-circle {
   fill: none;
-  stroke: var(--bg-dark);
+  stroke: var(--bg-dark, #0f172a);
   stroke-width: 8;
 }
 
-.progress-circle {
+.esc-progress-circle {
   fill: none;
-  stroke: var(--primary-color);
+  stroke: #4ade80;
   stroke-width: 10;
   stroke-linecap: round;
-  stroke-dasharray: 283; /* 2 * PI * 45 */
+  stroke-dasharray: 283;
   transition: stroke-dashoffset 1s linear;
 }
 
-.countdown-number {
+.esc-countdown-number {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 64px;
+  font-size: 72px;
   font-weight: 900;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   line-height: 1;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
 }
 
-.warning-box {
+.esc-warning-box {
   background-color: rgba(245, 158, 11, 0.1);
-  border: 1.5px solid rgba(245, 158, 11, 0.2);
+  border: 2px solid rgba(245, 158, 11, 0.3);
   color: #f59e0b;
-  padding: 20px;
+  padding: 20px 24px;
   border-radius: 16px;
   font-size: 14px;
   line-height: 1.6;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* ── Light Theme Neobrutalist Overrides ── */
-[data-theme='light'] .countdown-card {
-    background: #ffffff;
-    border: 1.5px solid #000000;
-    box-shadow: 4px 4px 0px #000000;
-    border-radius: 28px;
+/* ── Light Theme Overrides ── */
+[data-theme='light'] .esc-countdown-page {
+  background: #f3f4f6;
 }
 
-[data-theme='light'] .countdown-card h2 { color: #000000; }
-[data-theme='light'] .countdown-sub { color: #1f2937; font-weight: 700; }
-
-[data-theme='light'] .countdown-number { color: #000000; }
-
-[data-theme='light'] .bg-circle { stroke: #f1f5f9; }
-[data-theme='light'] .progress-circle { stroke: #000000; stroke-width: 10; }
-
-[data-theme='light'] .warning-box {
-    background-color: #ffffff;
-    border: 1.5px solid #000000;
-    color: #000000;
-    box-shadow: 2px 2px 0px #000000;
+[data-theme='light'] .esc-countdown-card {
+  background: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 8px 8px 0px #000000;
 }
-
+
+[data-theme='light'] .esc-countdown-card h2 { color: #000000; }
+[data-theme='light'] .esc-countdown-sub { color: #374151; }
+[data-theme='light'] .esc-countdown-number { color: #000000; }
+[data-theme='light'] .esc-bg-circle { stroke: #f1f5f9; }
+[data-theme='light'] .esc-progress-circle { stroke: #000000; stroke-width: 10; }
+
+[data-theme='light'] .esc-warning-box {
+  background-color: #fff7ed;
+  border: 2px solid #000000;
+  color: #000000;
+  box-shadow: 3px 3px 0px #000000;
+}

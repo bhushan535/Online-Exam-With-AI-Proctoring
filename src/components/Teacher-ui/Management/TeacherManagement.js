@@ -36,8 +36,8 @@ const TeacherManagement = () => {
 
   useEffect(() => {
     if (token) {
-        fetchTeachers();
-        refreshOrg(); // Ensure branches are up to date
+      fetchTeachers();
+      refreshOrg(); // Ensure branches are up to date
     }
   }, [token]);
 
@@ -111,7 +111,7 @@ const TeacherManagement = () => {
 
   const handleDeleteTeacher = async (teacherId, teacherName) => {
     if (!window.confirm(`Are you absolutely sure you want to delete ${teacherName}? This action is irreversible and will delete their entire profile and account.`)) {
-        return;
+      return;
     }
 
     try {
@@ -119,7 +119,7 @@ const TeacherManagement = () => {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       const data = await res.json();
       if (res.ok && data.success) {
         showToast("Faculty member purged from system", "success");
@@ -137,14 +137,14 @@ const TeacherManagement = () => {
     <div className="teacher-mgmt-container">
       <BackButton to="/TeacherHome" />
       <Toast toasts={toasts} removeToast={removeToast} />
-      
+
       <div className="mgmt-header">
         <div className="header-text">
-            <h2><FaUsers /> Faculty Management</h2>
-            <p>Administer teacher credentials and departmental assignments</p>
+          <h2><FaUsers /> Faculty Management</h2>
+          <p>Administer teacher credentials and departmental assignments</p>
         </div>
         <button className="add-btn-primary" onClick={() => setShowAddModal(true)}>
-          <FaUserPlus /> Onboard New Teacher
+          <FaUserPlus /> Add New Teacher
         </button>
       </div>
 
@@ -163,10 +163,10 @@ const TeacherManagement = () => {
             {teachers.map((t) => (
               <tr key={t.userId?._id}>
                 <td>
-                    <div className="user-cell">
-                        <span className="user-name">{t.userId?.name}</span>
-                        <span className="user-subtext">ID: {t.employeeId || 'N/A'}</span>
-                    </div>
+                  <div className="user-cell">
+                    <span className="user-name">{t.userId?.name}</span>
+                    <span className="user-subtext">ID: {t.employeeId || 'N/A'}</span>
+                  </div>
                 </td>
                 <td>{t.userId?.email}</td>
                 <td>{t.department || <span className="unassigned">General</span>}</td>
@@ -177,24 +177,24 @@ const TeacherManagement = () => {
                 </td>
                 <td>
                   <div className="action-button-group">
-                    <button 
-                      className={`btn-action-icon ${t.userId?.status === 'active' ? 'suspend' : 'activate'}`} 
+                    <button
+                      className={`btn-action-icon ${t.userId?.status === 'active' ? 'suspend' : 'activate'}`}
                       title={t.userId?.status === 'active' ? "Suspend Account" : "Restore Account"}
                       onClick={() => handleToggleStatus(t.userId?._id)}
                     >
-                      <FaUserShield /> 
+                      <FaUserShield />
                       <span>{t.userId?.status === 'active' ? " Suspend" : " Activate"}</span>
                     </button>
-                    <button 
-                      className="btn-action-icon reset" 
+                    <button
+                      className="btn-action-icon reset"
                       title="Reset Password"
                       onClick={() => handleResetPassword(t.userId?._id, t.userId?.name)}
                     >
-                      <FaLock /> 
+                      <FaLock />
                       <span> Reset</span>
                     </button>
-                    <button 
-                      className="btn-action-icon delete" 
+                    <button
+                      className="btn-action-icon delete"
                       title="Delete Faculty Member"
                       onClick={() => handleDeleteTeacher(t.userId?._id, t.userId?.name)}
                     >
@@ -213,57 +213,57 @@ const TeacherManagement = () => {
         <div className="modern-modal-overlay">
           <div className="modern-modal-card">
             <div className="modal-top">
-                <h3>Add New Faculty Member</h3>
-                <button className="close-x" onClick={() => setShowAddModal(false)}><FaTimes /></button>
+              <h3>Add New Faculty Member</h3>
+              <button className="close-x" onClick={() => setShowAddModal(false)}><FaTimes /></button>
             </div>
             <form onSubmit={handleAddTeacher} className="modern-form">
-               <div className="form-grid">
-                  <div className="input-group-v2">
-                    <label>Full Name</label>
-                    <input 
-                        type="text" placeholder="e.g. Dr. John Doe" required 
-                        value={newTeacher.name} onChange={e => setNewTeacher({...newTeacher, name: e.target.value})}
-                    />
-                  </div>
-                  <div className="input-group-v2">
-                    <label>Professional Email</label>
-                    <input 
-                        type="email" placeholder="email@institution.edu" required 
-                        value={newTeacher.email} onChange={e => setNewTeacher({...newTeacher, email: e.target.value})}
-                    />
-                  </div>
-                  <div className="input-group-v2">
-                    <label>Access Password</label>
-                    <input 
-                        type="password" placeholder="••••••••" required 
-                        value={newTeacher.password} onChange={e => setNewTeacher({...newTeacher, password: e.target.value})}
-                    />
-                  </div>
-                  <div className="input-group-v2">
-                    <label>Department</label>
-                    <select 
-                        required
-                        value={newTeacher.department} 
-                        onChange={e => setNewTeacher({...newTeacher, department: e.target.value})}
-                    >
-                        <option value="">Select Branch</option>
-                        {org?.branches?.map(b => (
-                            <option key={b} value={b}>{b}</option>
-                        ))}
-                    </select>
-                  </div>
-                  <div className="input-group-v2">
-                    <label>Employee ID</label>
-                    <input 
-                        type="text" placeholder="EMP-XXXX" 
-                        value={newTeacher.employeeId} onChange={e => setNewTeacher({...newTeacher, employeeId: e.target.value})}
-                    />
-                  </div>
-               </div>
-               
-               <div className="modal-footer-btns">
+              <div className="form-grid">
+                <div className="input-group-v2">
+                  <label>Full Name</label>
+                  <input
+                    type="text" placeholder="e.g. Dr. John Doe" required
+                    value={newTeacher.name} onChange={e => setNewTeacher({ ...newTeacher, name: e.target.value })}
+                  />
+                </div>
+                <div className="input-group-v2">
+                  <label>Professional Email</label>
+                  <input
+                    type="email" placeholder="email@institution.edu" required
+                    value={newTeacher.email} onChange={e => setNewTeacher({ ...newTeacher, email: e.target.value })}
+                  />
+                </div>
+                <div className="input-group-v2">
+                  <label>Access Password</label>
+                  <input
+                    type="password" placeholder="••••••••" required
+                    value={newTeacher.password} onChange={e => setNewTeacher({ ...newTeacher, password: e.target.value })}
+                  />
+                </div>
+                <div className="input-group-v2">
+                  <label>Department</label>
+                  <select
+                    required
+                    value={newTeacher.department}
+                    onChange={e => setNewTeacher({ ...newTeacher, department: e.target.value })}
+                  >
+                    <option value="">Select Branch</option>
+                    {org?.branches?.map(b => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="input-group-v2">
+                  <label>Employee ID</label>
+                  <input
+                    type="text" placeholder="EMP-XXXX"
+                    value={newTeacher.employeeId} onChange={e => setNewTeacher({ ...newTeacher, employeeId: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer-btns">
                 <button type="button" className="btn-secondary" onClick={() => setShowAddModal(false)}>Cancel</button>
-                <button type="submit" className="btn-primary-submit">Register Teacher</button>
+                <button type="submit" className="btn-primary-submit">Add Teacher</button>
               </div>
             </form>
           </div>

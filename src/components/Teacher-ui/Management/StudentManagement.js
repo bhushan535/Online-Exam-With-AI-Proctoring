@@ -125,7 +125,7 @@ const StudentManagement = () => {
 
       <div className="mgmt-header">
         <div className="header-info">
-          <h2><FaUserGraduate /> Student Directory</h2>
+          <h2><FaUserGraduate /> Student Management</h2>
           <p>Comprehensive registry of all students enrolled in the institution</p>
         </div>
         <div className="header-actions-premium">

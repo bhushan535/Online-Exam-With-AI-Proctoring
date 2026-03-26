@@ -5,6 +5,7 @@ import useToast from "../../Common/useToast";
 import PopupModal from "../../Common/PopupModal";
 import "./AttemptExamPage.css";
 import ProctoringEngine from "../../../proctoring/ProctoringEngine";
+import { getStrikes } from "../../../proctoring/rules/StrikeManager";
 import { useAuth } from "../../../context/AuthContext";
 import axios from "axios";
 
@@ -139,12 +140,8 @@ function AttemptExamPage() {
   }, [submitExam]);
 
   const handleProctorWarning = useCallback((event) => {
-    // Increment warning count for UI
-    if (event?.severity === "medium") {
-      setWarningCount(prev => prev + 1);
-    } else if (event?.severity === "high") {
-      setWarningCount(prev => prev + 2);
-    }
+    // Sync warning count from StrikeManager (single source of truth for auto-submit)
+    setWarningCount(getStrikes());
     showToast(`⚠️ Proctoring Warning: ${event?.type?.replace(/_/g, " ") || "Please focus on the exam."}`, "warning");
   }, [showToast]);
 

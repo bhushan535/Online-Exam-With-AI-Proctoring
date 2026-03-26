@@ -26,7 +26,7 @@ function FrontPage() {
                         <span>With AI Proctoring</span>
                     </h1>
                     <p className="hero-subtitle">
-                        A sophisticated, secure, and seamless platform for modern educational institutions to conduct high-integrity digital assessments.
+                        A sophisticated, secure, and seamless platform for modern educational institutions to conduct high-integrity digital exams.
                     </p>
                 </div>
 
@@ -34,7 +34,7 @@ function FrontPage() {
                     <Link to="/StudentLogin" className="role-card glass-card">
                         <div className="card-icon student"><FaUserGraduate /></div>
                         <h3>Student Login</h3>
-                        <p>Access your scheduled assessments and view detailed performance metrics.</p>
+                        <p>Access your scheduled Exam and view Results.</p>
                         <div className="card-footer">Give Exam<FaArrowRight /></div>
                     </Link>
 
@@ -49,12 +49,12 @@ function FrontPage() {
                         <div className="card-icon org"><FaUniversity /></div>
                         <h3>Organization Login</h3>
                         <p>Configure organizational protocols, manage faculty, and overview institution analytics.</p>
-                        <div className="card-footer">Handle Organization <FaArrowRight /></div>
+                        <div className="card-footer">Manage Organization <FaArrowRight /></div>
                     </Link>
                 </div>
 
                 <div className="front-footer-cta">
-                    <p>New to the SecureExam ecosystem?</p>
+                    <p>New to the e-ExamEdge?</p>
                     <Link to="/signup" className="cta-link">
                         Register your account here <FaArrowRight />
                     </Link>

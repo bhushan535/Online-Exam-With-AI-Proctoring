@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import ViolationFlash from "./ViolationFlash";
 
-export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, lastViolation }) {
+export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, lastViolation, proctoringStatus = "initializing" }) {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [popupSeverity, setPopupSeverity] = useState(null);
@@ -21,10 +21,7 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
       }
     };
 
-    // Check every 500ms until synced
     const syncInterval = setInterval(syncVideo, 500);
-    
-    // Also try immediately
     syncVideo();
 
     return () => clearInterval(syncInterval);
@@ -35,7 +32,7 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
     if (!lastViolation) return;
 
     setFlashSeverity(lastViolation.severity);
-    setTimeout(() => setFlashSeverity(null), 100); // Reset immediately so next triggers
+    setTimeout(() => setFlashSeverity(null), 100);
 
     if (lastViolation.severity === "medium") {
       setPopupSeverity("medium");
@@ -71,7 +68,7 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
 
   return (
     <>
-      {/* CSS for pulsing animation */}
+      {/* CSS for animations */}
       <style>
         {`
           @keyframes pulse {
@@ -87,7 +84,7 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
           .pulse-dot {
             animation: pulse 1.5s infinite;
           }
-          .scan-line {
+          .proctor-scan-line {
             position: absolute;
             width: 100%;
             height: 2px;
@@ -100,26 +97,25 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
         `}
       </style>
 
-      {/* 2. Self-View Circle (lower left) */}
+      {/* Self-View Camera Circle — bottom-left, above the bottom nav bar */}
       <div style={{
         position: "fixed",
-        bottom: "34px",
-        left: "34px", // Moved to left to avoid blocking Submit button
+        bottom: "80px",     /* Above the bottom nav bar (which is ~60px) */
+        left: "20px",
         zIndex: 9999,
         backgroundColor: "#FFFFFF",
         borderRadius: "50%",
-        border: "4px solid #171717",
-        width: "110px",
-        height: "110px",
+        border: "3px solid #171717",
+        width: "90px",
+        height: "90px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         pointerEvents: "none",
-        boxShadow: "8px 8px 0px #171717",
+        boxShadow: "5px 5px 0px #171717",
         overflow: "hidden",
-        transform: "rotate(-2deg)" 
       }}>
-        <div className="scan-line" />
+        <div className="proctor-scan-line" />
         <video 
           ref={mirrorVideoRef}
           autoPlay 
@@ -135,38 +131,38 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
         />
         <div style={{
           position: "absolute",
-          bottom: "4px",
+          bottom: "3px",
           left: "50%",
           transform: "translateX(-50%)",
           backgroundColor: "#171717",
-          padding: "2px 10px",
-          borderRadius: "8px",
+          padding: "1px 8px",
+          borderRadius: "6px",
           border: "1px solid white",
           whiteSpace: "nowrap"
         }}>
            <span style={{ 
-            fontSize: "7px", 
+            fontSize: "6px", 
             fontWeight: "900", 
-            color: "#FFFFFF", 
+            color: proctoringStatus === "active" ? "#4ade80" : "#FFE66D", 
             textTransform: "uppercase",
-            letterSpacing: "1px"
+            letterSpacing: "0.5px"
           }}>
-            AI: ACTIVE
+            {proctoringStatus === "active" ? "AI: ACTIVE" : "INITIALIZING..."}
           </span>
         </div>
       </div>
 
-      {/* 3. Violation Flash */}
+      {/* Violation Flash Banner (renders below header) */}
       <ViolationFlash severity={flashSeverity} />
 
-    {/* 4. Notification Card (center) */}
+      {/* Notification Card (center) */}
       {showPopup && (
         <div style={{
           position: "fixed",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          zIndex: 10002, // Top of hierarchy
+          zIndex: 10002,
           backgroundColor: popupSeverity === "high" ? "#FFACAC" : "#FFE66D",
           color: "#000000",
           border: "4px solid #000000",
@@ -176,7 +172,8 @@ export default function ProctoringOverlay({ videoRef, warningCount, maxStrikes, 
           textAlign: "center",
           fontFamily: "'Outfit', sans-serif",
           pointerEvents: "none",
-          minWidth: "350px"
+          minWidth: "350px",
+          maxWidth: "90vw"
         }}>
           <div style={{ fontSize: "40px", marginBottom: "16px" }}>
             {popupSeverity === "high" ? "🚫" : "⚠️"}

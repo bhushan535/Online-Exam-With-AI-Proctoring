@@ -48,7 +48,7 @@ function TeacherLogin() {
             <FaShieldAlt />
           </div>
           <h2>{roleParam === 'principal' ? 'Organization Login' : 'Faculty Access'}</h2>
-          <p>Enter your credentials to access the console</p>
+          <p>Enter your credentials to access the Teacher Dashboard</p>
         </div>
 
         <div className="login-form">
@@ -105,7 +105,7 @@ function TeacherLogin() {
         <div className="login-footer-links">
           <Link to={`/forgot-password?role=${roleParam || 'teacher'}`}>Forgot Password?</Link>
           <span style={{ margin: "0 10px" }}>|</span>
-          <Link to="/signup">Register institution</Link>
+          <Link to="/signup">Register ?</Link>
         </div>
       </div>
     </div>

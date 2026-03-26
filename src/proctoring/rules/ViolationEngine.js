@@ -9,7 +9,9 @@ function emitOnce(event, config) {
   const lastTime = state.lastEmit[event.type] || 0;
   let cooldown = 0;
 
-  if (event.severity === "medium") {
+  if (event.severity === "low") {
+    cooldown = config.violations.lowCooldownMs || 15000;
+  } else if (event.severity === "medium") {
     cooldown = config.violations.mediumCooldownMs;
   } else if (event.severity === "high") {
     cooldown = config.violations.highCooldownMs;
@@ -32,7 +34,7 @@ export function processViolation(event, config) {
         state.noFaceStart = now;
       }
       if (now - state.noFaceStart >= config.face.noFaceThresholdMs) {
-        return emitOnce(event, config);
+        return emitOnce({ ...event, severity: "medium" }, config);
       }
       return null;
 
@@ -47,29 +49,34 @@ export function processViolation(event, config) {
       return emitOnce({ ...event, severity: "medium" }, config);
 
     case "looking_down":
-      return emitOnce({ ...event, severity: "high" }, config);
+      // Low severity — log only, no strike
+      return emitOnce({ ...event, severity: "low" }, config);
 
     case "gaze_away":
       return emitOnce({ ...event, severity: "medium" }, config);
 
     case "object_detected":
-      return emitOnce(event, config);
+      // Phone = high (+2 strikes), Book = high (+2 strikes)
+      return emitOnce({ ...event, severity: "high" }, config);
 
     case "tab_switch":
       state.tabSwitchCount++;
-      return emitOnce({ 
-        ...event, 
-        severity: state.tabSwitchCount >= 3 ? "high" : "medium" 
+      return emitOnce({
+        ...event,
+        severity: state.tabSwitchCount >= 3 ? "high" : "medium"
       }, config);
 
     case "audio_detected":
-      return emitOnce({ ...event, severity: "medium" }, config);
+      // Severity is set by audioRules.js (medium for sustained noise)
+      return emitOnce({ ...event, severity: event.severity || "medium" }, config);
 
     case "fullscreen_exit":
       return event;
 
-    case "keyboard_cheat":
     case "clipboard_paste":
+      return emitOnce({ ...event, severity: "medium" }, config);
+
+    case "keyboard_cheat":
     case "multi_monitor":
     case "devtools_open":
       return emitOnce({ ...event, severity: "medium" }, config);
