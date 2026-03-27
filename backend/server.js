@@ -5,6 +5,10 @@ const cors = require("cors");
 
 const app = express();
 
+// Trust proxy — important for express-rate-limit when behind Render/Vercel
+app.set("trust proxy", 1);
+
+// CORS — allow localhost + Vercel domain
 app.use(cors({
   origin: [
     "http://localhost:3000",
@@ -13,15 +17,6 @@ app.use(cors({
   ],
   credentials: true
 }));
-// CORS — allow localhost + Vercel domain
-// app.use(cors({
-//   origin: [
-//     "http://localhost:3000",
-//     "http://127.0.0.1:3000",
-//     e-exam-edge.vercel.app      // allow all *.vercel.app subdomains
-//   ],
-//   credentials: true
-// }));
 app.get("/", (req, res) => {
   res.send("e-ExamEdge Backend Running");
 });

@@ -99,11 +99,11 @@ const Registration = ({ role, mode }) => {
             </div>
 
             <div className="reg-input-group">
-              <label><FaEnvelope /> Institutional Email</label>
+              <label><FaEnvelope /> Official Email</label>
               <input
                 type="email"
                 name="email"
-                placeholder="name@institution.edu"
+                placeholder="name@organization.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -144,7 +144,7 @@ const Registration = ({ role, mode }) => {
                   <input
                     type="text"
                     name="orgName"
-                    placeholder="Official Institution Name"
+                    placeholder="Official Organization Name"
                     value={formData.orgName}
                     onChange={handleChange}
                     required
