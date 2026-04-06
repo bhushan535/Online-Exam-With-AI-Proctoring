@@ -3,6 +3,9 @@ const router = express.Router();
 const Result = require("../models/Result");
 const Exam = require("../models/Exam");
 const Class = require("../models/Class");
+const ProctorLog = require("../models/ProctorLog");
+const ExamAccess = require("../models/ExamAccess");
+const { authenticate } = require('../middleware/auth');
 
 /* ── GET all results for one student (enriched with exam details) ── */
 router.get("/results/student/:studentId", async (req, res) => {
@@ -116,6 +119,51 @@ router.get("/results/exam/:examId/summary", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ── DELETE a student's result + proctor logs for re-attempt ── */
+router.delete("/results/exam/:examId/student/:studentId", authenticate, async (req, res) => {
+  try {
+    const { examId, studentId } = req.params;
+
+    // 1. Verify exam exists
+    const exam = await Exam.findById(examId);
+    if (!exam) {
+      return res.status(404).json({ success: false, message: "Exam not found" });
+    }
+
+    // 2. Auth check — only the teacher who created/owns the exam
+    const userId = req.userId || (req.user && req.user._id);
+    const isCreator = exam.createdBy && exam.createdBy.toString() === userId.toString();
+    const isOwner = exam.teacherId && exam.teacherId.toString() === userId.toString();
+    if (!isCreator && !isOwner && req.userRole !== 'principal') {
+      return res.status(403).json({ success: false, message: "Only the exam creator can allow re-attempts" });
+    }
+
+    // 3. Delete result
+    const resultDel = await Result.deleteMany({ examId, studentId });
+
+    // 4. Delete proctoring logs
+    const logsDel = await ProctorLog.deleteMany({ examId, studentId });
+
+    // 5. Reset exam access code so student can re-enter
+    await ExamAccess.updateMany(
+      { examId, studentId },
+      { $set: { used: false } }
+    );
+
+    console.log(`[RE-ATTEMPT] Cleared result (${resultDel.deletedCount}) and logs (${logsDel.deletedCount}) for student ${studentId} on exam ${examId}`);
+
+    res.json({
+      success: true,
+      message: "Student's result and proctoring logs deleted. They can now re-attempt the exam.",
+      deletedResults: resultDel.deletedCount,
+      deletedLogs: logsDel.deletedCount
+    });
+  } catch (err) {
+    console.error("RE-ATTEMPT DELETE ERROR:", err);
+    res.status(500).json({ success: false, message: "Failed to process re-attempt: " + err.message });
   }
 });
 

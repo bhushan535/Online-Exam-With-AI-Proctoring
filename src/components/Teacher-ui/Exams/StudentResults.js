@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Toast from "../../Common/Toast";
 import useToast from "../../Common/useToast";
+import PopupModal from "../../Common/PopupModal";
 import ProctorLogsModal from "../Shared/ProctorLogsModal";
+import { useAuth } from "../../../context/AuthContext";
 import "./StudentResults.css";
 import { BASE_URL } from '../../../config';
 
 function StudentResults() {
   const { examId } = useParams();
   const navigate   = useNavigate();
+  const { token }  = useAuth();
 
   const [exam,     setExam]     = useState(null);
   const [results,  setResults]  = useState([]);
@@ -17,6 +20,7 @@ function StudentResults() {
   const [sortMode, setSortMode] = useState("highest");
   const [showLogsModal, setShowLogsModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [reattemptModal, setReattemptModal] = useState({ open: false, studentId: null, studentName: "" });
   const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
@@ -73,6 +77,46 @@ function StudentResults() {
     link.click();
     document.body.removeChild(link);
     showToast("Results exported!", "success");
+  };
+
+  /* Re-attempt: delete student result + proctor logs */
+  const handleReattempt = async (studentId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/results/exam/${examId}/student/${studentId}`, {
+        method: "DELETE",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        // Remove from local state
+        const updatedResults = results.filter(r => r.studentId !== studentId);
+        setResults(updatedResults);
+
+        // Recompute summary from remaining results
+        if (updatedResults.length > 0) {
+          const scores = updatedResults.map(r => r.score);
+          const totalMarks = updatedResults[0].totalMarks;
+          const passed = updatedResults.filter(r => r.percentage >= 40).length;
+          setSummary({
+            totalAttempted: updatedResults.length,
+            avgScore: +((scores.reduce((a, b) => a + b, 0) / updatedResults.length).toFixed(2)),
+            highest: Math.max(...scores),
+            lowest: Math.min(...scores),
+            passRate: +((passed / updatedResults.length * 100).toFixed(1)),
+            totalMarks,
+          });
+        } else {
+          setSummary({ totalAttempted: 0, avgScore: 0, highest: 0, lowest: 0, passRate: 0, totalMarks: summary?.totalMarks || 0 });
+        }
+
+        showToast(data.message || "Student can now re-attempt the exam.", "success");
+      } else {
+        showToast(data.message || "Failed to allow re-attempt.", "error");
+      }
+    } catch (err) {
+      console.error("Re-attempt error:", err);
+      showToast("Network error during re-attempt.", "error");
+    }
   };
 
   if (loading) return (
@@ -135,7 +179,7 @@ function StudentResults() {
               <tr>
                 <th>Roll No</th><th>Student Name</th><th>Enrollment</th>
                 <th>Score</th><th>%</th><th>Grade</th>
-                <th>Correct</th><th>Wrong</th><th>Skipped</th><th>Result</th><th>Proctor Logs</th>
+                <th>Correct</th><th>Wrong</th><th>Skipped</th><th>Result</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -151,12 +195,18 @@ function StudentResults() {
                   <td className="er-wrong">{r.wrong}</td>
                   <td className="er-skip">{r.unattempted}</td>
                   <td><span className={r.percentage >= 40 ? "er-pass-tag" : "er-fail-tag"}>{r.percentage >= 40 ? "Pass" : "Fail"}</span></td>
-                  <td>
+                  <td className="er-actions-cell">
                     <button 
                       className="er-view-logs-btn"
                       onClick={() => { setSelectedStudent({ id: r.studentId, name: r.studentName }); setShowLogsModal(true); }}
                     >
                       View Logs
+                    </button>
+                    <button 
+                      className="er-reattempt-btn"
+                      onClick={() => setReattemptModal({ open: true, studentId: r.studentId, studentName: r.studentName })}
+                    >
+                      Re-attempt
                     </button>
                   </td>
                 </tr>
@@ -172,6 +222,20 @@ function StudentResults() {
         examId={examId}
         studentId={selectedStudent?.id}
         studentName={selectedStudent?.name}
+      />
+
+      <PopupModal
+        isOpen={reattemptModal.open}
+        type="warning"
+        title="Allow Re-attempt?"
+        message={`Are you sure? This will delete ${reattemptModal.studentName}'s result and proctoring logs. They can then retake the exam.`}
+        confirmText="Yes, Allow Re-attempt"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          await handleReattempt(reattemptModal.studentId);
+          setReattemptModal({ open: false, studentId: null, studentName: "" });
+        }}
+        onCancel={() => setReattemptModal({ open: false, studentId: null, studentName: "" })}
       />
     </div>
   );

@@ -318,6 +318,48 @@
   background: #ffffff; color: #000000; box-shadow: 4px 4px 0px #ffffff;
 }
 
+/* Actions Cell */
+.er-actions-cell {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Re-attempt Button */
+.er-reattempt-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 2px solid #ef4444;
+  background: transparent;
+  color: #ef4444;
+  box-shadow: 2px 2px 0px rgba(239, 68, 68, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .er-reattempt-btn {
+  border-color: #f87171;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: 2px 2px 0px rgba(248, 113, 113, 0.25);
+}
+
+.er-reattempt-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(239, 68, 68, 0.4);
+}
+[data-theme='dark'] .er-reattempt-btn:hover {
+  background: #f87171;
+  color: #000000;
+  box-shadow: 4px 4px 0px rgba(248, 113, 113, 0.35);
+}
+
 /* ── Empty State ── */
 .er-empty {
   background: var(--glass-bg);

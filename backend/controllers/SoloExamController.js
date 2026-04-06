@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const Exam = require("../models/Exam");
 const Question = require("../models/Question");
+const Result = require("../models/Result");
+const ProctorLog = require("../models/ProctorLog");
+const ExamAccess = require("../models/ExamAccess");
 const TeacherProfile = require("../models/TeacherProfile");
 
 /**
@@ -53,9 +56,15 @@ class SoloExamController {
       
       console.log(`[SOLO TEACHER MODE] Deletion Initiated:`, logMetadata);
 
-      // 4. Database Transaction Step
-      // Cascade delete triggers via Mongoose middleware 'findOneAndDelete' hook in Exam model.
-      // This ensures referential integrity as defined in requirements.
+      // 4. Database Transaction Step: Explicit cascade delete
+      // Mongoose pre-hooks are unreliable inside transactions, so we delete related data explicitly.
+      await Promise.all([
+        Question.deleteMany({ examId }).session(session),
+        Result.deleteMany({ examId }).session(session),
+        ProctorLog.deleteMany({ examId }).session(session),
+        ExamAccess.deleteMany({ examId }).session(session)
+      ]);
+
       await Exam.findOneAndDelete({ _id: examId, createdBy: userId }).session(session);
 
       // 5. Application-Level Deletion Step: Sync profile

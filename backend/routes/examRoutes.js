@@ -6,6 +6,8 @@ const Exam = require("../models/Exam");
 const ExamAccess = require("../models/ExamAccess");
 const Class = require("../models/Class");
 const Question = require("../models/Question");
+const Result = require("../models/Result");
+const ProctorLog = require("../models/ProctorLog");
 const Subject = require("../models/Subject");
 const { authenticate } = require('../middleware/auth');
 
@@ -547,7 +549,14 @@ router.delete("/exams/:id", authenticate, async (req, res) => {
       return res.status(403).json({ success: false, message: "Only creator or organization principal can delete this exam" });
     }
 
-    // findOneAndDelete triggers the pre-hook in Exam.js for cascade delete
+    // Explicit cascade delete — Mongoose pre-hooks are unreliable inside transactions
+    await Promise.all([
+      Question.deleteMany({ examId }).session(session),
+      Result.deleteMany({ examId }).session(session),
+      ProctorLog.deleteMany({ examId }).session(session),
+      ExamAccess.deleteMany({ examId }).session(session),
+    ]);
+
     await Exam.findByIdAndDelete(examId).session(session);
 
     // Sync metadata to TeacherProfile
