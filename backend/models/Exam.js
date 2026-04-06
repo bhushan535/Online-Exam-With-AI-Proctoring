@@ -142,31 +142,8 @@ isArchived: {
 {timestamps:true}
 );
 
-// Cascade delete related records when an exam is deleted
-examSchema.pre('findOneAndDelete', async function (next) {
-  try {
-    const examId = this.getQuery()._id;
-    if (!examId) return next();
-
-    const Question = mongoose.model("Question");
-    const Result = mongoose.model("Result");
-    const ProctorLog = mongoose.model("ProctorLog");
-    const ExamAccess = mongoose.model("ExamAccess");
-
-    // Atomic cascade delete (best effort at DB level)
-    await Promise.all([
-      Question.deleteMany({ examId }),
-      Result.deleteMany({ examId }),
-      ProctorLog.deleteMany({ examId }),
-      ExamAccess.deleteMany({ examId })
-    ]);
-
-    console.log(`[CASCADE DELETE] Automatically removed questions, results, logs, and access codes for exam ${examId}`);
-    next();
-  } catch (err) {
-    console.error(`[CASCADE DELETE ERROR] Failed for exam ${this.getQuery()._id}:`, err);
-    next(err);
-  }
-});
+// NOTE: Cascade deletes (questions, results, proctorLogs, accessCodes) are handled
+// explicitly in examRoutes.js and SoloExamController.js within transactions.
+// Do NOT add a pre-hook here — it runs without session context and breaks transactions.
 
 module.exports = mongoose.model("Exam",examSchema);
